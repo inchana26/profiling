@@ -4,8 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import "./consent.css";
-import Sidebar from "../components/sidebar/sidebar";
-import Header from "../components/header/header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
 
 
 type IconImageProps = {

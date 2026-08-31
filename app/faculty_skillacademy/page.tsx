@@ -14,8 +14,8 @@ import {
 } from "libphonenumber-js/max";
 import examples from "libphonenumber-js/examples.mobile.json";
 import "./fskillacademy.css";
-import Sidebar from "../components/sidebar/sidebar";
-import Header from "../components/header/header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
 const images = {
   profile: "/assets/funiversityimages/profile.png",
 

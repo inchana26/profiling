@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import "./institutionadmin.css";
-import Sidebar from "../components/sidebar/sidebar";
-import Header from "../components/header/header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
 const images = {
   profile: "/assets/institutionimages/profile.png",
 

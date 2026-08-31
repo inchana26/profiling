@@ -13,8 +13,8 @@ import {
 type PhoneCountry = ReturnType<typeof getCountries>[number];
 import phoneExamples from "libphonenumber-js/examples.mobile.json";
 import flags from "react-phone-number-input/flags";
-import Sidebar from "../components/sidebar/sidebar";
-import Header from "../components/header/header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
 import "./platformadmin.css";
 
 type IconImageProps = {

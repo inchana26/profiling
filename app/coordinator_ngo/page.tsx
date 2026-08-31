@@ -4,8 +4,8 @@ import Image from "next/image";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { City } from "country-state-city";
 import "./ngo.css";
-import Sidebar from "../components/sidebar/sidebar";
-import Header from "../components/header/header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
 
 const images = {
   profile: "/assets/institutionimages/profile.png",
