@@ -76,7 +76,7 @@ export default function Sidebar() {
 
       <div className="logoArea">
         <Image
-          src="/assets/superadminimages/logo.png"
+          src="/assets/superadminicons/logo.png"
           alt="Neuro LXP"
           width={150}
           height={70}

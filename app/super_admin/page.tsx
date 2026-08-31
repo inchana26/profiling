@@ -1231,7 +1231,7 @@ const GovernmentIdField = ({
         <div className="governmentIdFileColumn">
           <button
             type="button"
-            className="chooseFileButton"
+            className={`chooseFileButton ${fileName ? "chooseFileButtonUploaded" : ""}`}
             disabled={!editing}
             onClick={() => {
               if (!editing) return;
@@ -1249,7 +1249,7 @@ const GovernmentIdField = ({
             >
               <path
                 d="M12 16V4M12 4L7.5 8.5M12 4L16.5 8.5M5 14.5V19H19V14.5"
-                stroke="#235F07"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

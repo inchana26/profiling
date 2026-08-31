@@ -561,9 +561,9 @@ button {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  color: #235F07;
+  color: #2F3547;
   background: #DFE6E9;
-  border: 1px solid #6D9D54;
+  border: 1px solid transparent;
   border-radius: 7px;
   box-shadow:
     -4px -4px 8px #FFFFFF,
@@ -576,6 +576,11 @@ button {
 .chooseFileButton:disabled {
   opacity: .7;
   cursor: default;
+}
+
+.chooseFileButton.chooseFileButtonUploaded {
+  color: #235F07 !important;
+  border-color: #6D9D54 !important;
 }
 
 .fileNameText {
@@ -4617,4 +4622,72 @@ input:focus-visible,
   .officeLocationMainButton > .officeLocationChevron {
     top: calc(50% - 4px) !important;
   }
+}
+
+/* =========================================================
+   MOBILE OFFICE LOCATION — REMOVE DOUBLE COUNTRY SEARCH
+   Same behavior as webpage/desktop
+   ========================================================= */
+@media (max-width: 700px) {
+  .officeLocationOptionsPanel {
+    position: absolute !important;
+    left: 0 !important;
+    top: 32px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    margin-bottom: 0 !important;
+    z-index: 330 !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   CHOOSE FILE — SAME UPLOAD STATE FIX
+   No size, spacing, layout, shadow, or other design changes.
+   ========================================================================== */
+
+/* Before upload — keep existing icon unchanged */
+.chooseFileButton:not(.chooseFileButtonUploaded) img {
+  filter: none;
+}
+
+/* After upload — make existing upload icon green */
+.chooseFileButton.chooseFileButtonUploaded img {
+  filter: brightness(0) saturate(100%) invert(31%) sepia(43%) saturate(1090%) hue-rotate(57deg) brightness(89%) contrast(96%);
+}
+
+
+/* ==========================================================================
+   CHOOSE FILE — FINAL COLOR STATE FIX
+   No width, height, padding, font-size, spacing, shadow or layout changes.
+   ========================================================================== */
+
+/* BEFORE upload: normal dark text, dark icon, no green border.
+   Keep the same appearance even when the control is disabled. */
+.chooseFileButton,
+.chooseFileButton:disabled,
+.chooseFileButton:not(.chooseFileButtonUploaded) {
+  color: #2F3547 !important;
+  border-color: transparent !important;
+  opacity: 1 !important;
+}
+
+.chooseFileButton img,
+.chooseFileButton:disabled img,
+.chooseFileButton:not(.chooseFileButtonUploaded) img {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(10%) saturate(742%) hue-rotate(184deg) brightness(92%) contrast(87%) !important;
+  opacity: 1 !important;
+}
+
+/* AFTER upload only: green text + green border + green icon */
+.chooseFileButton.chooseFileButtonUploaded {
+  color: #235F07 !important;
+  border-color: #6D9D54 !important;
+  opacity: 1 !important;
+}
+
+.chooseFileButton.chooseFileButtonUploaded img {
+  filter: brightness(0) saturate(100%) invert(31%) sepia(43%) saturate(1090%) hue-rotate(57deg) brightness(89%) contrast(96%) !important;
+  opacity: 1 !important;
 }

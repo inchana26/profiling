@@ -428,7 +428,7 @@ const OfficeLocationField = ({
           role="dialog"
           aria-label="Office Location"
         >
-          <div className="officeLocationSelectorGroup">
+          <div className={`officeLocationSelectorGroup ${activeList === "country" ? "officeLocationSelectorGroupOpen" : ""}`}>
             <div className="officeLocationSelectorLabel">Country/ Region</div>
             <button
               type="button"
@@ -529,7 +529,7 @@ const OfficeLocationField = ({
             )}
           </div>
 
-          <div className="officeLocationSelectorGroup">
+          <div className={`officeLocationSelectorGroup ${activeList === "state" ? "officeLocationSelectorGroupOpen" : ""}`}>
             <div className="officeLocationSelectorLabel">State/Province</div>
             <button
               type="button"
@@ -611,7 +611,7 @@ const OfficeLocationField = ({
             )}
           </div>
 
-          <div className="officeLocationSelectorGroup">
+          <div className={`officeLocationSelectorGroup ${activeList === "city" ? "officeLocationSelectorGroupOpen" : ""}`}>
             <div className="officeLocationSelectorLabel">City</div>
             <button
               type="button"
@@ -714,6 +714,51 @@ const OfficeLocationField = ({
   );
 };
 
+const RECOMMENDED_UPLOAD_ACCEPT =
+  ".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.ppt,.pptx,.mp3,.aac,.mp4,.zip,.xlsx,.vtt,.srt";
+
+const getRecommendedUploadLimit = (file: File) => {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+
+  if (["jpg", "jpeg", "png", "webp"].includes(extension)) {
+    return { maxBytes: 2 * 1024 * 1024, label: "Image", sizeText: "2 MB" };
+  }
+
+  if (extension === "pdf") {
+    return { maxBytes: 25 * 1024 * 1024, label: "PDF", sizeText: "25 MB" };
+  }
+
+  if (["doc", "docx"].includes(extension)) {
+    return { maxBytes: 10 * 1024 * 1024, label: "DOC/DOCX", sizeText: "10 MB" };
+  }
+
+  if (["ppt", "pptx"].includes(extension)) {
+    return { maxBytes: 30 * 1024 * 1024, label: "PPT/PPTX", sizeText: "30 MB" };
+  }
+
+  if (["mp3", "aac"].includes(extension)) {
+    return { maxBytes: 20 * 1024 * 1024, label: "Audio", sizeText: "20 MB" };
+  }
+
+  if (extension === "mp4") {
+    return { maxBytes: 500 * 1024 * 1024, label: "Video", sizeText: "500 MB" };
+  }
+
+  if (extension === "zip") {
+    return { maxBytes: 300 * 1024 * 1024, label: "ZIP", sizeText: "300 MB" };
+  }
+
+  if (extension === "xlsx") {
+    return { maxBytes: 5 * 1024 * 1024, label: "XLSX", sizeText: "5 MB" };
+  }
+
+  if (["vtt", "srt"].includes(extension)) {
+    return { maxBytes: 500 * 1024, label: "VTT/SRT", sizeText: "500 KB" };
+  }
+
+  return null;
+};
+
 type FileFieldProps = {
   id: string;
   label: string;
@@ -747,7 +792,7 @@ const FileField = ({
         {enabled ? (
           <button
             type="button"
-            className="chooseFileButton"
+            className={`chooseFileButton ${fileName ? "chooseFileButtonUploaded" : ""}`}
             onClick={() =>
               (document.getElementById(id) as HTMLInputElement | null)?.click()
             }
@@ -762,7 +807,7 @@ const FileField = ({
           </button>
         ) : (
           <span
-            className="chooseFileButton chooseFileButtonDisabled"
+            className={`chooseFileButton chooseFileButtonDisabled ${fileName ? "chooseFileButtonUploaded" : ""}`}
             aria-hidden="true"
           >
             <IconImage
@@ -784,7 +829,7 @@ const FileField = ({
             id={id}
             className="nativeFileInput"
             type="file"
-            accept="image/*"
+            accept={RECOMMENDED_UPLOAD_ACCEPT}
             onChange={(event) => {
               const file = event.target.files?.[0] ?? null;
 
@@ -793,11 +838,20 @@ const FileField = ({
                 return;
               }
 
-              const MAX_FILE_SIZE = 50 * 1024;
+              const uploadLimit = getRecommendedUploadLimit(file);
 
-              if (file.size > MAX_FILE_SIZE) {
+              if (!uploadLimit) {
                 onFileSizeError?.(
-                  `${label} image must be 50 KB or less.`
+                  "Please choose only a recommended file type."
+                );
+                event.target.value = "";
+                onChange(null);
+                return;
+              }
+
+              if (file.size > uploadLimit.maxBytes) {
+                onFileSizeError?.(
+                  `${uploadLimit.label} recommended upload size is up to ${uploadLimit.sizeText}.`
                 );
                 event.target.value = "";
                 onChange(null);
@@ -941,6 +995,8 @@ const RaisedDropdown = ({
 
 export default function PlatformAdminProfilePage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
+  const registrationCardRef = useRef<HTMLElement>(null);
+  const basicInformationCardRef = useRef<HTMLElement>(null);
 
   const [showDraftSaved, setShowDraftSaved] = useState(false);
   const [draftSavedTime, setDraftSavedTime] = useState("");
@@ -988,12 +1044,16 @@ export default function PlatformAdminProfilePage() {
   >(null);
   const [registrationValidationError, setRegistrationValidationError] =
     useState<string | null>(null);
+  const [registrationStepMessage, setRegistrationStepMessage] =
+    useState<string | null>(null);
 
   const [isBasicEditing, setIsBasicEditing] = useState(false);
   const [basicStatus, setBasicStatus] = useState<
     "saved" | "discarded" | null
   >(null);
   const [basicUploadError, setBasicUploadError] = useState("");
+  const [basicStepMessage, setBasicStepMessage] =
+    useState<string | null>(null);
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
   const [isJoiningCalendarOpen, setIsJoiningCalendarOpen] = useState(false);
   const [joiningCalendarMonth, setJoiningCalendarMonth] = useState(() => {
@@ -1077,6 +1137,16 @@ export default function PlatformAdminProfilePage() {
     window.setTimeout(() => setBasicUploadError(""), 2500);
   };
 
+  const showRegistrationStepMessage = (message: string) => {
+    setRegistrationStepMessage(message);
+    window.setTimeout(() => setRegistrationStepMessage(null), 2500);
+  };
+
+  const showBasicStepMessage = (message: string) => {
+    setBasicStepMessage(message);
+    window.setTimeout(() => setBasicStepMessage(null), 2500);
+  };
+
   const openProfileImagePicker = () => {
     profileImageInputRef.current?.click();
   };
@@ -1091,10 +1161,10 @@ export default function PlatformAdminProfilePage() {
       return;
     }
 
-    const MAX_IMAGE_SIZE = 50 * 1024;
+    const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
     if (file.size > MAX_IMAGE_SIZE) {
-      showBasicUploadError("Profile Photo image must be 50 KB or less.");
+      showBasicUploadError("Profile Photo recommended image size is up to 2 MB.");
       event.target.value = "";
       return;
     }
@@ -1112,6 +1182,12 @@ export default function PlatformAdminProfilePage() {
   };
 
   const handleRegistrationEdit = () => {
+    if (!profilePhotoCompleted) {
+      showRegistrationStepMessage("Please upload Profile Photo first");
+      return;
+    }
+
+    setRegistrationStepMessage(null);
     setRegistrationDraft(registrationInfo);
     setMobileCountry(savedMobileCountry);
     setAlternateCountry(savedAlternateCountry);
@@ -1172,6 +1248,15 @@ export default function PlatformAdminProfilePage() {
     setBirthCalendarMode("days");
     setIsRegistrationEditing(false);
     showSectionStatus(setRegistrationStatus, "saved");
+
+    if (registrationDraftCompleted) {
+      window.setTimeout(() => {
+        basicInformationCardRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
   };
 
   const handleRegistrationCancel = () => {
@@ -1289,6 +1374,17 @@ export default function PlatformAdminProfilePage() {
     : "dd/mm/yyyy";
 
   const handleBasicEdit = () => {
+    if (!profilePhotoCompleted) {
+      showBasicStepMessage("Please upload Profile Photo first");
+      return;
+    }
+
+    if (!registrationCompleted) {
+      showBasicStepMessage("Please complete and save Registration Data first");
+      return;
+    }
+
+    setBasicStepMessage(null);
     setBasicDraft(basicInfo);
     setBasicStatus(null);
     setIsGenderDropdownOpen(false);
@@ -1527,7 +1623,7 @@ export default function PlatformAdminProfilePage() {
                   <input
                     ref={profileImageInputRef}
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                     className="profileImageInput"
                     tabIndex={-1}
                     aria-hidden="true"
@@ -1619,6 +1715,7 @@ export default function PlatformAdminProfilePage() {
             </section>
 
             <section
+              ref={registrationCardRef}
               className={`informationCard registrationCard ${
                 isRegistrationEditing ? "sectionEditing" : ""
               }`}
@@ -1719,6 +1816,22 @@ export default function PlatformAdminProfilePage() {
                       height={24}
                     />
                     <span>{registrationValidationError}</span>
+                  </div>
+                )}
+
+                {registrationStepMessage && (
+                  <div
+                    className="statusPopup statusDiscarded"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <IconImage
+                      src="/assets/platformadmin.imagesandicons/sad.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                    />
+                    <span>{registrationStepMessage}</span>
                   </div>
                 )}
               </div>
@@ -2024,19 +2137,6 @@ export default function PlatformAdminProfilePage() {
                     }
                   />
 
-                  <PhoneNumberField
-                    label="Mobile Number"
-                    country={mobileCountry}
-                    value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        mobileNumber: value,
-                      }))
-                    }
-                  />
-
                   <EditableField
                     id="registration-alternate-email"
                     label="Alternate Email"
@@ -2047,6 +2147,19 @@ export default function PlatformAdminProfilePage() {
                       setRegistrationDraft((current) => ({
                         ...current,
                         alternateEmail: value,
+                      }))
+                    }
+                  />
+
+                  <PhoneNumberField
+                    label="Mobile Number"
+                    country={mobileCountry}
+                    value={registrationDraft.mobileNumber}
+                    onCountryChange={setMobileCountry}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        mobileNumber: value,
                       }))
                     }
                   />
@@ -2084,16 +2197,16 @@ export default function PlatformAdminProfilePage() {
                     value={registrationInfo.officialEmail || "Enter official email"}
                   />
                   <InfoField
+                    label="Alternate Email"
+                    value={registrationInfo.alternateEmail || "Enter alternate email"}
+                  />
+                  <InfoField
                     label="Mobile Number"
                     value={
                       registrationInfo.mobileNumber && savedMobileCountry
                         ? `+${getCountryCallingCode(savedMobileCountry)} ${registrationInfo.mobileNumber}`
                         : registrationInfo.mobileNumber || "Enter mobile number"
                     }
-                  />
-                  <InfoField
-                    label="Alternate Email"
-                    value={registrationInfo.alternateEmail || "Enter alternate email"}
                   />
                   <InfoField
                     label="Alternate Phone"
@@ -2108,6 +2221,7 @@ export default function PlatformAdminProfilePage() {
             </section>
 
             <section
+              ref={basicInformationCardRef}
               className={`informationCard basicInformationCard ${
                 isBasicEditing ? "sectionEditing" : ""
               }`}
@@ -2208,6 +2322,22 @@ export default function PlatformAdminProfilePage() {
                       height={24}
                     />
                     <span>{basicUploadError}</span>
+                  </div>
+                )}
+
+                {basicStepMessage && (
+                  <div
+                    className="statusPopup statusDiscarded"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <IconImage
+                      src="/assets/platformadmin.imagesandicons/sad.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                    />
+                    <span>{basicStepMessage}</span>
                   </div>
                 )}
               </div>
@@ -2345,7 +2475,7 @@ export default function PlatformAdminProfilePage() {
 
                       <button
                         type="button"
-                        className="chooseFileButton"
+                        className={`chooseFileButton ${governmentIdProof ? "chooseFileButtonUploaded" : ""}`}
                         onClick={() =>
                           (
                             document.getElementById(
@@ -2367,7 +2497,7 @@ export default function PlatformAdminProfilePage() {
                         id="basic-government-id-proof"
                         className="nativeFileInput"
                         type="file"
-                        accept="image/*"
+                        accept={RECOMMENDED_UPLOAD_ACCEPT}
                         onChange={(event) => {
                           const file = event.target.files?.[0] ?? null;
 
@@ -2376,11 +2506,20 @@ export default function PlatformAdminProfilePage() {
                             return;
                           }
 
-                          const MAX_FILE_SIZE = 50 * 1024;
+                          const uploadLimit = getRecommendedUploadLimit(file);
 
-                          if (file.size > MAX_FILE_SIZE) {
+                          if (!uploadLimit) {
                             showBasicUploadError(
-                              "Government ID Proof image must be 50 KB or less."
+                              "Please choose only a recommended file type."
+                            );
+                            event.target.value = "";
+                            setGovernmentIdProof(null);
+                            return;
+                          }
+
+                          if (file.size > uploadLimit.maxBytes) {
+                            showBasicUploadError(
+                              `${uploadLimit.label} recommended upload size is up to ${uploadLimit.sizeText}.`
                             );
                             event.target.value = "";
                             setGovernmentIdProof(null);
@@ -2470,7 +2609,7 @@ export default function PlatformAdminProfilePage() {
                       />
 
                       <span
-                        className="chooseFileButton chooseFileButtonDisabled"
+                        className={`chooseFileButton chooseFileButtonDisabled ${governmentIdProof ? "chooseFileButtonUploaded" : ""}`}
                         aria-hidden="true"
                       >
                         <IconImage

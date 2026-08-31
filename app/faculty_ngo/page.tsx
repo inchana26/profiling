@@ -8,77 +8,107 @@ import {
   type Country,
 } from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
-import { getExampleNumber } from "libphonenumber-js/max";
+import {
+  getExampleNumber,
+  validatePhoneNumberLength,
+} from "libphonenumber-js/max";
 import examples from "libphonenumber-js/examples.mobile.json";
-import "./institutionadmin.css";
+import "./fngo.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
 const images = {
-  profile: "/assets/institutionimages/profile.png",
+  profile: "/assets/funiversityimages/profile.png",
 
-  camera: "/assets/institutionicons/camera.svg",
-  edit: "/assets/institutionicons/edit.svg",
-  editBig: "/assets/institutionicons/editbig.svg",
-  lock: "/assets/institutionicons/lock.svg",
-  save: "/assets/institutionicons/tick.svg",
-  cancel: "/assets/institutionicons/cancel.svg",
-  arrowDown: "/assets/institutionicons/arrow-down.svg",
-  completed: "/assets/institutionicons/checkmark.svg",
-  calendar: "/assets/institutionicons/calendar.svg",
-  upload: "/assets/institutionicons/upload.svg",
-  clap: "/assets/institutionicons/clap.svg",
-  sad: "/assets/institutionicons/sad.svg",
+  camera: "/assets/fgvticons/camera.svg",
+  edit: "/assets/fgvticons/edit.svg",
+  editBig: "/assets/fgvticons/editbig.svg",
+  lock: "/assets/fgvticons/lock.svg",
+  save: "/assets/fgvticons/tick.svg",
+  cancel: "/assets/fgvticons/cancel.svg",
+  arrowDown: "/assets/fgvticons/arrow-down.svg",
+  completed: "/assets/fgvticons/checkmark.svg",
+  upload: "/assets/fgvticons/upload.svg",
+  clap: "/assets/fgvticons/clap.svg",
+  sad: "/assets/fgvticons/sad.svg",
 
-  basicInformation: "/assets/institutionicons/user.svg",
-  basicSection: "/assets/institutionicons/graduation-cap.svg",
-
-  registration: "/assets/institutionicons/file-edit.svg",
-  identity: "/assets/institutionicons/users.svg",
-  professional: "/assets/institutionicons/graduation-cap.svg",
-  documents: "/assets/institutionicons/file.svg",
-  confirmation: "/assets/institutionicons/checkmark-circlewhite.svg",
+  registration: "/assets/fgvticons/file-edit.svg",
+  academicProfessional: "/assets/fgvticons/briefcase.svg",
+  skillsDevelopment: "/assets/fgvticons/target.svg",
+  documents: "/assets/fgvticons/file.svg",
+  confirmation: "/assets/fgvticons/checkmark-circlewhite.svg",
 };
 
-type SectionName = "registration" | "basic" | "documents";
-
+type SectionName = "registration" | "professional" | "skills" | "documents";
 
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
   "Profile Photo": {
     accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — max 10 MB",
+    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
   },
-  "Govt Id Proof": {
+  "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
-    label: "JPG, PNG, WebP, PDF, DOC or DOCX",
+    label: "Use the recommended LMS upload size for the selected file type",
   },
   "Supporting Documents": {
     accept:
       "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.ppt,.pptx,.mp3,.aac,.mp4,.zip,.xlsx,.vtt,.srt",
-    label: "Files accepted within LMS hard limits",
+    label: "Use the recommended LMS upload size for the selected file type",
   },
 } as const;
 
-const getDocumentHardLimit = (file: File) => {
+const KB = 1024;
+
+const getDocumentRecommendedSize = (file: File) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
 
-  if (type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(name)) return 10 * MB;
-  if (type === "application/pdf" || name.endsWith(".pdf")) return 100 * MB;
-  if (name.endsWith(".doc") || name.endsWith(".docx")) return 50 * MB;
-  if (name.endsWith(".ppt") || name.endsWith(".pptx")) return 100 * MB;
-  if (type.startsWith("audio/") || name.endsWith(".mp3") || name.endsWith(".aac")) return 100 * MB;
-  if (type.startsWith("video/") || name.endsWith(".mp4")) return 2 * 1024 * MB;
-  if (name.endsWith(".zip")) return 500 * MB;
-  if (name.endsWith(".xlsx")) return 25 * MB;
-  if (name.endsWith(".vtt") || name.endsWith(".srt")) return 5 * MB;
+  if (type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(name)) {
+    return { min: 200 * KB, max: 2 * MB, label: "200 KB – 2 MB" };
+  }
+
+  if (type === "application/pdf" || name.endsWith(".pdf")) {
+    return { min: 5 * MB, max: 25 * MB, label: "5 – 25 MB" };
+  }
+
+  if (name.endsWith(".doc") || name.endsWith(".docx")) {
+    return { min: 1 * MB, max: 10 * MB, label: "1 – 10 MB" };
+  }
+
+  if (name.endsWith(".ppt") || name.endsWith(".pptx")) {
+    return { min: 5 * MB, max: 30 * MB, label: "5 – 30 MB" };
+  }
+
+  if (
+    type.startsWith("audio/") ||
+    name.endsWith(".mp3") ||
+    name.endsWith(".aac")
+  ) {
+    return { min: 2 * MB, max: 20 * MB, label: "2 – 20 MB" };
+  }
+
+  if (type.startsWith("video/") || name.endsWith(".mp4")) {
+    return { min: 50 * MB, max: 500 * MB, label: "50 – 500 MB" };
+  }
+
+  if (name.endsWith(".zip")) {
+    return { min: 10 * MB, max: 100 * MB, label: "10 – 100 MB" };
+  }
+
+  if (name.endsWith(".xlsx")) {
+    return { min: 0, max: 5 * MB, label: "< 5 MB" };
+  }
+
+  if (name.endsWith(".vtt") || name.endsWith(".srt")) {
+    return { min: 0, max: 500 * KB, label: "< 500 KB" };
+  }
 
   return null;
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Govt Id Proof" | "Supporting Documents",
+  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
@@ -93,7 +123,7 @@ const isAcceptedDocumentFile = (
     );
   }
 
-  if (label === "Govt Id Proof") {
+  if (label === "Government ID Proof") {
     return (
       type.startsWith("image/") ||
       type === "application/pdf" ||
@@ -105,6 +135,7 @@ const isAcceptedDocumentFile = (
     name
   );
 };
+
 
 type IconImageProps = {
   src: string;
@@ -155,54 +186,6 @@ function DisplayField({
       >
         {value || placeholder || "--"}
       </div>
-    </div>
-  );
-}
-
-type IconDisplayFieldProps = {
-  label: string;
-  value: string;
-  placeholder?: string;
-  icon?: "lock" | "edit" | "select";
-  className?: string;
-};
-
-function IconDisplayField({
-  label,
-  value,
-  placeholder,
-  icon,
-  className = "",
-}: IconDisplayFieldProps) {
-  return (
-    <div
-      className={`institutionField ${
-        icon ? "institutionEditableField" : ""
-      } ${className}`}
-    >
-      <div className="institutionFieldText">
-        <div className="institutionFieldLabel">{label}</div>
-        <div
-          className={`institutionFieldValue ${
-            !value ? "institutionPlaceholder" : ""
-          }`}
-        >
-          {value || placeholder || "--"}
-        </div>
-      </div>
-
-      {icon === "lock" && (
-        <span className="institutionFieldAction" aria-hidden="true">
-          <IconImage src={images.lock} width={18} height={18} />
-        </span>
-      )}
-
-      {icon === "edit" && (
-        <span className="institutionFieldAction" aria-hidden="true">
-          <IconImage src={images.edit} width={18} height={18} />
-        </span>
-      )}
-
     </div>
   );
 }
@@ -323,12 +306,27 @@ function SelectField({
       }
     };
 
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      if (customEvent.detail !== selectId) {
+        setOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", closeSelect);
+    window.addEventListener(
+      "faculty-profile-dropdown-open",
+      closeOtherDropdown as EventListener
+    );
 
     return () => {
       document.removeEventListener("mousedown", closeSelect);
+      window.removeEventListener(
+        "faculty-profile-dropdown-open",
+        closeOtherDropdown as EventListener
+      );
     };
-  }, []);
+  }, [selectId]);
 
   const handleSelect = (nextValue: string) => {
     onChange(nextValue);
@@ -358,7 +356,17 @@ function SelectField({
           aria-expanded={open}
           aria-labelledby={labelId}
           aria-controls={listboxId}
-          onClick={() => setOpen((current) => !current)}
+          onClick={() => {
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
+          }}
         >
           <span
             className={
@@ -456,319 +464,170 @@ function SelectField({
   );
 }
 
-type DateFieldProps = {
+type MultiSelectFieldProps = {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: string[];
+  options: string[];
+  placeholder?: string;
+  onChange: (value: string[]) => void;
+  className?: string;
 };
 
-function DateField({ label, value, onChange }: DateFieldProps) {
+function MultiSelectField({
+  label,
+  value,
+  options,
+  placeholder = "Select",
+  onChange,
+  className = "",
+}: MultiSelectFieldProps) {
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"days" | "months" | "years">("days");
-  const calendarRef = useRef<HTMLDivElement>(null);
-
-  const initialDate = value
-    ? new Date(`${value}T00:00:00`)
-    : new Date();
-
-  const [visibleMonth, setVisibleMonth] = useState(
-    new Date(initialDate.getFullYear(), initialDate.getMonth(), 1)
-  );
-
-  const [yearPageStart, setYearPageStart] = useState(() => {
-    const year = initialDate.getFullYear();
-    return Math.floor(year / 12) * 12;
-  });
+  const selectId = useId();
+  const labelId = `${selectId}-label`;
+  const listboxId = `${selectId}-listbox`;
+  const selectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!value) return;
-
-    const selected = new Date(`${value}T00:00:00`);
-
-    setVisibleMonth(
-      new Date(selected.getFullYear(), selected.getMonth(), 1)
-    );
-
-    setYearPageStart(
-      Math.floor(selected.getFullYear() / 12) * 12
-    );
-  }, [value]);
-
-  useEffect(() => {
-    const closeCalendar = (event: MouseEvent) => {
+    const closeSelect = (event: MouseEvent) => {
       if (
-        calendarRef.current &&
-        !calendarRef.current.contains(event.target as Node)
+        selectRef.current &&
+        !selectRef.current.contains(event.target as Node)
       ) {
         setOpen(false);
-        setMode("days");
       }
     };
 
-    document.addEventListener("mousedown", closeCalendar);
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      if (customEvent.detail !== selectId) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeSelect);
+    window.addEventListener(
+      "faculty-profile-dropdown-open",
+      closeOtherDropdown as EventListener
+    );
 
     return () => {
-      document.removeEventListener("mousedown", closeCalendar);
+      document.removeEventListener("mousedown", closeSelect);
+      window.removeEventListener(
+        "faculty-profile-dropdown-open",
+        closeOtherDropdown as EventListener
+      );
     };
-  }, []);
+  }, [selectId]);
 
-  const year = visibleMonth.getFullYear();
-  const month = visibleMonth.getMonth();
-
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const firstDay = new Date(year, month, 1).getDay();
-
-  const calendarDays = Array.from({ length: 42 }, (_, index) => {
-    return new Date(year, month, 1 - firstDay + index);
-  });
-
-  const yearOptions = Array.from(
-    { length: 12 },
-    (_, index) => yearPageStart + index
-  );
-
-  const formatDate = (date: Date) => {
-    const dateYear = date.getFullYear();
-    const dateMonth = String(date.getMonth() + 1).padStart(2, "0");
-    const dateDay = String(date.getDate()).padStart(2, "0");
-
-    return `${dateYear}-${dateMonth}-${dateDay}`;
+  const toggleOption = (option: string) => {
+    if (value.includes(option)) {
+      onChange(value.filter((item) => item !== option));
+    } else {
+      onChange([...value, option]);
+    }
   };
 
-  const displayDate = value
-    ? value.split("-").reverse().join("/")
-    : "dd/mm/yyyy";
+  const displayValue = value.length ? value.join(", ") : placeholder;
+  const shouldScroll = options.length > 4;
 
   return (
     <div
-      className="institutionField institutionEditableField institutionDateField"
-      ref={calendarRef}
+      ref={selectRef}
+      className={`institutionField institutionSelectField institutionRadioSelectField ${
+        open ? "institutionSelectFieldOpen" : ""
+      } ${className}`}
     >
-      <div className="institutionFieldText">
-        <div className="institutionFieldLabel">{label}</div>
-
-        <button
-          type="button"
-          className="institutionDateTrigger"
-          onClick={() => {
-            setMode("days");
-            setYearPageStart(Math.floor(year / 12) * 12);
-            setOpen((current) => !current);
-          }}
-        >
-          {displayDate}
-        </button>
+      <div id={labelId} className="institutionFieldLabel">
+        {label}
       </div>
 
-      <button
-        type="button"
-        className="institutionFieldAction institutionCalendarAction"
-        onClick={() => {
-          setMode("days");
-          setYearPageStart(Math.floor(year / 12) * 12);
-          setOpen((current) => !current);
-        }}
-      >
-        <IconImage src={images.calendar} width={18} height={18} />
-      </button>
+      <div className="institutionSelectWrap">
+        <button
+          id={selectId}
+          type="button"
+          className="institutionSelect institutionCustomSelectTrigger"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-labelledby={labelId}
+          aria-controls={listboxId}
+          onClick={() => {
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
+          }}
+        >
+          <span
+            className={
+              value.length
+                ? "institutionSelectCurrentValue"
+                : "institutionSelectPlaceholderValue"
+            }
+          >
+            {displayValue}
+          </span>
 
-      {open && (
-        <div className="institutionCalendarPopup">
-          <div className="institutionCalendarTopRow">
-            <button
-              type="button"
-              className="institutionCalendarArrow"
-              onClick={() => {
-                setVisibleMonth(new Date(year, month - 1, 1));
-                setMode("days");
-              }}
-            >
-              ‹
-            </button>
+          <IconImage
+            src={images.arrowDown}
+            width={30}
+            height={30}
+            className={`institutionSelectArrow ${
+              open ? "institutionSelectArrowOpen" : ""
+            }`}
+          />
+        </button>
 
-            <button
-              type="button"
-              className="institutionCalendarHeaderButton"
-              onClick={() =>
-                setMode((current) =>
-                  current === "months" ? "days" : "months"
-                )
-              }
-            >
-              <span>{months[month]}</span>
-              <span>⌄</span>
-            </button>
+        {open && (
+          <div
+            id={listboxId}
+            className={`institutionCustomSelectList institutionRadioSelectList ${
+              shouldScroll ? "institutionRadioSelectListScrollable" : ""
+            }`}
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby={labelId}
+          >
+            {options.map((option) => {
+              const selected = value.includes(option);
 
-            <button
-              type="button"
-              className="institutionCalendarHeaderButton institutionCalendarYearButton"
-              onClick={() => {
-                setYearPageStart(Math.floor(year / 12) * 12);
-                setMode((current) =>
-                  current === "years" ? "days" : "years"
-                );
-              }}
-            >
-              <span>{year}</span>
-              <span>⌄</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionCalendarArrow"
-              onClick={() => {
-                setVisibleMonth(new Date(year, month + 1, 1));
-                setMode("days");
-              }}
-            >
-              ›
-            </button>
-          </div>
-
-          {mode === "years" ? (
-            <div>
-              <div className="institutionCalendarRangeRow">
+              return (
                 <button
+                  key={option}
                   type="button"
-                  className="institutionCalendarRangeArrow"
-                  onClick={() =>
-                    setYearPageStart((current) => current - 12)
-                  }
-                >
-                  ‹
-                </button>
-
-                <strong>
-                  {yearPageStart} - {yearPageStart + 11}
-                </strong>
-
-                <button
-                  type="button"
-                  className="institutionCalendarRangeArrow"
-                  onClick={() =>
-                    setYearPageStart((current) => current + 12)
-                  }
-                >
-                  ›
-                </button>
-              </div>
-
-              <div className="institutionCalendarYearGrid">
-                {yearOptions.map((yearOption) => (
-                  <button
-                    key={yearOption}
-                    type="button"
-                    className={`institutionCalendarYearOption ${
-                      yearOption === year
-                        ? "institutionCalendarSelected"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setVisibleMonth(
-                        new Date(yearOption, month, 1)
-                      );
-                      setMode("days");
-                    }}
-                  >
-                    {yearOption}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : mode === "months" ? (
-            <div className="institutionCalendarMonthGrid">
-              {months.map((monthName, index) => (
-                <button
-                  key={monthName}
-                  type="button"
-                  className={`institutionCalendarMonthOption ${
-                    index === month
-                      ? "institutionCalendarSelected"
-                      : ""
+                  className={`institutionCustomSelectOption institutionRadioSelectOption ${
+                    selected ? "institutionCustomSelectOptionActive" : ""
                   }`}
-                  onClick={() => {
-                    setVisibleMonth(new Date(year, index, 1));
-                    setMode("days");
-                  }}
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => toggleOption(option)}
                 >
-                  {monthName}
+                  <span
+                    className={`institutionMultiSelectCheck ${
+                      selected ? "institutionMultiSelectCheckActive" : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span className="institutionMultiSelectCheckMark" />
+                  </span>
+
+                  <span className="institutionRadioSelectOptionText">
+                    {option}
+                  </span>
                 </button>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="institutionCalendarWeekdays">
-                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(
-                  (day) => (
-                    <span key={day}>{day}</span>
-                  )
-                )}
-              </div>
-
-              <div className="institutionCalendarGrid">
-                {calendarDays.map((date) => {
-                  const dateValue = formatDate(date);
-                  const isCurrentMonth = date.getMonth() === month;
-                  const isSelected = value === dateValue;
-
-                  return (
-                    <button
-                      key={dateValue}
-                      type="button"
-                      className={`institutionCalendarDay ${
-                        !isCurrentMonth
-                          ? "institutionCalendarDayOutside"
-                          : ""
-                      } ${
-                        isSelected
-                          ? "institutionCalendarDaySelected"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        onChange(dateValue);
-
-                        if (!isCurrentMonth) {
-                          setVisibleMonth(
-                            new Date(
-                              date.getFullYear(),
-                              date.getMonth(),
-                              1
-                            )
-                          );
-                        }
-
-                        setOpen(false);
-                        setMode("days");
-                      }}
-                    >
-                      {date.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
 
 type PhoneCountrySelectProps = {
   label: string;
@@ -1183,7 +1042,7 @@ function PhoneCountrySelect({
 type SectionHeaderProps = {
   title: string;
   iconSrc: string;
-  iconTone: "purple" | "pink";
+  iconTone: "purple" | "pink" | "green" | "blue" | "orange";
   editing: boolean;
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
@@ -1204,18 +1063,25 @@ function SectionHeader({
   onCancel,
 }: SectionHeaderProps) {
   return (
-    <div className="institutionInformationHeader">
+    <div className={`institutionInformationHeader ${popupType ? "institutionInformationHeaderHasPopup" : ""} ${editing ? "institutionInformationHeaderEditing" : ""}`}>
       <div className="institutionInformationTitle">
         <span
-          className={`institutionSectionIcon ${iconTone === "pink"
+          className={`institutionSectionIcon ${
+            iconTone === "pink"
               ? "institutionPinkIcon"
-              : "institutionPurpleIcon"
-            }`}
+              : iconTone === "green"
+                ? "institutionGreenIcon"
+                : iconTone === "blue"
+                  ? "institutionBlueIcon"
+                  : iconTone === "orange"
+                    ? "institutionOrangeIcon"
+                    : "institutionPurpleIcon"
+          }`}
         >
           <IconImage
             src={iconSrc}
-            width={16}
-            height={16}
+            width={24}
+            height={24}
             className="institutionWhiteIcon"
           />
         </span>
@@ -1271,7 +1137,7 @@ function SectionHeader({
               <span>Cancel</span>
             </button>
           </div>
-        ) : (
+        ) : !popupType ? (
           <button
             type="button"
             className="institutionEditButton"
@@ -1286,13 +1152,138 @@ function SectionHeader({
               aria-hidden="true"
             />
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );
 }
 
-export default function InstitutionAdminProfilePage() {
+type GovernmentIdRaisedDropdownProps = {
+  id: string;
+  label?: string;
+  value: string;
+  placeholder: string;
+  options: string[];
+  onChange: (value: string) => void;
+  compact?: boolean;
+  disabled?: boolean;
+};
+
+const GovernmentIdRaisedDropdown = ({
+  id,
+  label,
+  value,
+  placeholder,
+  options,
+  onChange,
+  compact = false,
+  disabled = false,
+}: GovernmentIdRaisedDropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () =>
+      document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  const content = (
+    <div
+      ref={dropdownRef}
+      className={`raisedSelect ${compact ? "raisedSelectCompact" : ""} ${
+        isOpen ? "raisedSelectOpen" : ""
+      }`}
+    >
+      <button
+        id={id}
+        type="button"
+        className="raisedSelectButton"
+        aria-haspopup="listbox"
+        aria-expanded={!disabled && isOpen}
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setIsOpen((current) => !current);
+        }}
+      >
+        <span className={!value ? "raisedSelectPlaceholder" : ""}>
+          {value || placeholder}
+        </span>
+        <span
+          className={`raisedSelectArrow ${
+            isOpen ? "raisedSelectArrowOpen" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {!disabled && isOpen && (
+        <div
+          className="raisedSelectMenu"
+          role="listbox"
+          aria-label={label || placeholder}
+        >
+          {options.map((option) => {
+            const selected = value === option;
+
+            return (
+              <button
+                key={option}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                className={`raisedSelectOption ${
+                  selected ? "raisedSelectOptionSelected" : ""
+                }`}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+              >
+                <span
+                  className={`raisedSelectRadio ${
+                    selected ? "raisedSelectRadioSelected" : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  {selected ? "✓" : ""}
+                </span>
+                <span className="raisedSelectOptionText">{option}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  if (compact) {
+    return content;
+  }
+
+  return (
+    <div
+      className={`infoField selectInfoField raisedSelectField ${
+        isOpen ? "raisedSelectFieldOpen" : ""
+      }`}
+    >
+      {label && <div className="infoLabel">{label}</div>}
+      {content}
+    </div>
+  );
+};
+
+export default function FacultyUniversityPage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   const [showDraftSaved, setShowDraftSaved] = useState(false);
@@ -1303,8 +1294,8 @@ export default function InstitutionAdminProfilePage() {
 
   const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
   const [registrationCompleted, setRegistrationCompleted] = useState(false);
-  const [identityCompleted, setIdentityCompleted] = useState(false);
   const [professionalProfileCompleted, setProfessionalProfileCompleted] = useState(false);
+  const [skillsDevelopmentCompleted, setSkillsDevelopmentCompleted] = useState(false);
   const [documentsCompleted, setDocumentsCompleted] = useState(false);
   const [flowPopup, setFlowPopup] = useState<string | null>(null);
   const [flowPopupSection, setFlowPopupSection] = useState<SectionName | "profile" | "confirmation" | null>(null);
@@ -1328,20 +1319,16 @@ export default function InstitutionAdminProfilePage() {
     }, 3000);
   };
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
-  const [governmentIdMenuOpen, setGovernmentIdMenuOpen] = useState(false);
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
     "Profile Photo": null,
-    "Govt Id Proof": null,
+    "Government ID Proof": null,
     "Supporting Documents": null,
   });
 
   const [documentUploadErrors, setDocumentUploadErrors] = useState<
     Record<string, string>
   >({});
-
-  // Snapshots used only while editing Documents.
-  // Save keeps the new values; Cancel restores these previous saved values.
   const documentFilesBeforeEditRef = useRef<Record<string, File | null> | null>(
     null
   );
@@ -1354,118 +1341,143 @@ export default function InstitutionAdminProfilePage() {
   } | null>(null);
 
   const [registrationInfo, setRegistrationInfo] = useState({
-    institutionAdminId: "PRGEEQJQCBU006B",
+    trainerId: "TRN-00125",
+    employeeCode: "EMP1234",
     fullName: "Antony Thomas",
-
-    // User-editable output fields are empty on the first page.
-    // They will show only after the user edits and saves.
-    dateOfBirth: "",
-    officialEmail: "",
+    email: "",
     mobileNumber: "",
     alternateEmail: "",
     alternatePhone: "",
-
-    tenantId: "LXP-COL-001",
-  });
-
-  const [identityInfo, setIdentityInfo] = useState({
-    employeeCode: "eg.EMP-0042",
-
-    // Editable output fields start empty.
     gender: "",
-    reportingAuthority: "",
+    designation: "",
+    ministryName: "",
+    department: "",
+    dateOfJoining: "17-05-2004",
+    trainingSpecialization: [] as string[],
+    qualification: "",
+    totalExperience: "",
+    trainingCenterName: "",
+    employmentStatus: "",
   });
 
   const [professionalInfo, setProfessionalInfo] = useState({
-    // Editable output fields start empty and appear after Save.
-    highestQualification: "",
-    leadershipExperience: "",
-    totalExperience: "",
-    designation: "",
-    adminRole: "",
+    trainerType: "",
+    socialSectorExperience: "",
+    trainingExperience: "",
+    expertise: [] as string[],
+    trainingTopics: [] as string[],
+    targetGroups: [] as string[],
+    trainingMethod: [] as string[],
+    communityTraining: "",
+    mentoring: "",
+    trainingLanguages: [] as string[],
+  });
 
-    // Locked fields stay unchanged.
-    dateOfJoining: "2004-05-17",
-    institutionName: "eg.enter name",
-
-    campusName: "",
-    departmentsManaged: "",
+  const [skillsInfo, setSkillsInfo] = useState({
+    keySkills: [] as string[],
+    digitalSkills: [] as string[],
+    skillLevel: "",
+    certifications: [] as string[],
+    developmentAreas: [] as string[],
+    areasOfInterest: [] as string[],
+    careerAspirations: "",
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
   const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
   const [alternatePhoneCountry, setAlternatePhoneCountry] =
     useState<Country | null>(null);
-  const [identityDraft, setIdentityDraft] = useState(identityInfo);
-  const [professionalDraft, setProfessionalDraft] =
-    useState(professionalInfo);
+  const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
+  const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
   const registrationDraftRef = useRef(registrationDraft);
-  const identityDraftRef = useRef(identityDraft);
   const professionalDraftRef = useRef(professionalDraft);
+  const skillsDraftRef = useRef(skillsDraft);
 
   useEffect(() => {
     editingSectionRef.current = editingSection;
     registrationDraftRef.current = registrationDraft;
-    identityDraftRef.current = identityDraft;
     professionalDraftRef.current = professionalDraft;
-  }, [
-    editingSection,
-    registrationDraft,
-    identityDraft,
-    professionalDraft,
-  ]);
+    skillsDraftRef.current = skillsDraft;
+  }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
 
   const startSectionEdit = (section: SectionName) => {
     setSectionPopup(null);
 
-    // Strict profile flow:
-    // 1 Profile Photo -> 2 Registration Data -> 3 Identity
-    // -> 4 Professional Profile -> 5 Documents -> 6 Confirmation
+    if (editingSection && editingSection !== section) {
+      showFlowPopup(
+        "Please Save or Cancel the current section before continuing.",
+        section
+      );
+      return;
+    }
+
     if (section === "registration" && !profilePhotoCompleted) {
-      showFlowPopup("Please Complete Profile Photo", "registration");
+      showFlowPopup(
+        "Please Complete Profile Photo",
+        "registration"
+      );
       return;
     }
 
-    if (section === "basic" && !registrationCompleted) {
-      showFlowPopup("Please Save Registration Data", "basic");
+    if (section === "professional" && !registrationCompleted) {
+      showFlowPopup(
+        "Please Complete Registration Data",
+        "professional"
+      );
       return;
     }
 
-    if (section === "documents" && !professionalProfileCompleted) {
-      showFlowPopup("Please Complete and Save Basic Information", "documents");
+    if (section === "skills" && !professionalProfileCompleted) {
+      showFlowPopup(
+        "Please Complete Professional Trainer Profile",
+        "skills"
+      );
       return;
     }
 
+    if (section === "documents" && !skillsDevelopmentCompleted) {
+      showFlowPopup(
+        "Please Complete Skills & Development",
+        "documents"
+      );
+      return;
+    }
 
     if (section === "registration") {
       setRegistrationDraft({
         ...registrationInfo,
-
-        // Editable fields must start empty.
-        // Locked fields keep their existing values.
-        dateOfBirth: "",
-        officialEmail: "",
-        mobileNumber: "",
-        alternateEmail: "",
-        alternatePhone: "",
+        trainingSpecialization: [...registrationInfo.trainingSpecialization],
       });
     }
 
-    if (section === "basic") {
-      // Load the latest saved Basic Information into the edit form.
-      // This prevents the first Save from appearing successful while
-      // professional changes are still left unsaved.
-      setIdentityDraft({ ...identityInfo });
-      setProfessionalDraft({ ...professionalInfo });
+    if (section === "professional") {
+      setProfessionalDraft({
+        ...professionalInfo,
+        expertise: [...professionalInfo.expertise],
+        trainingTopics: [...professionalInfo.trainingTopics],
+        targetGroups: [...professionalInfo.targetGroups],
+        trainingMethod: [...professionalInfo.trainingMethod],
+        trainingLanguages: [...professionalInfo.trainingLanguages],
+      });
+    }
+
+    if (section === "skills") {
+      setSkillsDraft({
+        ...skillsInfo,
+        keySkills: [...skillsInfo.keySkills],
+        digitalSkills: [...skillsInfo.digitalSkills],
+        certifications: [...skillsInfo.certifications],
+        developmentAreas: [...skillsInfo.developmentAreas],
+        areasOfInterest: [...skillsInfo.areasOfInterest],
+      });
     }
 
     if (section === "documents") {
       documentFilesBeforeEditRef.current = { ...documentFiles };
       governmentIdDocumentTypeBeforeEditRef.current =
         governmentIdDocumentType;
-
       setDocumentUploadErrors({});
     }
 
@@ -1481,20 +1493,15 @@ export default function InstitutionAdminProfilePage() {
     return digits.length === requiredDigits;
   };
 
-  const isValidEmail = (value: string) => {
-    return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
-  };
+  const isValidEmail = (value: string) =>
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
-  const showRegistrationError = (message: string) => {
-    setSectionPopup({
-      section: "registration",
-      type: "error",
-      message,
-    });
+  const showSectionError = (section: SectionName, message: string) => {
+    setSectionPopup({ section, type: "error", message });
 
     window.setTimeout(() => {
       setSectionPopup((current) =>
-        current?.section === "registration" && current.type === "error"
+        current?.section === section && current.type === "error"
           ? null
           : current
       );
@@ -1502,26 +1509,59 @@ export default function InstitutionAdminProfilePage() {
   };
 
   const saveSection = (section: SectionName) => {
+    if (section === "registration" && !profilePhotoCompleted) {
+      showFlowPopup(
+        "Please complete Profile Photo",
+        "registration"
+      );
+      return;
+    }
+
+    if (section === "professional" && !registrationCompleted) {
+      showFlowPopup(
+        "Please complete Registration Data",
+        "professional"
+      );
+      return;
+    }
+
+    if (section === "skills" && !professionalProfileCompleted) {
+      showFlowPopup(
+        "Please complete Professional Trainer Profile",
+        "skills"
+      );
+      return;
+    }
+
+    if (section === "documents" && !skillsDevelopmentCompleted) {
+      showFlowPopup(
+        "Please complete Skills & Development",
+        "documents"
+      );
+      return;
+    }
+
     if (section === "registration") {
-      const officialEmail = registrationDraft.officialEmail.trim();
+      const email = registrationDraft.email.trim();
       const alternateEmail = registrationDraft.alternateEmail.trim();
 
-      if (!isValidEmail(officialEmail)) {
-        showRegistrationError("Enter a valid Official Email");
-        return;
-      }
-
-      if (alternateEmail && !isValidEmail(alternateEmail)) {
-        showRegistrationError("Enter a valid Alternate Email");
+      if (!isValidEmail(email)) {
+        showSectionError("registration", "Enter a valid Email");
         return;
       }
 
       if (!isValidPhoneNumber(registrationDraft.mobileNumber, mobileCountry)) {
-        showRegistrationError(
+        showSectionError(
+          "registration",
           mobileCountry
             ? `Mobile Number must be ${getCountryMaxDigits(mobileCountry)} digits`
             : "Please select country code for Mobile Number"
         );
+        return;
+      }
+
+      if (alternateEmail && !isValidEmail(alternateEmail)) {
+        showSectionError("registration", "Enter a valid Alternate Email");
         return;
       }
 
@@ -1532,7 +1572,8 @@ export default function InstitutionAdminProfilePage() {
           alternatePhoneCountry
         )
       ) {
-        showRegistrationError(
+        showSectionError(
+          "registration",
           alternatePhoneCountry
             ? `Alternate Phone must be ${getCountryMaxDigits(alternatePhoneCountry)} digits`
             : "Please select country code for Alternate Phone"
@@ -1540,69 +1581,108 @@ export default function InstitutionAdminProfilePage() {
         return;
       }
 
+      const requiredRegistration =
+        registrationDraft.gender &&
+        registrationDraft.designation &&
+        registrationDraft.ministryName &&
+        registrationDraft.department &&
+        registrationDraft.trainingSpecialization.length > 0 &&
+        registrationDraft.qualification &&
+        registrationDraft.totalExperience &&
+        registrationDraft.employmentStatus;
+
+      if (!requiredRegistration) {
+        showSectionError(
+          "registration",
+          "Please complete all required Registration Data fields."
+        );
+        return;
+      }
+
       setRegistrationInfo({
         ...registrationDraft,
-        officialEmail,
+        email,
         alternateEmail,
+        trainingSpecialization: [...registrationDraft.trainingSpecialization],
       });
       setRegistrationCompleted(true);
     }
 
-    if (section === "basic") {
-      // Save ALL Basic Information changes in one click.
-      // Identity and Professional Profile are committed together.
-
-      if (!identityDraft.gender || !identityDraft.reportingAuthority) {
-        setSectionPopup({
-          section: "basic",
-          type: "error",
-          message: "Please complete the required Identity fields before saving.",
-        });
-        return;
-      }
-
+    if (section === "professional") {
       const professionalComplete =
-        professionalDraft.highestQualification.trim() &&
-        professionalDraft.leadershipExperience.trim() &&
-        professionalDraft.totalExperience.trim() &&
-        professionalDraft.designation.trim() &&
-        professionalDraft.adminRole.trim();
+        professionalDraft.trainerType &&
+        professionalDraft.socialSectorExperience &&
+        professionalDraft.trainingExperience &&
+        professionalDraft.expertise.length > 0 &&
+        professionalDraft.trainingTopics.length > 0 &&
+        professionalDraft.targetGroups.length > 0 &&
+        professionalDraft.trainingMethod.length > 0 &&
+        professionalDraft.communityTraining &&
+        professionalDraft.mentoring &&
+        professionalDraft.trainingLanguages.length > 0;
 
       if (!professionalComplete) {
-        setSectionPopup({
-          section: "basic",
-          type: "error",
-          message:
-            "Please complete the required Professional Profile fields before saving.",
-        });
+        showSectionError(
+          "professional",
+          "Please complete the required Professional Trainer Profile fields."
+        );
         return;
       }
 
-      // Commit both groups during this same Save click.
-      setIdentityInfo({ ...identityDraft });
-      setProfessionalInfo({ ...professionalDraft });
-
-      setIdentityCompleted(true);
+      setProfessionalInfo({
+        ...professionalDraft,
+        expertise: [...professionalDraft.expertise],
+        trainingTopics: [...professionalDraft.trainingTopics],
+        targetGroups: [...professionalDraft.targetGroups],
+        trainingMethod: [...professionalDraft.trainingMethod],
+        trainingLanguages: [...professionalDraft.trainingLanguages],
+      });
       setProfessionalProfileCompleted(true);
+    }
+
+    if (section === "skills") {
+      const skillsComplete =
+        skillsDraft.keySkills.length > 0 &&
+        skillsDraft.digitalSkills.length > 0 &&
+        skillsDraft.skillLevel &&
+        skillsDraft.certifications.length > 0 &&
+        skillsDraft.developmentAreas.length > 0 &&
+        skillsDraft.areasOfInterest.length > 0 &&
+        skillsDraft.careerAspirations;
+
+      if (!skillsComplete) {
+        showSectionError(
+          "skills",
+          "Please complete the required Skills & Development fields."
+        );
+        return;
+      }
+
+      setSkillsInfo({
+        ...skillsDraft,
+        keySkills: [...skillsDraft.keySkills],
+        digitalSkills: [...skillsDraft.digitalSkills],
+        certifications: [...skillsDraft.certifications],
+        developmentAreas: [...skillsDraft.developmentAreas],
+        areasOfInterest: [...skillsDraft.areasOfInterest],
+      });
+      setSkillsDevelopmentCompleted(true);
     }
 
     if (section === "documents") {
       const hasGovernmentId =
         governmentIdDocumentType.trim() !== "" &&
-        documentFiles["Govt Id Proof"] !== null;
+        documentFiles["Government ID Proof"] !== null;
 
       if (!hasGovernmentId) {
-        setSectionPopup({
-          section: "documents",
-          type: "error",
-          message: "Please select Document Type and upload Government ID Proof before saving.",
-        });
+        showSectionError(
+          "documents",
+          "Please select Document Type and upload Government ID Proof before saving."
+        );
         return;
       }
 
       setDocumentsCompleted(true);
-
-      // Current document changes are now the saved values.
       documentFilesBeforeEditRef.current = null;
       governmentIdDocumentTypeBeforeEditRef.current = null;
       setDocumentUploadErrors({});
@@ -1622,19 +1702,35 @@ export default function InstitutionAdminProfilePage() {
 
   const cancelSection = (section: SectionName) => {
     if (section === "registration") {
-      // Discard everything typed during this edit session.
-      setRegistrationDraft(registrationInfo);
+      setRegistrationDraft({
+        ...registrationInfo,
+        trainingSpecialization: [...registrationInfo.trainingSpecialization],
+      });
     }
 
-    if (section === "basic") {
-      // Discard every dropdown/text change made during this edit session.
-      setIdentityDraft(identityInfo);
-      setProfessionalDraft(professionalInfo);
+    if (section === "professional") {
+      setProfessionalDraft({
+        ...professionalInfo,
+        expertise: [...professionalInfo.expertise],
+        trainingTopics: [...professionalInfo.trainingTopics],
+        targetGroups: [...professionalInfo.targetGroups],
+        trainingMethod: [...professionalInfo.trainingMethod],
+        trainingLanguages: [...professionalInfo.trainingLanguages],
+      });
+    }
+
+    if (section === "skills") {
+      setSkillsDraft({
+        ...skillsInfo,
+        keySkills: [...skillsInfo.keySkills],
+        digitalSkills: [...skillsInfo.digitalSkills],
+        certifications: [...skillsInfo.certifications],
+        developmentAreas: [...skillsInfo.developmentAreas],
+        areasOfInterest: [...skillsInfo.areasOfInterest],
+      });
     }
 
     if (section === "documents") {
-      // Restore the files and Govt ID document type that existed
-      // before the user clicked Edit.
       if (documentFilesBeforeEditRef.current) {
         setDocumentFiles({ ...documentFilesBeforeEditRef.current });
       }
@@ -1668,10 +1764,10 @@ export default function InstitutionAdminProfilePage() {
         ? "Profile Photo"
         : !registrationCompleted
           ? "Registration Data"
-          : !identityCompleted
-            ? "Identity"
-            : !professionalProfileCompleted
-              ? "Professional Profile"
+          : !professionalProfileCompleted
+            ? "Professional Trainer Profile"
+            : !skillsDevelopmentCompleted
+              ? "Skills & Development"
               : !documentsCompleted
                 ? "Documents"
                 : !confirmation
@@ -1721,9 +1817,8 @@ export default function InstitutionAdminProfilePage() {
     event.target.value = "";
   };
 
-
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Govt Id Proof" | "Supporting Documents",
+    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
@@ -1736,9 +1831,9 @@ export default function InstitutionAdminProfilePage() {
       return;
     }
 
-    const hardLimit = getDocumentHardLimit(file);
+    const recommendedSize = getDocumentRecommendedSize(file);
 
-    if (hardLimit === null) {
+    if (recommendedSize === null) {
       setDocumentUploadErrors((current) => ({
         ...current,
         [label]: "Unsupported file type.",
@@ -1746,15 +1841,13 @@ export default function InstitutionAdminProfilePage() {
       return;
     }
 
-    if (file.size > hardLimit) {
-      const limitText =
-        hardLimit >= 1024 * MB
-          ? `${hardLimit / (1024 * MB)} GB`
-          : `${hardLimit / MB} MB`;
-
+    if (
+      file.size < recommendedSize.min ||
+      file.size > recommendedSize.max
+    ) {
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: `File is too large. Maximum allowed size is ${limitText}.`,
+        [label]: `Recommended file size is ${recommendedSize.label}.`,
       }));
       return;
     }
@@ -1775,11 +1868,6 @@ export default function InstitutionAdminProfilePage() {
 
     const autoSaveDraft = () => {
       const currentSection = editingSectionRef.current;
-
-      // IMPORTANT:
-      // Auto-save must never commit edit drafts into the saved/output data.
-      // Only the section Save button (or explicit profile Save) may commit.
-      // This keeps Cancel working correctly even after 10+ seconds.
       if (!currentSection) {
         return;
       }
@@ -1823,8 +1911,8 @@ export default function InstitutionAdminProfilePage() {
   const completionItems = [
     profilePhotoCompleted,
     registrationCompleted,
-    identityCompleted,
     professionalProfileCompleted,
+    skillsDevelopmentCompleted,
     documentsCompleted,
     confirmation,
   ];
@@ -1836,7 +1924,7 @@ export default function InstitutionAdminProfilePage() {
   );
 
   useEffect(() => {
-    document.title = "Institution Admin Profile | Neuro LXP";
+    document.title = "NGO Faculty Profile | Neuro LXP";
   }, []);
 
   return (
@@ -1851,10 +1939,9 @@ export default function InstitutionAdminProfilePage() {
             <div className="pageContent institutionPageContent">
             <div className="institutionHeadingRow">
               <div>
-                <h1>Institution admin Profile</h1>
+                <h1>NGO Faculty Profile</h1>
                 <p>
-                  Manage Your Identity, Access, Preferences, And Activity With
-                  Ease.
+                  Manage Your Identity, Access, Preferences, And Activity With Ease.
                 </p>
               </div>
 
@@ -1910,7 +1997,7 @@ export default function InstitutionAdminProfilePage() {
 
                 <div className="institutionIdentityText">
                   <h2>Antony Thomas</h2>
-                  <div className="institutionRole">Institution admin</div>
+                  <div className="institutionRole">NGO Faculty</div>
 
                   <div className="institutionActiveBadge">
                     <span className="institutionActiveDot" />
@@ -1947,61 +2034,72 @@ export default function InstitutionAdminProfilePage() {
                 </div>
 
                 <div className="institutionCompletionSteps">
-                <div className="institutionCompletionStep">
-                  {profilePhotoCompleted ? (
-                    <span className="institutionCompletedCircle institutionProfileStepCheck">
-                      <span className="institutionProfileStepCheckMark" />
-                    </span>
-                  ) : (
-                    <span className="institutionEmptyCircle" />
-                  )}
-                  <span>Profile Photo</span>
-                </div>
+                  <div className="institutionCompletionStep">
+                    {profilePhotoCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Profile Photo</span>
+                  </div>
 
-                <div className="institutionCompletionStep">
-                  {identityCompleted && professionalProfileCompleted ? (
-                    <span className="institutionCompletedCircle institutionProfileStepCheck">
-                      <span className="institutionProfileStepCheckMark" />
-                    </span>
-                  ) : (
-                    <span className="institutionEmptyCircle" />
-                  )}
-                  <span>Basic Information</span>
-                </div>
+                  <div className="institutionCompletionStep">
+                    {professionalProfileCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Professional Profile</span>
+                  </div>
 
-                <div className="institutionCompletionStep">
-                  {confirmation ? (
-                    <span className="institutionCompletedCircle institutionProfileStepCheck">
-                      <span className="institutionProfileStepCheckMark" />
-                    </span>
-                  ) : (
-                    <span className="institutionEmptyCircle" />
-                  )}
-                  <span>Confirmation</span>
-                </div>
+                  <div className="institutionCompletionStep">
+                    {documentsCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Documents</span>
+                  </div>
 
-                <div className="institutionCompletionStep">
-                  {registrationCompleted ? (
-                    <span className="institutionCompletedCircle institutionProfileStepCheck">
-                      <span className="institutionProfileStepCheckMark" />
-                    </span>
-                  ) : (
-                    <span className="institutionEmptyCircle" />
-                  )}
-                  <span>Registration Data</span>
-                </div>
+                  <div className="institutionCompletionStep">
+                    {registrationCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Registration</span>
+                  </div>
 
-                <div className="institutionCompletionStep">
-                  {documentsCompleted ? (
-                    <span className="institutionCompletedCircle institutionProfileStepCheck">
-                      <span className="institutionProfileStepCheckMark" />
-                    </span>
-                  ) : (
-                    <span className="institutionEmptyCircle" />
-                  )}
-                  <span>Documents</span>
+                  <div className="institutionCompletionStep">
+                    {skillsDevelopmentCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Skill and Development</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {confirmation ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Confirmation</span>
+                  </div>
                 </div>
-              </div>
               </div>
             </section>
 
@@ -2009,9 +2107,13 @@ export default function InstitutionAdminProfilePage() {
               <SectionHeader
                 title="Registration Data"
                 iconSrc={images.registration}
-                iconTone="purple"
+                iconTone="pink"
                 editing={editingSection === "registration"}
-                popupType={sectionPopup?.section === "registration" ? sectionPopup.type : null}
+                popupType={
+                  sectionPopup?.section === "registration"
+                    ? sectionPopup.type
+                    : null
+                }
                 popupMessage={
                   sectionPopup?.section === "registration"
                     ? sectionPopup.message
@@ -2021,6 +2123,7 @@ export default function InstitutionAdminProfilePage() {
                 onSave={() => saveSection("registration")}
                 onCancel={() => cancelSection("registration")}
               />
+
               {flowPopup && flowPopupSection === "registration" && (
                 <div
                   className="institutionSectionFlowPopup"
@@ -2038,10 +2141,15 @@ export default function InstitutionAdminProfilePage() {
               )}
 
               {editingSection === "registration" ? (
-                <div className="institutionGrid">
+                <div className="institutionGrid institutionFacultyRegistrationGrid">
                   <EditField
-                    label="Institution admin ID"
-                    value={registrationDraft.institutionAdminId}
+                    label="Trainer ID"
+                    value={registrationDraft.trainerId}
+                    locked
+                  />
+                  <EditField
+                    label="Employee Code"
+                    value={registrationDraft.employeeCode}
                     locked
                   />
                   <EditField
@@ -2049,33 +2157,27 @@ export default function InstitutionAdminProfilePage() {
                     value={registrationDraft.fullName}
                     locked
                   />
-                  <DateField
-                    label="Date of Birth"
-                    value={registrationDraft.dateOfBirth}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        dateOfBirth: value,
-                      }))
-                    }
-                  />
+
                   <EditField
-                    label="Official Email"
+                    label="Email"
                     type="email"
-                    value={registrationDraft.officialEmail}
-                    placeholder="Enter Official Email"
+                    value={registrationDraft.email}
+                    placeholder="Enter Email"
+                    visualIcon="edit"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        officialEmail: value,
+                        email: value,
                       }))
                     }
                   />
+
                   <EditField
                     label="Alternate Email"
                     type="email"
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
+                    visualIcon="edit"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
@@ -2083,6 +2185,7 @@ export default function InstitutionAdminProfilePage() {
                       }))
                     }
                   />
+
                   <PhoneCountrySelect
                     label="Mobile Number"
                     country={mobileCountry}
@@ -2095,6 +2198,7 @@ export default function InstitutionAdminProfilePage() {
                       }))
                     }
                   />
+
                   <PhoneCountrySelect
                     label="Alternate Phone"
                     country={alternatePhoneCountry}
@@ -2107,28 +2211,193 @@ export default function InstitutionAdminProfilePage() {
                       }))
                     }
                   />
+
+                  <SelectField
+                    label="Gender"
+                    value={registrationDraft.gender}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Male",
+                      "Female",
+                      "Other",
+                      "Prefer not to say.",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        gender: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Program Name"
+                    value={registrationDraft.designation}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Digital Skills",
+                      "Youth Skills",
+                      "Women Skill Development",
+                      "Employability Skills",
+                      "Entrepreneurship Development",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        designation: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Project Name"
+                    value={registrationDraft.ministryName}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Youth Skills Project",
+                      "Digital Literacy Project",
+                      "Women Empowerment Project",
+                      "Rural Skill Development Project",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        ministryName: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Centre Name"
+                    value={registrationDraft.department}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Bengaluru Training Centre",
+                      "Mysuru Training Centre",
+                      "Hubballi Training Centre",
+                      "Regional Skill Centre",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        department: value,
+                      }))
+                    }
+                  />
+
                   <EditField
-                    label="Tenant ID"
-                    value={registrationDraft.tenantId}
+                    label="Date of Joining"
+                    value={registrationDraft.dateOfJoining}
                     locked
+                  />
+
+                  <MultiSelectField
+                    label="Specialization"
+                    value={registrationDraft.trainingSpecialization}
+                    placeholder="Select"
+                    options={[
+                      "Artificial Intelligence",
+                      "Machine Learning",
+                      "Data Science",
+                      "Digital Skills",
+                      "Cybersecurity",
+                      "Cloud Computing",
+                      "Software Development",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        trainingSpecialization: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Qualification"
+                    value={registrationDraft.qualification}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Ph.D.",
+                      "M.Tech",
+                      "M.E.",
+                      "MBA",
+                      "Master's Degree",
+                      "Bachelor's Degree",
+                      "Diploma",
+                      "PG Diploma",
+                      "Professional Certification",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        qualification: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Training Experience"
+                    value={registrationDraft.totalExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "0–1 Year",
+                      "2–3 Years",
+                      "4–5 Years",
+                      "6–10 Years",
+                      "10+ Years",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        totalExperience: value,
+                      }))
+                    }
+                  />
+<SelectField
+                    label="Employment Status"
+                    value={registrationDraft.employmentStatus}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Active",
+                      "Inactive",
+                      "On Leave",
+                      "Suspended",
+                      "Contract Ended",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        employmentStatus: value,
+                      }))
+                    }
                   />
                 </div>
               ) : (
-                <div className="institutionGrid">
+                <div className="institutionGrid institutionFacultyRegistrationGrid">
                   <DisplayField
-                    label="Institution admin ID"
-                    value={registrationInfo.institutionAdminId}
-                  />
-                  <DisplayField label="Full Name" value={registrationInfo.fullName} />
-                  <DisplayField
-                    label="Date of Birth"
-                    value={registrationInfo.dateOfBirth}
-                    placeholder="dd/mm/yyyy"
+                    label="Trainer ID"
+                    value={registrationInfo.trainerId}
                   />
                   <DisplayField
-                    label="Official Email"
-                    value={registrationInfo.officialEmail}
-                    placeholder="Enter Official Email"
+                    label="Employee Code"
+                    value={registrationInfo.employeeCode}
+                  />
+                  <DisplayField
+                    label="Full Name"
+                    value={registrationInfo.fullName}
+                  />
+
+                  <DisplayField
+                    label="Email"
+                    value={registrationInfo.email}
+                    placeholder="Enter Email"
                   />
                   <DisplayField
                     label="Alternate Email"
@@ -2144,6 +2413,7 @@ export default function InstitutionAdminProfilePage() {
                     }
                     placeholder="Select"
                   />
+
                   <DisplayField
                     label="Alternate Phone"
                     value={
@@ -2153,27 +2423,78 @@ export default function InstitutionAdminProfilePage() {
                     }
                     placeholder="Select"
                   />
-                  <DisplayField label="Tenant ID" value={registrationInfo.tenantId} />
+                  <DisplayField
+                    label="Gender"
+                    value={registrationInfo.gender}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Program Name"
+                    value={registrationInfo.designation}
+                    placeholder="eg. Digital Skills"
+                  />
+
+                  <DisplayField
+                    label="Project Name"
+                    value={registrationInfo.ministryName}
+                    placeholder="eg. Youth Skills Project"
+                  />
+                  <DisplayField
+                    label="Centre Name"
+                    value={registrationInfo.department}
+                    placeholder="eg. Bengaluru Training Centre"
+                  />
+                  <DisplayField
+                    label="Date of Joining"
+                    value={registrationInfo.dateOfJoining}
+                  />
+
+                  <DisplayField
+                    label="Specialization"
+                    value={registrationInfo.trainingSpecialization.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Qualification"
+                    value={registrationInfo.qualification}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Experience"
+                    value={registrationInfo.totalExperience}
+                    placeholder="Select"
+                  />
+<DisplayField
+                    label="Employment Status"
+                    value={registrationInfo.employmentStatus}
+                    placeholder="Select"
+                  />
                 </div>
               )}
             </section>
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Basic Information"
-                iconSrc={images.basicSection}
-                iconTone="purple"
-                editing={editingSection === "basic"}
+                title="Professional Trainer Profile"
+                iconSrc={images.academicProfessional}
+                iconTone="green"
+                editing={editingSection === "professional"}
                 popupType={
-                  sectionPopup?.section === "basic"
+                  sectionPopup?.section === "professional"
                     ? sectionPopup.type
                     : null
                 }
-                onEdit={() => startSectionEdit("basic")}
-                onSave={() => saveSection("basic")}
-                onCancel={() => cancelSection("basic")}
+                popupMessage={
+                  sectionPopup?.section === "professional"
+                    ? sectionPopup.message
+                    : undefined
+                }
+                onEdit={() => startSectionEdit("professional")}
+                onSave={() => saveSection("professional")}
+                onCancel={() => cancelSection("professional")}
               />
-              {flowPopup && flowPopupSection === "basic" && (
+
+              {flowPopup && flowPopupSection === "professional" && (
                 <div
                   className="institutionSectionFlowPopup"
                   role="alert"
@@ -2189,333 +2510,504 @@ export default function InstitutionAdminProfilePage() {
                 </div>
               )}
 
-              {editingSection === "basic" ? (
-                <div className="institutionGrid institutionBasicInfoGrid">
-                  <EditField
-                    label="Employee Code"
-                    value={identityDraft.employeeCode}
-                    locked
+              {editingSection === "professional" ? (
+                <div className="institutionGrid institutionFacultyProfessionalGrid">
+
+                  <SelectField
+                    label="Trainer Type"
+                    value={professionalDraft.trainerType}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Master Trainer",
+                      "Senior Trainer",
+                      "Technical Trainer",
+                      "Domain Trainer",
+                      "Community Trainer",
+                      "Industry Trainer",
+                      "Visiting Trainer",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainerType: value,
+                      }))
+                    }
                   />
 
                   <SelectField
-                    label="Gender"
+                    label="Public Sector Experience"
+                    value={professionalDraft.socialSectorExperience}
                     placeholder="Select"
-                    value={identityDraft.gender}
                     menuStyle="radio"
                     options={[
-                      "Male",
-                      "Female",
+                      "No Experience",
+                      "Less than 1 Year",
+                      "1–3 Years",
+                      "3–5 Years",
+                      "5–10 Years",
+                      "10+ Years",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        socialSectorExperience: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Primary Domain"
+                    value={professionalDraft.trainingExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Skill Development",
+                      "Digital Skills",
+                      "IT & Software",
+                      "Employability",
+                      "Entrepreneurship",
+                      "Education & Training",
+                      "Community Development",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingExperience: value,
+                      }))
+                    }
+                  />
+<MultiSelectField
+                    label="Key Expertise"
+                    value={professionalDraft.expertise}
+                    placeholder="Select"
+                    options={[
+                      "Training Delivery",
+                      "Digital Skills",
+                      "AI & ML",
+                      "Community Mobilization",
+                      "Curriculum Development",
+                      "Mentoring",
+                      "Assessment",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        expertise: value,
+                      }))
+                    }
+                  />
+
+
+                  <MultiSelectField
+                    label="Training Topics"
+                    value={professionalDraft.trainingTopics}
+                    placeholder="Select"
+                    options={[
+                      "Digital Literacy",
+                      "AI Basics",
+                      "Python",
+                      "Data Analytics",
+                      "MS Office",
+                      "Communication Skills",
+                      "Employability Skills",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingTopics: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Target Groups"
+                    value={professionalDraft.targetGroups}
+                    placeholder="Select"
+                    options={[
+                      "Youth",
+                      "Women",
+                      "Students",
+                      "Job Seekers",
+                      "Government Staff",
+                      "Rural Communities",
+                      "Trainers",
+                      "Entrepreneurs",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        targetGroups: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Training Method"
+                    value={professionalDraft.trainingMethod}
+                    placeholder="Select"
+                    options={[
+                      "Classroom",
+                      "Online",
+                      "Hybrid",
+                      "Blended",
+                      "Workshop",
+                      "Bootcamp",
+                      "Hands-on",
+                      "Field Training",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingMethod: value,
+                      }))
+                    }
+                  />
+
+
+                  <SelectField
+                    label="Government Training"
+                    value={professionalDraft.communityTraining}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        communityTraining: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Mentoring / Coaching"
+                    value={professionalDraft.mentoring}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        mentoring: value,
+                      }))
+                    }
+                  />
+<MultiSelectField
+                    label="Training Languages"
+                    value={professionalDraft.trainingLanguages}
+                    placeholder="Select"
+                    options={[
+                      "English",
+                      "Hindi",
+                      "Kannada",
+                      "Tamil",
+                      "Telugu",
+                      "Malayalam",
+                      "Marathi",
                       "Other",
-                      "Prefer not to say",
-                    ]}
-                    onChange={(value) =>
-                      setIdentityDraft((current) => ({
-                        ...current,
-                        gender: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Designation"
-                    placeholder="Select"
-                    value={professionalDraft.designation}
-                    menuStyle="radio"
-                    options={[
-                      "Principal",
-                      "Vice Principal",
-                      "Director",
-                      "Administrator",
-                      "Dean",
-                      "Registrar",
-                      "Head of Institution",
-                      "Other",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        designation: value,
+                        trainingLanguages: value,
                       }))
                     }
                   />
-
-                  <SelectField
-                    label="Highest Qualification"
-                    placeholder="Select"
-                    value={professionalDraft.highestQualification}
-                    menuStyle="radio"
-                    options={[
-                      "PhD",
-                      "Master's Degree",
-                      "Bachelor's Degree",
-                      "M.Phil",
-                      "Postgraduate Diploma",
-                      "Diploma",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        highestQualification: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Leadership Experience"
-                    placeholder="Select"
-                    value={professionalDraft.leadershipExperience}
-                    menuStyle="radio"
-                    options={[
-                      "Less than 1 year",
-                      "1–3 years",
-                      "3–5 years",
-                      "5–10 years",
-                      "10–15 years",
-                      "15+ years",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        leadershipExperience: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Total Experience"
-                    placeholder="Select"
-                    value={professionalDraft.totalExperience}
-                    menuStyle="radio"
-                    options={[
-                      "0–2 years",
-                      "3–5 years",
-                      "6–10 years",
-                      "11–15 years",
-                      "16–20 years",
-                      "20+ years",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        totalExperience: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Reporting Authority"
-                    placeholder="Select"
-                    value={identityDraft.reportingAuthority}
-                    menuStyle="radio"
-                    options={[
-                      "Governing Body",
-                      "Board of Directors",
-                      "Chancellor",
-                      "Vice Chancellor",
-                      "CEO",
-                      "Director",
-                      "Principal",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setIdentityDraft((current) => ({
-                        ...current,
-                        reportingAuthority: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Admin Role"
-                    placeholder="Select"
-                    value={professionalDraft.adminRole}
-                    menuStyle="radio"
-                    options={[
-                      "Super Admin",
-                      "Platform Admin",
-                      "Institution Admin",
-                      "Operations Admin",
-                      "Academic Admin",
-                      "Content Admin",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        adminRole: value,
-                      }))
-                    }
-                  />
-
-                  <EditField
-                    label="Date of Joining"
-                    value="17-05-2004"
-                    locked
-                  />
-
-                  <EditField
-                    label="Institution Name"
-                    value={professionalDraft.institutionName}
-                    className="institutionBasicHalfField"
-                    locked
-                  />
-
-                  <EditField
-                    label="Campus Name"
-                    value={professionalDraft.campusName}
-                    placeholder="Enter Campus Name"
-                    className="institutionBasicHalfField institutionCampusNameField"
-                    visualIcon="edit"
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        campusName: value,
-                      }))
-                    }
-                  />
-
-                  <div className="institutionField institutionDepartmentsField institutionBasicDepartmentsField institutionDepartmentsTextareaField">
-                    <label
-                      htmlFor="departments-managed"
-                      className="institutionFieldLabel"
-                    >
-                      Departments Managed(Maximum 250words)
-                    </label>
-
-                    <div className="institutionDepartmentsTextareaWrap">
-                      <textarea
-                        id="departments-managed"
-                        name="departmentsManaged"
-                        className="institutionTextarea institutionDepartmentsTextarea"
-                        value={professionalDraft.departmentsManaged}
-                        placeholder="Type departments separated by Commas"
-                        aria-label="Departments Managed, maximum 250 words"
-                        onChange={(event) => {
-                          const nextValue = event.target.value;
-                          const currentValue = professionalDraft.departmentsManaged;
-
-                          const currentWords = currentValue.trim()
-                            ? currentValue.trim().split(/\s+/)
-                            : [];
-
-                          const nextWords = nextValue.trim()
-                            ? nextValue.trim().split(/\s+/)
-                            : [];
-
-                          const isDeletingOrShortening =
-                            nextValue.length < currentValue.length;
-
-                          const canAccept =
-                            nextWords.length < 250 ||
-                            (nextWords.length === 250 &&
-                              (currentWords.length < 250 ||
-                                isDeletingOrShortening));
-
-                          if (canAccept || isDeletingOrShortening) {
-                            setProfessionalDraft((current) => ({
-                              ...current,
-                              departmentsManaged: nextValue,
-                            }));
-                          }
-                        }}
-                      />
-
-                      <span
-                        className="institutionFieldAction institutionDepartmentsEditAction"
-                        aria-hidden="true"
-                      >
-                        <IconImage src={images.edit} width={18} height={18} />
-                      </span>
-                    </div>
-                  </div>
                 </div>
               ) : (
-                <div className="institutionGrid institutionBasicInfoGrid institutionBasicInfoReadOnly">
+                <div className="institutionGrid institutionFacultyProfessionalGrid">
                   <DisplayField
-                    label="Employee Code"
-                    value={identityInfo.employeeCode}
+                    label="Trainer Type"
+                    value={professionalInfo.trainerType}
+                    placeholder="eg. Community Trainer"
+                  />
+                  <DisplayField
+                    label="Public Sector Experience"
+                    value={professionalInfo.socialSectorExperience}
+                    placeholder="eg. 8 Years"
+                  />
+                  <DisplayField
+                    label="Primary Domain"
+                    value={professionalInfo.trainingExperience}
+                    placeholder="eg. 7 Years"
+                  />
+<DisplayField
+                    label="Key Expertise"
+                    value={professionalInfo.expertise.join(", ")}
+                    placeholder="Eg. AI, Digital Skills"
                   />
 
                   <DisplayField
-                    label="Gender"
-                    value={identityInfo.gender}
+                    label="Training Topics"
+                    value={professionalInfo.trainingTopics.join(", ")}
+                    placeholder="Eg. AI Basics"
+                  />
+                  <DisplayField
+                    label="Target Groups"
+                    value={professionalInfo.targetGroups.join(", ")}
+                    placeholder="Eg. Youth, Women"
+                  />
+                  <DisplayField
+                    label="Training Method"
+                    value={professionalInfo.trainingMethod.join(", ")}
+                    placeholder="Eg. Classroom"
+                  />
+
+                  <DisplayField
+                    label="Government Training"
+                    value={professionalInfo.communityTraining}
+                    placeholder="Eg. Yes"
+                  />
+                  <DisplayField
+                    label="Mentoring / Coaching"
+                    value={professionalInfo.mentoring}
+                    placeholder="Eg. Yes"
+                  />
+<DisplayField
+                    label="Training Languages"
+                    value={professionalInfo.trainingLanguages.join(", ")}
+                    placeholder="Eg. English"
+                  />
+                </div>
+              )}
+            </section>
+
+            <section className="institutionInformationCard">
+              <SectionHeader
+                title="Skills & Development"
+                iconSrc={images.skillsDevelopment}
+                iconTone="blue"
+                editing={editingSection === "skills"}
+                popupType={
+                  sectionPopup?.section === "skills"
+                    ? sectionPopup.type
+                    : null
+                }
+                popupMessage={
+                  sectionPopup?.section === "skills"
+                    ? sectionPopup.message
+                    : undefined
+                }
+                onEdit={() => startSectionEdit("skills")}
+                onSave={() => saveSection("skills")}
+                onCancel={() => cancelSection("skills")}
+              />
+
+              {flowPopup && flowPopupSection === "skills" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              {editingSection === "skills" ? (
+                <div className="institutionGrid institutionFacultySkillsGrid">
+
+                  <MultiSelectField
+                    label="Core Skills"
+                    value={skillsDraft.keySkills}
                     placeholder="Select"
+                    options={[
+                      "Leadership",
+                      "Communication",
+                      "Teaching",
+                      "Presentation",
+                      "Facilitation",
+                      "Mentoring",
+                      "Planning",
+                      "Problem Solving",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        keySkills: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Designation"
-                    value={professionalInfo.designation}
+                  <MultiSelectField
+                    label="Digital Skills"
+                    value={skillsDraft.digitalSkills}
                     placeholder="Select"
+                    options={[
+                      "LMS",
+                      "MS Office",
+                      "Excel",
+                      "Power BI",
+                      "Python",
+                      "SQL",
+                      "Google Workspace",
+                      "AI Tools",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        digitalSkills: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Highest Qualification"
-                    value={professionalInfo.highestQualification}
+                  <SelectField
+                    label="Skill Level"
+                    value={skillsDraft.skillLevel}
                     placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Beginner",
+                      "Intermediate",
+                      "Advanced",
+                      "Expert",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        skillLevel: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Leadership Experience"
-                    value={professionalInfo.leadershipExperience}
+                  <MultiSelectField
+                    label="Certifications"
+                    value={skillsDraft.certifications}
                     placeholder="Select"
+                    options={[
+                      "TOT",
+                      "AWS Certified",
+                      "Microsoft Certified",
+                      "Google Certification",
+                      "PMP",
+                      "Scrum Master",
+                      "Digital Skills Certification",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        certifications: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Total Experience"
-                    value={professionalInfo.totalExperience}
+
+                  <MultiSelectField
+                    label="Development Areas"
+                    value={skillsDraft.developmentAreas}
                     placeholder="Select"
+                    options={[
+                      "AI & ML",
+                      "Data Analytics",
+                      "Leadership",
+                      "Digital Pedagogy",
+                      "Assessment",
+                      "Program Management",
+                      "Monitoring & Evaluation",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        developmentAreas: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Reporting Authority"
-                    value={identityInfo.reportingAuthority}
+                  <MultiSelectField
+                    label="Learning Interests"
+                    value={skillsDraft.areasOfInterest}
                     placeholder="Select"
+                    options={[
+                      "Leadership",
+                      "AI",
+                      "Data Analytics",
+                      "Generative AI",
+                      "EdTech",
+                      "Digital Transformation",
+                      "Skill Development",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        areasOfInterest: value,
+                      }))
+                    }
                   />
 
-                  <DisplayField
-                    label="Admin Role"
-                    value={professionalInfo.adminRole}
+                  <SelectField
+                    label="Career Goals"
+                    value={skillsDraft.careerAspirations}
                     placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Senior Trainer",
+                      "Master Trainer",
+                      "Lead Trainer",
+                      "Training Manager",
+                      "Program Manager",
+                      "Skill Development Manager",
+                      "Training Director",
+                      "Consultant",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        careerAspirations: value,
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="institutionGrid institutionFacultySkillsGrid">
+                  <DisplayField
+                    label="Core Skills"
+                    value={skillsInfo.keySkills.join(", ")}
+                    placeholder="Leadership"
                   />
 
                   <DisplayField
-                    label="Date of Joining"
-                    value="17-05-2004"
+                    label="Digital Skills"
+                    value={skillsInfo.digitalSkills.join(", ")}
+                    placeholder="eg. LMS, MS Office"
                   />
-
                   <DisplayField
-                    label="Institution Name"
-                    value={professionalInfo.institutionName}
-                    className="institutionBasicHalfField"
+                    label="Skill Level"
+                    value={skillsInfo.skillLevel}
+                    placeholder="Eg. TOT"
                   />
-
-                  <IconDisplayField
-                    label="Campus Name"
-                    value={professionalInfo.campusName}
-                    placeholder="Enter Campus Name"
-                    icon="edit"
-                    className="institutionBasicHalfField institutionCampusNameField"
+                  <DisplayField
+                    label="Certifications"
+                    value={skillsInfo.certifications.join(", ")}
+                    placeholder="eg. Advanced"
                   />
-
-                  <div className="institutionField institutionDepartmentsField institutionBasicDepartmentsField institutionDepartmentsTextareaField">
-                    <label
-                      htmlFor="departments-managed-readonly"
-                      className="institutionFieldLabel"
-                    >
-                      Departments Managed(Maximum 250words)
-                    </label>
-
-                    <div className="institutionDepartmentsTextareaWrap institutionDepartmentsTextareaWrapReadOnly">
-                      <textarea
-                        id="departments-managed-readonly"
-                        name="departmentsManagedReadOnly"
-                        className="institutionTextarea institutionDepartmentsTextarea institutionDepartmentsTextareaReadOnly"
-                        value={professionalInfo.departmentsManaged}
-                        placeholder="Type departments separated by Commas"
-                        readOnly
-                      />
-                    </div>
-                  </div>
+                  <DisplayField
+                    label="Development Areas"
+                    value={skillsInfo.developmentAreas.join(", ")}
+                    placeholder="Eg. Generative AI"
+                  />
+                  <DisplayField
+                    label="Learning Interests"
+                    value={skillsInfo.areasOfInterest.join(", ")}
+                    placeholder="Eg. Generative AI"
+                  />
+                  <DisplayField
+                    label="Career Goals"
+                    value={skillsInfo.careerAspirations}
+                    placeholder="Eg. Generative AI"
+                  />
                 </div>
               )}
             </section>
@@ -2524,7 +3016,7 @@ export default function InstitutionAdminProfilePage() {
               <SectionHeader
                 title="Documents"
                 iconSrc={images.documents}
-                iconTone="pink"
+                iconTone="orange"
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
                 onEdit={() => startSectionEdit("documents")}
@@ -2547,101 +3039,54 @@ export default function InstitutionAdminProfilePage() {
                 </div>
               )}
 
-
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Govt Id Proof", "Supporting Documents"].map(
+                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
-                        label === "Govt Id Proof"
-                          ? `institutionGovernmentIdField ${
-                              governmentIdMenuOpen
-                                ? "institutionGovernmentIdFieldOpen"
-                                : ""
-                            }`
+                        label === "Government ID Proof"
+                          ? "institutionGovernmentIdField governmentIdProofField"
                           : ""
                       }`}
                       key={label}
                     >
                       <div className="institutionFieldLabel">
-                        {label === "Govt Id Proof"
+                        {label === "Government ID Proof"
                           ? "Government ID Proof"
                           : label}
                       </div>
                       {editingSection === "documents" ? (
                         <div
                           className={`institutionFilePicker ${
-                            label === "Govt Id Proof"
+                            label === "Government ID Proof"
                               ? "institutionGovernmentIdPicker"
                               : ""
                           }`}
                         >
-                          {label === "Govt Id Proof" && (
-                            <div className="institutionDocumentTypeWrap">
-                              <button
-                                type="button"
-                                className="institutionDocumentTypeSelect"
-                                aria-haspopup="listbox"
-                                aria-expanded={governmentIdMenuOpen}
-                                onClick={() =>
-                                  setGovernmentIdMenuOpen((current) => !current)
-                                }
-                              >
-                                <span>
-                                  {governmentIdDocumentType || "Document Type"}
-                                </span>
-                                <IconImage
-                                  src={images.arrowDown}
-                                  width={16}
-                                  height={16}
-                                  className={`institutionDocumentTypeArrow ${
-                                    governmentIdMenuOpen
-                                      ? "institutionDocumentTypeArrowOpen"
-                                      : ""
-                                  }`}
-                                />
-                              </button>
-
-                              {governmentIdMenuOpen && (
-                              <div
-                                className="institutionDocumentTypeMenu"
-                                role="listbox"
-                              >
-                                {[
-                                  "National ID",
-                                  "Passport",
-                                  "Driver’s License",
-                                  "Residence Permit",
-                                  "Permanent Resident Card",
-                                  "Voter ID",
-                                  "National Insurance ID",
-                                  "Tax ID",
-                                  "Military ID",
-                                  "Government Employee ID",
-                                  "Refugee / Asylum ID",
-                                  "Visa / Immigration Document",
-                                  "Birth Certificate",
-                                  "Other Government ID",
-                                ].map((option) => (
-                                  <button
-                                    key={option}
-                                    type="button"
-                                    role="option"
-                                    aria-selected={
-                                      governmentIdDocumentType === option
-                                    }
-                                    className="institutionDocumentTypeOption"
-                                    onClick={() => {
-                                      setGovernmentIdDocumentType(option);
-                                      setGovernmentIdMenuOpen(false);
-                                    }}
-                                  >
-                                    {option}
-                                  </button>
-                                ))}
-                              </div>
-                              )}
-                            </div>
+                          {label === "Government ID Proof" && (
+                            <GovernmentIdRaisedDropdown
+                              id="basic-government-id-document-type"
+                              value={governmentIdDocumentType}
+                              placeholder="Document Type"
+                              compact
+                              options={[
+                  "National ID",
+                  "Passport",
+                  "Driver’s License",
+                  "Residence Permit",
+                  "Permanent Resident Card",
+                  "Voter ID",
+                  "National Insurance ID",
+                  "Tax ID",
+                  "Military ID",
+                  "Government Employee ID",
+                  "Refugee / Asylum ID",
+                  "Visa / Immigration Document",
+                  "Birth Certificate",
+                  "Other Government ID",
+                ]}
+                              onChange={setGovernmentIdDocumentType}
+                            />
                           )}
 
                           <label className="institutionFilePickerControl">
@@ -2654,7 +3099,7 @@ export default function InstitutionAdminProfilePage() {
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
                                     | "Profile Photo"
-                                    | "Govt Id Proof"
+                                    | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
                               }
@@ -2662,20 +3107,14 @@ export default function InstitutionAdminProfilePage() {
                                 handleDocumentFileSelect(
                                   label as
                                     | "Profile Photo"
-                                    | "Govt Id Proof"
+                                    | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null
                                 );
                                 event.target.value = "";
                               }}
                             />
-                            <span
-                              className={`institutionChooseFileButton ${
-                                documentFiles[label]
-                                  ? "institutionChooseFileButtonUploaded"
-                                  : ""
-                              }`}
-                            >
+                            <span className="institutionChooseFileButton">
                               <IconImage
                                 src={images.upload}
                                 width={14}
@@ -2701,12 +3140,12 @@ export default function InstitutionAdminProfilePage() {
                       ) : (
                         <div
                           className={`institutionFilePreview ${
-                            label === "Govt Id Proof"
+                            label === "Government ID Proof"
                               ? "institutionGovernmentIdPicker"
                               : ""
                           }`}
                         >
-                          {label === "Govt Id Proof" && (
+                          {label === "Government ID Proof" && (
                             <div className="institutionDocumentTypeWrap">
                               <div className="institutionDocumentTypeSelect institutionDocumentTypeSelectDisabled">
                                 <span>
@@ -2724,11 +3163,7 @@ export default function InstitutionAdminProfilePage() {
 
                           <button
                             type="button"
-                            className={`institutionChooseFileButton ${
-                              documentFiles[label]
-                                ? "institutionChooseFileButtonUploaded"
-                                : ""
-                            }`}
+                            className="institutionChooseFileButton"
                             aria-label={`Choose ${label}`}
                           >
                             <IconImage
@@ -2765,7 +3200,7 @@ export default function InstitutionAdminProfilePage() {
 
               <div className="institutionConfirmationInner">
                 <div className="institutionFieldLabel">
-                  Self Declaration Confirmmation
+                  Self Declaration Confirmation
                 </div>
 
                 <label
@@ -2779,9 +3214,41 @@ export default function InstitutionAdminProfilePage() {
                     className="institutionConfirmationCheckbox"
                     checked={confirmation}
                     onChange={(event) => {
+                      if (event.target.checked && !profilePhotoCompleted) {
+                        showFlowPopup(
+                          "Please complete Profile Photo",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !registrationCompleted) {
+                        showFlowPopup(
+                          "Please complete Registration Data",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !professionalProfileCompleted) {
+                        showFlowPopup(
+                          "Please complete Professional Trainer Profile",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !skillsDevelopmentCompleted) {
+                        showFlowPopup(
+                          "Please complete Skills & Development",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
                       if (event.target.checked && !documentsCompleted) {
                         showFlowPopup(
-                          "Please complete and save Documents before Confirmation.",
+                          "Please complete Documents",
                           "confirmation"
                         );
                         return;

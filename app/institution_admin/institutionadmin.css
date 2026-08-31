@@ -1006,8 +1006,8 @@ button {
   background: #DFE6E9;
   border: 0.5px solid #2A7308;
   box-shadow:
-    -4px -4px 4px #FFFFFF,
-    4px 4px 8px #C4C4C4;
+     -4px -4px 4px #FFFFFF,
+     4px 4px 4px #C4C4C4;
   border-radius: 8px;
 
   color: #2A7308;
@@ -7923,4 +7923,1047 @@ body {
     .institutionDocumentTypeOption > span {
     margin-left: 0 !important;
   }
+}
+
+/* ==========================================================================
+   MOBILE NUMBER + ALTERNATE PHONE — COUNTRY CODE PANEL
+   Taken from the supplied reference code. No other section styles changed.
+   ========================================================================== */
+.institutionPhoneAccordion {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+.institutionPhoneAccordionOpen {
+  z-index: 5000;
+}
+.institutionPhoneMainTrigger {
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+}
+.institutionPhoneMainText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.institutionPhoneMainTrigger .institutionSelectArrow {
+  position: static !important;
+  flex: 0 0 30px;
+  transform: none !important;
+}
+.institutionPhoneMainTrigger
+  .institutionSelectArrow.institutionSelectArrowOpen {
+  transform: rotate(180deg) !important;
+}
+.institutionPhoneAccordionOpen > .institutionPhoneMainTrigger {
+  position: relative;
+  z-index: 2;
+  border-radius: 10px 10px 0 0;
+  box-shadow:
+    -7px -7px 12px #FFFFFF,
+    7px 7px 12px #C4C4C4;
+}
+.institutionPhonePanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 850;
+  width: 100%;
+  padding: 24px 14px 18px;
+  background: #DFE6E9;
+  border-radius: 0 0 12px 12px;
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.78),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.72);
+}
+.institutionPhonePanelLabel {
+  margin: 0 0 10px;
+  color: #2F3547;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.institutionPhoneCountryBox {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+.institutionPhoneCountryTrigger {
+  position: relative;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 44px 0 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #374151;
+  background: #DFE6E9;
+  border-radius: 7px;
+  box-shadow:
+    inset -4px -4px 6px #FFFFFF,
+    inset 4px 4px 7px #C4C4C4;
+  cursor: text;
+}
+.institutionPhoneCountryTriggerOpen {
+  border-radius: 7px 7px 0 0;
+}
+.institutionPhoneSearchMini {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  border: 2px solid #2F3547;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.institutionPhoneSearchMini::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  right: -6px;
+  bottom: -3px;
+  background: #2F3547;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.institutionPhoneCountrySearchInput {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 50px;
+  padding: 0;
+  color: #374151;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.institutionPhoneCountrySearchInput::placeholder {
+  color: #59616d;
+  opacity: 1;
+}
+.institutionPhoneSelectedCountryCode {
+  flex: 0 0 auto;
+  margin-right: 4px;
+  color: #374151;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.institutionPhoneArrow {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 24px !important;
+  height: 24px !important;
+  transform: translateY(-50%);
+  transition: transform 0.15s ease;
+  pointer-events: none;
+}
+.institutionPhoneArrowOpen {
+  transform: translateY(-50%) rotate(180deg);
+}
+.institutionPhoneCountryMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  background: #DFE6E9;
+  border-radius: 8px;
+  box-shadow:
+    -5px -5px 9px #FFFFFF,
+    5px 5px 9px rgba(196, 196, 196, 0.88);
+  z-index: 900;
+}
+.institutionPhoneCountryList {
+  width: 100%;
+  max-height: 184px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0;
+}
+.institutionPhoneCountryOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+.institutionPhoneCountryOptionSelected {
+  color: #2D4CC8;
+  font-weight: 600;
+}
+.institutionPhoneCountryName {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  overflow: visible;
+  font-size: 15px;
+  line-height: 21px;
+}
+.institutionPhoneCountryName > span:last-child {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: normal;
+}
+.institutionPhoneFlag {
+  width: 28px;
+  min-width: 28px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.institutionPhoneFlag svg {
+  display: block;
+  width: 28px;
+  height: 20px;
+}
+.institutionPhoneNumberTitle {
+  margin-top: 20px;
+}
+.institutionPhoneNumberInputWrap {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #DFE6E9;
+  border-radius: 7px;
+  box-shadow:
+   inset  -4px -4px 4px #FFFFFF,
+    inset 4px 4px 4px #C4C4C4;
+}
+.institutionPhoneNumberInputDisabled {
+  opacity: 0.72;
+}
+.institutionPhoneNumberInput {
+  width: 100%;
+  min-width: 0;
+  height: 50px;
+  padding: 0 16px;
+  color: #2F3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 15px;
+}
+@media (max-width: 700px) {
+  .institutionPhoneAccordion,
+  .institutionPhoneMainTrigger,
+  .institutionPhonePanel {
+    width: 100%;
+  }
+  .institutionPhoneMainTrigger {
+    min-height: 64px;
+  }
+  .institutionPhonePanel {
+    padding: 20px 12px 16px;
+  }
+  .institutionPhoneCountryTrigger {
+    min-height: 52px;
+    padding-left: 46px;
+    padding-right: 42px;
+  }
+  .institutionPhoneCountrySearchInput,
+  .institutionPhoneSelectedCountryCode {
+    font-size: 14px;
+  }
+  .institutionPhoneCountryName {
+    font-size: 13px;
+    gap: 9px;
+  }
+  .institutionPhoneFlag,
+  .institutionPhoneFlag svg {
+    width: 26px;
+    min-width: 26px;
+    height: 18px;
+  }
+}
+.institutionGrid,
+.institutionInformationCard,
+.institutionPhoneAccordion {
+  overflow: visible;
+}
+.institutionPhoneAccordionOpen .institutionPhonePanel {
+  margin-top: 0;
+}
+.institutionPhoneCountryOption.institutionCustomSelectOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+  position: relative;
+}
+.institutionPhoneCountryOption .institutionPhoneCountryName {
+  order: 1;
+}
+.institutionPhoneCountryOption .institutionRadioSelectCircle {
+  order: 2;
+  margin-left: auto;
+}
+.institutionPhoneCountryMenu {
+  background: #DFE6E9 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.institutionPhoneCountryList {
+  background: #DFE6E9 !important;
+  padding: 4px 0 6px !important;
+}
+.institutionPhoneCountryOption,
+.institutionPhoneCountryOption.institutionCustomSelectOption,
+.institutionPhoneCountryOption.institutionRadioSelectOption {
+  min-height: 44px !important;
+  padding: 6px 10px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  gap: 10px !important;
+}
+.institutionPhoneCountryName {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+.institutionPhoneCountryName > span:last-child {
+  display: block !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.institutionPhoneFlag,
+.institutionPhoneFlag svg {
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 17px !important;
+  flex: 0 0 24px !important;
+  border-radius: 1px !important;
+}
+.institutionPhoneCountryOption .institutionRadioSelectCircle {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  margin-left: 8px !important;
+}
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+}
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::before {
+  width: 14px !important;
+  height: 14px !important;
+}
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::after {
+  width: 5px !important;
+  height: 3px !important;
+}
+.institutionPhoneCountryOptionSelected {
+  color: #2D4CC8 !important;
+}
+@media (max-width: 700px) {
+  .institutionPhoneCountryOption,
+  .institutionPhoneCountryOption.institutionCustomSelectOption,
+  .institutionPhoneCountryOption.institutionRadioSelectOption {
+    min-height: 42px !important;
+    padding: 5px 8px !important;
+  }
+  .institutionPhoneCountryName {
+    gap: 8px !important;
+    font-size: 13px !important;
+    line-height: 18px !important;
+  }
+  .institutionPhoneFlag,
+  .institutionPhoneFlag svg {
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 15px !important;
+    flex: 0 0 22px !important;
+  }
+  .institutionPhoneCountryOption .institutionRadioSelectCircle,
+  .institutionPhoneCountryOption
+    .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    flex: 0 0 22px !important;
+  }
+}
+.institutionPhoneMainSavedValue {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #2F3547;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.institutionPhoneCountryTriggerOpen {
+  border-radius: 8px 8px 0 0 !important;
+  box-shadow:
+    -4px -4px 6px #FFFFFF,
+    4px 4px 7px #C4C4C4 !important;
+}
+.institutionPhoneCountryList {
+  width: 100% !important;
+  max-height: 184px !important;
+  padding: 3px 5px 5px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background: transparent !important;
+}
+.institutionPhoneCountryOption,
+.institutionPhoneCountryOption.institutionCustomSelectOption,
+.institutionPhoneCountryOption.institutionRadioSelectOption {
+  width: 100% !important;
+  min-height: 42px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 5px 8px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+.institutionPhoneCountryOption .institutionPhoneCountryName {
+  order: 1 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 9px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+.institutionPhoneCountryOption .institutionPhoneFlag,
+.institutionPhoneCountryOption .institutionPhoneFlag svg {
+  width: 22px !important;
+  min-width: 22px !important;
+  height: 15px !important;
+  flex: 0 0 22px !important;
+  display: block !important;
+  border-radius: 1px !important;
+}
+.institutionPhoneCountryText {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  color: inherit !important;
+  font-size: 12.5px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.institutionPhoneCountryOptionSelected .institutionPhoneCountryText {
+  color: #2D4CC8 !important;
+  font-weight: 600 !important;
+}
+.institutionPhoneCountryOption .institutionRadioSelectCircle,
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+  order: 2 !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  margin: 0 1px 0 auto !important;
+}
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::before {
+  width: 14px !important;
+  height: 14px !important;
+}
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::after {
+  width: 5px !important;
+  height: 3px !important;
+}
+.institutionPhoneCountryOption .institutionPhoneCountryName {
+  margin-right: 0 !important;
+}
+.institutionPhoneCountryList::-webkit-scrollbar {
+  width: 5px !important;
+}
+.institutionPhoneCountryList::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.institutionPhoneCountryList::-webkit-scrollbar-thumb {
+  background: #90989E !important;
+  border-radius: 10px !important;
+}
+.institutionPhoneCountryList {
+  scrollbar-width: thin !important;
+  scrollbar-color: #90989E transparent !important;
+}
+@media (max-width: 700px) {
+  .institutionPhoneCountryMenu {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+  .institutionPhoneCountryOption,
+  .institutionPhoneCountryOption.institutionCustomSelectOption,
+  .institutionPhoneCountryOption.institutionRadioSelectOption {
+    min-height: 40px !important;
+    padding: 5px 7px !important;
+    gap: 7px !important;
+  }
+  .institutionPhoneCountryOption .institutionPhoneCountryName {
+    gap: 7px !important;
+  }
+  .institutionPhoneCountryOption .institutionPhoneFlag,
+  .institutionPhoneCountryOption .institutionPhoneFlag svg {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 14px !important;
+    flex: 0 0 20px !important;
+  }
+  .institutionPhoneCountryText {
+    font-size: 11.5px !important;
+    line-height: 17px !important;
+  }
+  .institutionPhoneCountryOption .institutionRadioSelectCircle,
+  .institutionPhoneCountryOption
+    .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    flex: 0 0 22px !important;
+  }
+}
+@media (max-width: 700px) {
+  .institutionPhoneCountryOption .institutionPhoneCountryName {
+    align-items: center !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+  .institutionPhoneCountryText {
+    display: -webkit-box !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    line-height: 17px !important;
+    max-height: 34px !important;
+  }
+  .institutionPhoneCountryOption,
+  .institutionPhoneCountryOption.institutionCustomSelectOption,
+  .institutionPhoneCountryOption.institutionRadioSelectOption {
+    min-height: 48px !important;
+    height: auto !important;
+  }
+}
+@media (max-width: 900px) {
+  .institutionPhoneCountryOption .institutionPhoneCountryName {
+    min-width: 0 !important;
+    align-items: center !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+  .institutionPhoneCountryName > .institutionPhoneCountryText,
+  .institutionPhoneCountryName > span.institutionPhoneCountryText:last-child {
+    display: -webkit-box !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    line-height: 17px !important;
+    max-height: 34px !important;
+  }
+  .institutionPhoneCountryOption,
+  .institutionPhoneCountryOption.institutionCustomSelectOption,
+  .institutionPhoneCountryOption.institutionRadioSelectOption {
+    min-height: 48px !important;
+    height: auto !important;
+    align-items: center !important;
+  }
+}
+@media (max-width: 520px) {
+  .institutionPhoneCountryOption,
+  .institutionPhoneCountryOption.institutionCustomSelectOption,
+  .institutionPhoneCountryOption.institutionRadioSelectOption {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+    gap: 6px !important;
+  }
+  .institutionPhoneCountryOption .institutionPhoneCountryName {
+    gap: 7px !important;
+  }
+  .institutionPhoneCountryName > .institutionPhoneCountryText,
+  .institutionPhoneCountryName > span.institutionPhoneCountryText:last-child {
+    font-size: 11.5px !important;
+    line-height: 16px !important;
+    max-height: 32px !important;
+  }
+}
+.institutionPhoneCountryBox {
+  position: relative !important;
+  width: 100% !important;
+}
+.institutionPhoneCountryTriggerOpen {
+  position: relative !important;
+  z-index: 902 !important;
+  border-radius: 8px 8px 0 0 !important;
+  border-bottom: 0 !important;
+  background: #DFE6E9 !important;
+  box-shadow:
+    -4px -4px 6px #FFFFFF,
+    4px 4px 7px #C4C4C4 !important;
+}
+.institutionPhoneCountryMenu {
+  top: calc(100% - 1px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 2px 0 5px !important;
+  background: #DFE6E9 !important;
+  border-top: 0 !important;
+  border-radius: 0 0 8px 8px !important;
+  box-shadow:
+    4px 5px 7px rgba(196, 196, 196, 0.58) !important;
+  overflow: hidden !important;
+  z-index: 901 !important;
+}
+.institutionPhoneCountryTriggerOpen + .institutionPhoneCountryMenu {
+  margin-top: 0 !important;
+}
+.institutionPhoneCountryList {
+  margin: 0 !important;
+  padding: 4px 5px 5px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.institutionPhoneCountryOption,
+.institutionPhoneCountryOption.institutionCustomSelectOption,
+.institutionPhoneCountryOption.institutionRadioSelectOption {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+@media (max-width: 700px) {
+  .institutionPhoneCountryTriggerOpen,
+  .institutionPhoneCountryMenu {
+    width: 100% !important;
+  }
+  .institutionPhoneCountryMenu {
+    top: calc(100% - 1px) !important;
+  }
+}
+
+.institutionPhoneAccordion {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+.institutionPhoneAccordionOpen {
+  z-index: 5000 !important;
+}
+.institutionPhonePanel {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  min-height: 330px !important;
+  height: auto !important;
+  padding: 24px 14px 22px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  background: #DFE6E9 !important;
+  border-radius: 0 0 12px 12px !important;
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.78),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.68) !important;
+  overflow: visible !important;
+}
+.institutionPhoneCountryBox,
+.institutionPhoneCountryTrigger,
+.institutionPhoneNumberInputWrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+.institutionPhoneNumberTitle {
+  margin-top: 24px !important;
+}
+@media (max-width: 700px) {
+  .institutionPhonePanel {
+    min-height: 340px !important;
+    padding: 22px 12px 20px !important;
+  }
+}
+@media (max-width: 520px) {
+  .institutionPhonePanel {
+    min-height: 350px !important;
+  }
+}
+.institutionPhonePanel {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 22px 14px 12px !important;
+}
+.institutionPhoneNumberTitle {
+  margin-top: 20px !important;
+}
+.institutionPhonePanelActions {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+  padding: 0 !important;
+}
+.institutionPhonePanelAction {
+  min-width: 66px !important;
+  height: 30px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow:
+    -3px -3px 6px #FFFFFF,
+    3px 3px 6px rgba(196, 196, 196, 0.85) !important;
+  font-family: "Segoe UI" !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+.institutionPhonePanelCancel {
+  color: #374151 !important;
+}
+.institutionPhonePanelApply {
+  color: #2D4CC8 !important;
+}
+@media (max-width: 700px) {
+  .institutionPhonePanel {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 20px 12px 12px !important;
+  }
+  .institutionPhoneNumberTitle {
+    margin-top: 18px !important;
+  }
+  .institutionPhonePanelActions {
+    margin-top: 12px !important;
+    gap: 16px !important;
+    transform: translateY(8);
+    font-size: 14px;
+  }
+  .institutionPhonePanelAction {
+    min-width: 64px !important;
+    height: 30px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+}
+@media (max-width: 520px) {
+  .institutionPhonePanel {
+    min-height: 0 !important;
+    height: auto !important;
+    padding-bottom: 10px !important;
+  }
+  .institutionPhonePanelActions {
+    margin-top: 12px !important;
+  }
+}
+@media (max-width: 700px) {
+  .institutionPhonePanel {
+    padding-bottom: 16px !important;
+  }
+}
+@media (max-width: 520px) {
+  .institutionPhonePanel {
+    padding-bottom: 18px !important;
+  }
+  .institutionPhonePanelActions {
+    margin-bottom: 2px !important;
+  }
+}
+.institutionPhoneAccordionOpen {
+  position: relative !important;
+  z-index: 80 !important;
+}
+.institutionPhoneAccordionOpen > .institutionPhoneMainTrigger {
+  z-index: 81 !important;
+}
+.institutionPhonePanel {
+  z-index: 82 !important;
+}
+.institutionPhoneCountryMenu {
+  z-index: 83 !important;
+}
+@media (max-width: 1024px) {
+  .institutionPhoneAccordionOpen {
+    z-index: 80 !important;
+  }
+  .institutionPhonePanel {
+    z-index: 82 !important;
+  }
+  .institutionPhoneCountryMenu {
+    z-index: 83 !important;
+  }
+}
+@media (max-width: 700px) {
+  .institutionPhoneAccordionOpen {
+    z-index: 80 !important;
+  }
+  .institutionPhonePanel {
+    z-index: 82 !important;
+  }
+  .institutionPhoneCountryMenu {
+    z-index: 83 !important;
+  }
+}
+.institutionPhoneSearchMini {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* ==========================================================================
+   MOBILE NUMBER + ALTERNATE PHONE
+   COUNTRY CHECK — SELECTED STATE ONLY
+   Unselected country circle remains exactly as the original CSS.
+   ========================================================================== */
+
+/* Selected 28px neumorphic outer circle */
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  flex: 0 0 28px !important;
+  margin-left: auto !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+
+  overflow: visible !important;
+}
+
+/* Remove old selected-only pseudo graphics */
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::before,
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* 16px blue selected circle */
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive
+  .institutionRadioSelectCheck {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+  z-index: 3 !important;
+}
+
+/* White check mark inside selected blue circle */
+.institutionPhoneCountryOption
+  .institutionRadioSelectCircle.institutionRadioSelectCircleActive
+  .institutionRadioSelectCheck::after {
+  content: "" !important;
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 46% !important;
+
+  width: 5px !important;
+  height: 2.5px !important;
+
+  border-left: 1.5px solid #FFFFFF !important;
+  border-bottom: 1.5px solid #FFFFFF !important;
+
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+  transform-origin: center !important;
+}
+
+/* Tablet/mobile: change selected state only.
+   The original unselected phone-country circle is not overridden. */
+@media (max-width: 900px) {
+  .institutionPhoneCountryOption
+    .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    flex: 0 0 28px !important;
+
+    background: #DFE6E9 !important;
+    border: 0 !important;
+
+    box-shadow:
+      8px 8px 8px #C4C4C4,
+      -8px -8px 8px #FFFFFF !important;
+  }
+
+  .institutionPhoneCountryOption
+    .institutionRadioSelectCircle.institutionRadioSelectCircleActive
+    .institutionRadioSelectCheck {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   DOCUMENTS — CHOOSE FILE COLOR/BORDER STATE ONLY
+   No size, spacing, shadow, or layout changes.
+   ========================================================================== */
+
+/* BEFORE upload: black/dark text + black/dark icon + no green border */
+.institutionDocumentsCard
+  .institutionChooseFileButton:not(.institutionChooseFileButtonUploaded) {
+  color: #2F3547 !important;
+  border-color: transparent !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton:not(.institutionChooseFileButtonUploaded)
+  .institutionChooseFileIcon {
+  filter: brightness(0) saturate(100%) !important;
+}
+
+/* AFTER upload only: preserve the current green appearance */
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded {
+  color: #2A7308 !important;
+  border-color: #2A7308 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  .institutionChooseFileIcon {
+  filter: brightness(0) saturate(100%) invert(34%) sepia(39%) saturate(1004%) hue-rotate(57deg) brightness(88%) contrast(93%) !important;
+}
+
+
+/* FINAL: Choose File text must be dark/black before a file is uploaded */
+.institutionDocumentsCard
+  .institutionChooseFileButton:not(.institutionChooseFileButtonUploaded),
+.institutionDocumentsCard
+  .institutionChooseFileButton:not(.institutionChooseFileButtonUploaded)
+  span {
+  color: #2F3547 !important;
+}
+
+/* After upload keep the existing green text */
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded,
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  span {
+  color: #2A7308 !important;
 }
