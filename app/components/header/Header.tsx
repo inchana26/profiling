@@ -113,6 +113,9 @@ const STUDENT_ROUTES: Record<string, string[]> = {
 export default function Header() {
   const pathname = usePathname();
 
+  const [headerProfileImage, setHeaderProfileImage] =
+    useState<string | null>(null);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false);
 
@@ -151,6 +154,18 @@ export default function Header() {
     normalizedPath.startsWith("/student_profile") ||
     normalizedPath.startsWith("/studentprofile") ||
     normalizedPath.startsWith("/student_");
+
+  const isSuperAdmin =
+    normalizedPath.startsWith("/super_admin") ||
+    normalizedPath.startsWith("/superadmin");
+
+  const profileStorageKey = isPlatformAdmin
+    ? "platformAdminProfileImage"
+    : isInstitutionAdmin
+      ? "institutionAdminProfileImage"
+      : isSuperAdmin
+        ? "superAdminProfileImage"
+        : null;
 
   const currentPage = isGovernment
     ? GOVERNMENT_ROUTES[normalizedPath] ??
@@ -237,10 +252,46 @@ export default function Header() {
     : isBootcamp
       ? "/assets/institutionimages/profile.png"
       : isInstitutionAdmin
-        ? "/assets/institutionimages/profile.png"
+        ? headerProfileImage || "/assets/institutionimages/profile.png"
         : isPlatformAdmin
-          ? "/assets/platformadmin.imagesandicons/profile.png"
-          : "/assets/superadminimages/profile.png";
+          ? headerProfileImage || "/assets/platformadmin.imagesandicons/profile.png"
+          : isSuperAdmin
+            ? headerProfileImage || "/assets/superadminimages/profile.png"
+            : "/assets/superadminimages/profile.png";
+
+  useEffect(() => {
+    if (!profileStorageKey) {
+      setHeaderProfileImage(null);
+      return;
+    }
+
+    const loadHeaderProfileImage = () => {
+      const savedImage = localStorage.getItem(profileStorageKey);
+      setHeaderProfileImage(savedImage);
+    };
+
+    loadHeaderProfileImage();
+
+    window.addEventListener(
+      "profileImageUpdated",
+      loadHeaderProfileImage
+    );
+    window.addEventListener(
+      "storage",
+      loadHeaderProfileImage
+    );
+
+    return () => {
+      window.removeEventListener(
+        "profileImageUpdated",
+        loadHeaderProfileImage
+      );
+      window.removeEventListener(
+        "storage",
+        loadHeaderProfileImage
+      );
+    };
+  }, [profileStorageKey]);
 
   useEffect(() => {
     document.body.classList.toggle(

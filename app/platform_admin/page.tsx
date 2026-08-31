@@ -1003,6 +1003,16 @@ export default function PlatformAdminProfilePage() {
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const savedProfileImage = localStorage.getItem(
+      "platformAdminProfileImage"
+    );
+
+    if (savedProfileImage) {
+      setProfileImage(savedProfileImage);
+    }
+  }, []);
+
   const [registrationInfo, setRegistrationInfo] = useState({
     platformAdminId: "PRGEEQPR7U4U7KW",
     fullName: "Suresh Kumar",
@@ -1175,6 +1185,15 @@ export default function PlatformAdminProfilePage() {
     reader.onload = () => {
       if (typeof reader.result === "string") {
         setProfileImage(reader.result);
+
+        localStorage.setItem(
+          "platformAdminProfileImage",
+          reader.result
+        );
+
+        window.dispatchEvent(
+          new Event("profileImageUpdated")
+        );
       }
     };
     reader.readAsDataURL(file);

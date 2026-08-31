@@ -1441,6 +1441,14 @@ export default function SuperAdminPage() {
     (contactSectionCompleted ? 33 : 0);
 
   const profileCompleted = profileCompletionPercentage === 100;
+
+  useEffect(() => {
+    const savedProfileImage = localStorage.getItem("superAdminProfileImage");
+
+    if (savedProfileImage) {
+      setProfileImage(savedProfileImage);
+    }
+  }, []);
   
 
   useEffect(() => {
@@ -1497,7 +1505,18 @@ export default function SuperAdminPage() {
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") setProfileImage(reader.result);
+      if (typeof reader.result === "string") {
+        setProfileImage(reader.result);
+
+        localStorage.setItem(
+          "superAdminProfileImage",
+          reader.result
+        );
+
+        window.dispatchEvent(
+          new Event("profileImageUpdated")
+        );
+      }
     };
     reader.readAsDataURL(file);
     event.target.value = "";

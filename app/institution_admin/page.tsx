@@ -1714,6 +1714,15 @@ export default function InstitutionAdminProfilePage() {
       if (typeof reader.result === "string") {
         setProfileImage(reader.result);
         setProfilePhotoCompleted(true);
+
+        localStorage.setItem(
+          "institutionAdminProfileImage",
+          reader.result
+        );
+
+        window.dispatchEvent(
+          new Event("profileImageUpdated")
+        );
       }
     };
 
