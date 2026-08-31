@@ -1,0 +1,758 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #dfe6e9;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+.superAdminPage {
+  width: 100%;
+  min-height: 100vh;
+  background: #dfe6e9;
+  color: #374151;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+.dashboardLayout {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  overflow: clip;
+  background: #dfe6e9;
+}
+
+.mainContent {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.avatarImage {
+  object-fit: cover;
+}
+
+.pageContent {
+  padding: 22px 20px 24px;
+}
+
+.pageHeadingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 17px;
+}
+
+.pageHeading h1 {
+  margin: 0;
+  color: #374151;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pageHeading p {
+  margin: 13px 0 0;
+  color: #2f3547;
+  font-size: 14px;
+}
+
+.savedBadge {
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border-radius: 24px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 14px;
+  font-weight: 600;
+  animation: draftSavedAppear 0.18s ease-out;
+}
+
+@keyframes draftSavedAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profileOverviewCard {
+  min-height: 155px;
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: #dfe6e9;
+  border-radius: 15px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.profileIdentity {
+  width: 355px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.largeAvatarWrapper {
+  position: relative;
+  width: 126px;
+  height: 112px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.largeAvatar {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  margin-left: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #dfe6e9;
+  box-shadow: inset -4px -4px 8px #ffffff, inset 4px 4px 8px #c4c4c4;
+}
+
+.largeAvatar .avatarImage {
+  position: absolute !important;
+  width: 88px !important;
+  height: 88px !important;
+  top: 9px !important;
+  left: 9px !important;
+  right: auto !important;
+  bottom: auto !important;
+  border-radius: 50%;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+.cameraButton {
+  position: absolute;
+  width: 41px;
+  height: 41px;
+  left: 67px;
+  top: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #dfe6e9;
+  border-radius: 50%;
+  box-shadow: -4px -4px 4px rgba(255, 255, 255, 0.2), 4px 4px 4px #c4c4c4;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.profileImageInput {
+  display: none;
+}
+
+.identityContent {
+  margin-left: 15px;
+}
+
+.identityContent h2 {
+  margin: 0 0 7px;
+  color: #374151;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.roleName {
+  margin-bottom: 8px;
+  color: #2d4cc8;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.activeBadge {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  color: #2a7308;
+  background: #cdddc5;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.activeDot {
+  width: 9px;
+  height: 9px;
+  background: #2a7308;
+  border-radius: 50%;
+}
+
+.adminId {
+  margin-top: 17px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.verticalDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 28px 0 12px;
+  background: #bf1869;
+}
+
+.completionSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.completionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.completionHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.completionHeader span {
+  color: #2d4cc8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 15px;
+  margin-top: 14px;
+  padding: 3px;
+  background: #dfe6e9;
+  border-radius: 20px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.progressBar {
+  height: 100%;
+  background: #2d4cc8;
+  border-radius: 20px;
+}
+
+.studentCompletionSteps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px 0px;
+  margin-top: 15px;
+}
+
+.completionStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.completedCircle,
+.emptyCircle {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border-radius: 50%;
+}
+
+.completedCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: #487533;
+  font-size: 11px;
+}
+
+.emptyCircle {
+  border: 1px solid #bababa;
+}
+
+.profileTabs {
+  display: grid;
+  gap: 20px;
+  margin: 24px 0 28px;
+}
+
+.studentProfileTabs {
+  grid-template-columns: 170px 190px 160px;
+  justify-content: start;
+}
+
+.profileTab {
+  height: 42px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2f3547;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  cursor: pointer;
+}
+
+.profileTab span {
+  font-size: 16px;
+}
+
+.profileTabActive {
+  color: #2d4cc8;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+  font-weight: 600;
+}
+
+.informationCard {
+  position: relative;
+  margin-bottom: 22px;
+  padding: 20px;
+  background: #dfe6e9;
+  border-radius: 15px;
+  box-shadow: -8px -8px 8px #ffffff, 8px 8px 8px #c4c4c4;
+}
+
+.registrationCard {
+  min-height: 410px;
+}
+
+.informationHeader {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.informationTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.informationTitle h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.sectionIcon {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.registrationIcon {
+  background: #67096e;
+}
+
+.whiteIcon {
+  width: 14px !important;
+  height: 14px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.editButton {
+  padding: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.informationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.infoField {
+  min-height: 68px;
+  padding: 12px 13px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.infoLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.infoValue {
+  color: #2f3547;
+  font-size: 16px;
+}
+
+.registrationGrid .infoField:nth-child(10) {
+  grid-column: 1;
+}
+
+.basicEditHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-left: auto;
+}
+
+.basicActionButton {
+  min-width: 78px;
+  height: 38px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+}
+
+.basicSaveButton {
+  color: #2a7308;
+}
+
+.basicCancelButton {
+  color: #d65a00;
+}
+
+.basicStatusPopup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  z-index: 5;
+}
+
+.basicStatusSaved {
+  color: #2a7308;
+  border: 1px solid #6d9d54;
+}
+
+.basicStatusDiscarded {
+  color: #d65a00;
+  border: 1px solid #e29a64;
+}
+
+.basicEditableField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 13px;
+}
+
+.basicFieldText {
+  min-width: 0;
+  flex: 1;
+}
+
+.basicFieldInput {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: #2f3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+}
+
+.basicFieldIcon {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dfe6e9;
+  border-radius: 100px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px rgba(196, 196, 196, 0.8);
+  overflow: hidden;
+}
+
+.basicFieldIcon::before {
+  content: "";
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #dfe6e9;
+  border-radius: 50%;
+  box-shadow: 4px 4px 4px #c6c6c9, -4px -4px 4px #ffffff;
+  z-index: 0;
+}
+
+.basicFieldIcon img {
+  position: relative;
+  z-index: 1;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.basicPencilIcon {
+  cursor: pointer;
+}
+
+.basicLockIcon {
+  cursor: default;
+}
+
+
+
+@media (max-width: 1100px) {
+  .profileIdentity {
+    width: 320px;
+  }
+
+  .basicEditHeaderActions {
+    gap: 10px;
+  }
+
+  .basicActionButton {
+    min-width: 70px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .profileOverviewCard {
+    align-items: flex-start;
+  }
+
+  .profileIdentity {
+    width: 260px;
+  }
+
+  .studentCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .informationGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registrationGrid .infoField:nth-child(10) {
+    grid-column: auto;
+  }
+}
+
+
+
+@media (max-width: 700px) {
+  .superAdminPage {
+    padding: 0;
+  }
+
+  .dashboardLayout {
+    display: block;
+    min-height: 100vh;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .mainContent {
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .pageContent {
+    padding: 16px 12px;
+    padding-top: 16px;
+  }
+
+  .pageHeadingRow {
+    display: block;
+  }
+
+  .savedBadge {
+    width: fit-content;
+    margin-top: 15px;
+  }
+
+  .profileOverviewCard {
+    display: block;
+  }
+
+  .profileIdentity {
+    width: 100%;
+  }
+
+  .verticalDivider {
+    width: 100%;
+    height: 1px;
+    margin: 20px 0;
+  }
+
+  .studentCompletionSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .studentProfileTabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .informationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .registrationGrid .infoField:nth-child(10) {
+    grid-column: auto;
+  }
+
+  .informationHeader {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .basicEditHeaderActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .basicStatusPopup {
+    position: static;
+    transform: none;
+    width: fit-content;
+    margin-top: 8px;
+  }
+
+  .basicEditableField {
+    align-items: center;
+  }
+
+  .basicFieldIcon {
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+  }
+
+  .dashboardLayout > .sidebar {
+    position: static;
+    height: auto;
+    border-top-left-radius: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .studentProfileTabs {
+    grid-template-columns: 1fr;
+  }
+
+  .studentCompletionSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .completionHeader h3 {
+    font-size: 16px;
+  }
+
+  .completionHeader span {
+    font-size: 12px;
+  }
+
+  .identityContent h2 {
+    font-size: 18px;
+  }
+
+  .basicEditHeaderActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .basicActionButton {
+    width: 100%;
+  }
+}
+
+
+
+.mainContent .topHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.dashboardLayout > .sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: flex-start;
+  border-top-left-radius: 16px;
+}
+
+
+@media (max-width: 700px) {
+  .dashboardLayout {
+    display: block;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .dashboardLayout > .sidebar {
+    position: static;
+    top: auto;
+    height: auto;
+    align-self: auto;
+    border-top-left-radius: 0;
+  }
+}
+

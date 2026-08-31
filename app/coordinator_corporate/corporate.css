@@ -1,0 +1,3754 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #dfe6e9;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100%;
+  min-height: 100vh;
+  padding: 8px;
+  color: #2f3547;
+  background: #dfe6e9;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+.dashboardLayout {
+  width: 100%;
+  min-height: calc(100vh - 16px);
+  display: flex;
+  overflow: hidden;
+  background: #dfe6e9;
+  border-radius: 10px;
+  box-shadow: -6px -6px 12px #ffffff, 6px 6px 12px #c4c4c4;
+}
+
+.mainContent {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.institutionPageContent {
+  flex: 1 1 auto;
+  padding: 22px 20px 34px;
+}
+
+.institutionHeadingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 17px;
+}
+
+.institutionHeadingRow h1 {
+  margin: 0;
+  color: #2f3547;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.institutionHeadingRow p {
+  margin: 13px 0 0;
+  color: #4c5568;
+  font-size: 14px;
+}
+
+.savedBadge {
+  min-height: 45px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border-radius: 24px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.institutionOverviewCard {
+  min-height: 155px;
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: #dfe6e9;
+  border-radius: 15px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionIdentity {
+  width: 355px;
+  flex: 0 0 355px;
+  display: flex;
+  align-items: center;
+}
+
+.institutionAvatarWrap {
+  position: relative;
+  width: 126px;
+  height: 112px;
+  flex: 0 0 126px;
+}
+
+.institutionAvatar {
+  position: absolute;
+  width: 106px;
+  height: 106px;
+  left: 4px;
+  top: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+  background: #dfe6e9;
+  border-radius: 50%;
+  box-shadow:
+    -5px -5px 10px rgba(255, 255, 255, 0.95),
+    5px 5px 10px rgba(196, 196, 196, 0.9),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.8),
+    inset 3px 3px 6px rgba(196, 196, 196, 0.55);
+}
+
+.institutionAvatarInner {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  background: #dfe6e9;
+  border-radius: 50%;
+}
+
+.institutionAvatarImage {
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+}
+
+.institutionAvatarEmpty {
+  width: 88px;
+  height: 88px;
+  background: #dfe6e9;
+  border-radius: 50%;
+}
+
+.institutionCameraButton {
+  position: absolute;
+  left: 66px;
+  top: 66px;
+  width: 41px;
+  height: 41px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dfe6e9;
+  border-radius: 50%;
+  box-shadow: -4px -4px 7px #ffffff, 4px 4px 7px #c4c4c4;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.institutionProfileImageInput {
+  display: none;
+}
+
+.institutionIdentityText h2 {
+  margin: 0 0 7px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.institutionRole {
+  margin-bottom: 8px;
+  color: #2d4cc8;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.institutionActiveBadge {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  color: #2a7308;
+  background: #cdddc5;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.institutionActiveDot {
+  width: 9px;
+  height: 9px;
+  background: #2a7308;
+  border-radius: 50%;
+}
+
+.institutionAdminId {
+  margin-top: 17px;
+  font-size: 16px;
+}
+
+.institutionDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 28px 0 12px;
+  background: #2d4cc8;
+}
+
+.institutionCompletion {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.institutionCompletionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.institutionCompletionHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.institutionCompletionHeader span {
+  color: #2d4cc8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.institutionProgressTrack {
+  width: 100%;
+  height: 15px;
+  margin-top: 14px;
+  padding: 3px;
+  background: #dfe6e9;
+  border-radius: 20px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionProgressBar {
+  height: 100%;
+  background: #2d4cc8;
+  border-radius: 20px;
+}
+
+.institutionCompletionSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px 24px;
+  margin-top: 15px;
+}
+
+.institutionCompletionStep {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.institutionCompletedCircle,
+.institutionEmptyCircle {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border: 1px solid #aaaeb5;
+  border-radius: 50%;
+}
+
+.institutionCompletedCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #487533;
+  border-color: #487533;
+  font-size: 11px;
+}
+
+.institutionBasicTab {
+  width: fit-content;
+  min-width: 195px;
+  height: 42px;
+  margin: 24px 0 28px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2d4cc8;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: inset -3px -3px 4px #ffffff, inset 3px 3px 4px #c4c4c4;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.institutionInformationCard {
+  margin-bottom: 22px;
+  padding: 20px;
+  background: #dfe6e9;
+  border-radius: 15px;
+  box-shadow: -8px -8px 8px #ffffff, 8px 8px 8px #c4c4c4;
+}
+
+.institutionInformationHeader {
+  min-height: 30px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.institutionInformationTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.institutionInformationTitle h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.institutionSectionIcon {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.institutionPurpleIcon {
+  background: #67096e;
+}
+
+.institutionPinkIcon {
+  background: #bf1869;
+}
+
+.institutionWhiteIcon {
+  filter: brightness(0) invert(1);
+}
+
+.institutionEditButton {
+  width: 34px;
+  height: 34px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+}
+
+.institutionEditActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.institutionActionButton {
+  min-width: 78px;
+  height: 36px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.institutionSaveButton {
+  color: #2a7308;
+}
+
+.institutionCancelButton {
+  color: #d65a00;
+}
+
+.institutionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.institutionField {
+  min-width: 0;
+  min-height: 68px;
+  padding: 12px 13px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionEditableField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 10px;
+}
+
+.institutionFieldText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.institutionFieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #2f3547;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.institutionFieldValue,
+.institutionFieldInput,
+.institutionSelect,
+.institutionTextarea {
+  width: 100%;
+  color: #4c5568;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.institutionFieldInput,
+.institutionSelect,
+.institutionTextarea {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+.institutionFieldInput {
+  min-height: 24px;
+}
+
+.institutionPlaceholder {
+  color: #6b7280;
+}
+
+.institutionFieldAction {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dfe6e9;
+  box-shadow:
+    inset -4px -4px 4px #ffffff,
+    inset 4px 4px 4px rgba(196, 196, 196, 0.8);
+  border-radius: 50%;
+}
+
+.institutionFieldAction::before {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #dfe6e9;
+  box-shadow: 4px 4px 4px #c6c6c9, -4px -4px 4px #ffffff;
+  border-radius: 50%;
+}
+
+.institutionFieldAction img {
+  position: relative;
+  z-index: 1;
+}
+
+.institutionSelectField {
+  position: relative;
+}
+
+.institutionSelectWrap {
+  position: relative;
+}
+
+.institutionSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 24px;
+}
+
+.institutionSelectArrow {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.institutionSpanTwo {
+  grid-column: span 2;
+}
+
+.institutionDepartmentsField {
+  grid-column: 1 / -1;
+  min-height: 92px;
+}
+
+.institutionTextarea {
+  min-height: 54px;
+  resize: vertical;
+}
+
+.institutionDocumentsGrid .institutionField {
+  min-height: 76px;
+}
+
+.institutionFileInput {
+  width: 100%;
+  max-width: 100%;
+  color: #4c5568;
+  font-size: 12px;
+}
+
+.institutionFileInput::file-selector-button {
+  margin-right: 10px;
+  padding: 6px 10px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border: 1px solid #76a565;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.institutionFilePreview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4c5568;
+  font-size: 12px;
+}
+
+.institutionChooseFileButton {
+  padding: 5px 10px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border: 1px solid #76a565;
+  border-radius: 5px;
+}
+
+.institutionConfirmationCard {
+  padding-bottom: 20px;
+}
+
+.institutionConfirmationTitle {
+  margin-bottom: 18px;
+}
+
+.institutionConfirmationInner {
+  min-height: 84px;
+  padding: 14px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionCheckRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4c5568;
+  font-size: 14px;
+  cursor: pointer;
+  transform: translatey(4);
+}
+
+.institutionCheckRow input {
+  width: 20px;
+  height: 20px;
+  accent-color: #2f8754;
+}
+
+.institutionBottomActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 10px 8px 16px;
+}
+
+.institutionBottomButton {
+  min-width: 150px;
+  height: 48px;
+  padding: 0 20px;
+  background: #dfe6e9;
+  border-radius: 24px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.institutionReviewButton {
+  color: #2d4cc8;
+}
+
+.institutionFinalSaveButton {
+  color: #2a7308;
+}
+
+.institutionProfessionalGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.institutionProfessionalGrid > :nth-child(1),
+.institutionProfessionalGrid > :nth-child(2),
+.institutionProfessionalGrid > :nth-child(3),
+.institutionProfessionalGrid > :nth-child(4),
+.institutionProfessionalGrid > :nth-child(5),
+.institutionProfessionalGrid > :nth-child(6) {
+  grid-column: span 2;
+}
+
+.institutionProfessionalGrid > :nth-child(7),
+.institutionProfessionalGrid > :nth-child(8) {
+  grid-column: span 3;
+}
+
+.institutionProfessionalGrid > :nth-child(9) {
+  grid-column: 1 / -1;
+}
+
+.institutionCompletedCircle {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.institutionCompletedCircle img {
+  width: 17px !important;
+  height: 17px !important;
+  object-fit: contain;
+}
+
+.institutionDateInput {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.institutionDateInput::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+.institutionCalendarAction {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.institutionFilePicker,
+.institutionFilePreview {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.institutionNativeFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.institutionChooseFileButton {
+  min-height: 29px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border: 1px solid #76a565;
+  border-radius: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.institutionFileName,
+.institutionFilePreview > span {
+  min-width: 0;
+  overflow: hidden;
+  color: #4c5568;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionBottomActions {
+  margin-top: 4px;
+  padding-right: 8px;
+  padding-bottom: 24px;
+}
+
+.institutionBottomButton {
+  min-width: 137px;
+  height: 44px;
+}
+
+.institutionInformationCard {
+  overflow: visible;
+}
+
+.institutionEditButton img,
+.institutionActionButton img,
+.institutionFieldAction img,
+.institutionSectionIcon img,
+.institutionChooseFileButton img,
+.institutionBasicTab img,
+.institutionCameraButton img {
+  display: block;
+  object-fit: contain;
+}
+
+.institutionInformationCard:not(.institutionConfirmationCard) {
+  align-self: stretch;
+}
+
+.institutionSectionIcon {
+  overflow: hidden;
+}
+
+.institutionSectionIcon img {
+  max-width: 18px;
+  max-height: 18px;
+}
+
+.institutionEditActions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.institutionHeaderActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
+.institutionInlinePopup {
+  min-width: 148px;
+  height: 38px;
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  background: #dfe6e9;
+  border-radius: 7px;
+
+  box-shadow:
+    -4px -4px 8px #ffffff,
+    4px 4px 8px #c4c4c4;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  animation: institutionInlinePopupIn 0.18s ease-out;
+}
+
+.institutionInlinePopupSaved {
+  color: #2a7308;
+  border: 1px solid #78a96a;
+}
+
+.institutionInlinePopupDiscarded {
+  color: #d65a00;
+  border: 1px solid #e59a67;
+}
+
+.institutionInlinePopupIcon {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+
+@keyframes institutionInlinePopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.institutionBasicInfoGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.institutionBasicInfoGrid > :nth-child(1),
+.institutionBasicInfoGrid > :nth-child(2),
+.institutionBasicInfoGrid > :nth-child(3),
+.institutionBasicInfoGrid > :nth-child(4),
+.institutionBasicInfoGrid > :nth-child(5),
+.institutionBasicInfoGrid > :nth-child(6),
+.institutionBasicInfoGrid > :nth-child(7),
+.institutionBasicInfoGrid > :nth-child(8),
+.institutionBasicInfoGrid > :nth-child(9) {
+  grid-column: span 2;
+}
+
+.institutionBasicInfoGrid > .institutionBasicHalfField {
+  grid-column: span 3;
+}
+
+.institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+  grid-column: 1 / -1;
+}
+
+.institutionStaticSelectIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.institutionBasicDepartmentsField.institutionEditableField,
+.institutionBasicDepartmentsField {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.institutionBasicDepartmentsField .institutionFieldText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.institutionOverviewCard {
+  margin-bottom: 24px;
+}
+
+.institutionInformationCard {
+  margin-top: 0;
+}
+
+.institutionBasicInfoReadOnly .institutionFieldAction,
+.institutionBasicInfoReadOnly .institutionStaticSelectIcon {
+  display: none !important;
+}
+
+.institutionBasicInfoGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.institutionBasicInfoGrid > :nth-child(1),
+.institutionBasicInfoGrid > :nth-child(2),
+.institutionBasicInfoGrid > :nth-child(3),
+.institutionBasicInfoGrid > :nth-child(4),
+.institutionBasicInfoGrid > :nth-child(5),
+.institutionBasicInfoGrid > :nth-child(6),
+.institutionBasicInfoGrid > :nth-child(7),
+.institutionBasicInfoGrid > :nth-child(8),
+.institutionBasicInfoGrid > :nth-child(9) {
+  grid-column: span 2;
+}
+
+.institutionBasicInfoGrid > .institutionBasicHalfField {
+  grid-column: span 3;
+}
+
+.institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+  grid-column: 1 / -1;
+}
+
+.institutionBasicInfoGrid .institutionSelectArrow {
+  width: 15px !important;
+  height: 15px !important;
+  right: 1px;
+}
+
+.institutionBasicInfoReadOnly
+  .institutionBasicDepartmentsField {
+  display: block;
+}
+
+.institutionBasicInfoReadOnly
+  .institutionBasicDepartmentsField
+  .institutionFieldLabel {
+  display: block;
+}
+
+.institutionBasicInfoReadOnly
+  .institutionBasicDepartmentsField
+  .institutionFieldValue {
+  display: block;
+  width: 100%;
+}
+
+.institutionBasicInfoGrid:not(.institutionBasicInfoReadOnly)
+  .institutionBasicDepartmentsField {
+  display: flex;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0 12px;
+  gap: 8px;
+
+  width: 124px;
+  height: 36px;
+
+  background: #DFE6E9;
+  border: 0.5px solid #2A7308;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+  border-radius: 8px;
+
+  color: #2A7308;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.institutionDocumentsCard .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  object-fit: contain;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.03em;
+
+  color: #2A7308;
+}
+
+.institutionDocumentsCard .institutionFilePreview,
+.institutionDocumentsCard .institutionFilePicker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transform: translatey(4);
+}
+
+.institutionDocumentsCard .institutionFileName,
+.institutionDocumentsCard .institutionFilePreview > .institutionFileName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionDocumentsCard .institutionHeaderActions {
+  margin-left: auto;
+}
+
+.institutionDocumentsCard .institutionEditActions {
+  display: flex;
+  align-items: center;
+}
+
+.institutionCheckRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.institutionConfirmationCheckbox {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.institutionConfirmationCheckBox {
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px;
+
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 8px;
+
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  cursor: pointer;
+}
+
+.institutionConfirmationCheckMark {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border-radius: 5px;
+}
+
+.institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark {
+  background: #186348;
+}
+
+.institutionConfirmationCheckMark::after {
+  content: "";
+  position: absolute;
+
+  width: 8px;
+  height: 4px;
+
+  left: 50%;
+  top: 46%;
+
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark::after {
+  opacity: 1;
+}
+
+.institutionConfirmationCheckBoxActive {
+  transform: none;
+  background: #DFE6E9;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionConfirmationCheckbox:focus-visible
+  + .institutionConfirmationCheckBox {
+  outline: 2px solid #186348;
+  outline-offset: 2px;
+}
+
+.institutionDepartmentsTextareaField {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  position: relative;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.institutionDepartmentsTextareaField .institutionFieldLabel {
+  flex: 0 0 auto;
+}
+
+.institutionDepartmentsTextarea {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 54px;
+  height: 100%;
+  margin: 0;
+  padding: 0 2px 2px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #4c5568;
+  resize: both;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.institutionDepartmentsTextareaReadOnly {
+  pointer-events: none;
+  resize: both;
+}
+
+.institutionDepartmentsTextareaField .institutionFieldAction {
+  display: none !important;
+}
+
+.institutionDepartmentsTextareaField textarea::-webkit-resizer {
+  background: transparent;
+}
+
+.institutionDepartmentsTextareaField {
+  overflow: hidden;
+}
+
+.institutionDepartmentsTextareaWrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 54px;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.institutionDepartmentsTextareaWrap .institutionDepartmentsTextarea {
+  width: 100%;
+  height: 100%;
+  min-height: 54px;
+  padding-right: 54px;
+  padding-bottom: 2px;
+  resize: both;
+  overflow: auto;
+}
+
+.institutionDepartmentsTextareaField .institutionDepartmentsEditAction {
+  display: flex !important;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.institutionDepartmentsTextareaWrap textarea::-webkit-resizer,
+.institutionDepartmentsTextareaReadOnly::-webkit-resizer {
+  background: transparent;
+}
+
+.institutionBasicInfoReadOnly .institutionDepartmentsTextareaField {
+  overflow: hidden;
+}
+
+.institutionBasicInfoReadOnly .institutionDepartmentsTextareaReadOnly {
+  width: 100%;
+  padding-right: 0;
+  padding-bottom: 2px;
+  resize: both;
+}
+
+.institutionBasicInfoGrid:not(.institutionBasicInfoReadOnly)
+  .institutionDepartmentsTextareaField
+  .institutionDepartmentsEditAction {
+  display: flex !important;
+}
+
+.institutionSelectField {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionSelectWrap {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionCustomSelectTrigger {
+  width: 100%;
+  min-height: 24px;
+  padding: 0 34px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4c5568;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.institutionCustomSelectTrigger .institutionSelectArrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 30px !important;
+  height: 30px !important;
+  transform: translateY(-50%);
+}
+
+.institutionCustomSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+.institutionCustomSelectList {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: calc(100% + 14px);
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 14px;
+
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px rgba(196, 196, 196, 0.85);
+}
+
+.institutionCustomSelectOption {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+
+  color: #2f3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCustomSelectOptionActive {
+  color: #2D4CC8;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionCustomSelectOption:hover,
+.institutionCustomSelectOption:focus-visible {
+  color: #2D4CC8;
+  outline: 0;
+}
+
+.institutionBasicInfoGrid > * {
+  grid-column: span 2;
+}
+
+.institutionDateField {
+  position: relative;
+  overflow: visible;
+  z-index: 20;
+}
+
+.institutionCalendarPopup {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  z-index: 500;
+  width: 410px;
+  padding: 15px 17px 17px;
+  color: #2f3547;
+  background: #dfe6e9;
+  border-radius: 18px;
+  box-shadow: -8px -8px 16px #ffffff, 8px 8px 16px rgba(196, 196, 196, 0.9);
+}
+
+.institutionCalendarTopRow {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1.45fr) minmax(0, 1fr) 46px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.institutionCalendarArrow,
+.institutionCalendarSelect,
+.institutionCalendarDay,
+.institutionCalendarChoice,
+.institutionCalendarRoundArrow {
+  color: #2f3547;
+  background: #dfe6e9;
+  border: 0;
+  cursor: pointer;
+  box-shadow: -5px -5px 10px #ffffff, 5px 5px 10px rgba(196, 196, 196, 0.88);
+}
+
+.institutionCalendarArrow {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.institutionCalendarSelect {
+  height: 46px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  font-size: 20px;
+  text-align: left;
+}
+
+.institutionCalendarWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin: 0 0 8px;
+  text-align: center;
+  color: #596174;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.institutionCalendarDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.institutionCalendarDay {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.institutionCalendarMuted {
+  color: #9298a3;
+  box-shadow: inset -3px -3px 6px rgba(255, 255, 255, 0.75), inset 3px 3px 6px rgba(196, 196, 196, 0.55);
+}
+
+.institutionCalendarSelected {
+  color: #2d4cc8;
+  font-weight: 700;
+  box-shadow: inset -4px -4px 7px #ffffff, inset 4px 4px 7px rgba(196, 196, 196, 0.9);
+}
+
+.institutionCalendarMonths,
+.institutionCalendarYears {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px 8px;
+}
+
+.institutionCalendarChoice {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.institutionCalendarYearRange {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  gap: 9px;
+  align-items: center;
+  margin: 2px 0 9px;
+  text-align: center;
+  font-size: 17px;
+}
+
+.institutionCalendarRoundArrow {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #2d4cc8;
+  font-size: 24px;
+}
+
+.institutionCalendarArrow:active,
+.institutionCalendarSelect:active,
+.institutionCalendarDay:active,
+.institutionCalendarChoice:active,
+.institutionCalendarRoundArrow:active {
+  box-shadow: inset -4px -4px 7px #ffffff, inset 4px 4px 7px rgba(196, 196, 196, 0.85);
+}
+
+.institutionCalendarArrow:focus-visible,
+.institutionCalendarSelect:focus-visible,
+.institutionCalendarDay:focus-visible,
+.institutionCalendarChoice:focus-visible,
+.institutionCalendarRoundArrow:focus-visible {
+  outline: 2px solid #2d4cc8;
+  outline-offset: 2px;
+}
+
+.institutionCompletionSteps .institutionProfileStepCheck {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  background: #487533;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.institutionProfileStepCheckMark {
+  position: relative;
+  width: 9px;
+  height: 6px;
+  display: block;
+}
+
+.institutionProfileStepCheckMark::after {
+  content: "";
+  position: absolute;
+
+  left: 1px;
+  top: 0px;
+
+  width: 6px;
+  height: 3px;
+
+  border-left: 1.6px solid #ffffff;
+  border-bottom: 1.6px solid #ffffff;
+
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.institutionCompletionSteps .institutionProfileStepCheck img {
+  display: none !important;
+}
+
+.institutionCoordinatorSteps {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px 22px;
+}
+
+.institutionRegistrationGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.institutionActivityCard {
+  overflow: visible;
+}
+
+.institutionActivityHeader {
+  margin-bottom: 16px;
+}
+
+.institutionActivityIcon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.institutionActivityIcon-blue {
+  background: #2d5bc8;
+}
+
+.institutionActivityIcon-orange {
+  background: #c95f16;
+}
+
+.institutionActivityIcon-green {
+  background: #2f7d32;
+}
+
+.institutionActivityIcon-red {
+  background: #a91920;
+}
+
+.institutionActivityActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.institutionMiniAction {
+  min-width: 72px;
+  height: 34px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  color: #2a7308;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.institutionMiniDelete {
+  color: #2a7308;
+}
+
+.institutionActivityGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.institutionProofField {
+  grid-column: span 2;
+}
+
+.institutionActivityProjectGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.institutionActivityProjectGrid > :nth-child(1),
+.institutionActivityProjectGrid > :nth-child(2),
+.institutionActivityProjectGrid > :nth-child(3) {
+  grid-column: span 2;
+}
+
+.institutionActivityProjectGrid > .institutionProjectHalf {
+  grid-column: span 3;
+}
+
+.institutionActivityProjectGrid > .institutionProjectProof {
+  grid-column: span 3;
+}
+
+.institutionActivityCard .institutionField {
+  min-height: 68px;
+}
+
+.institutionActivityCard .institutionFilePicker,
+.institutionActivityCard .institutionFilePreview {
+  transform: translateY(1px);
+}
+
+.institutionActivityCard .institutionChooseFileButton,
+.institutionDocumentsCard .institutionChooseFileButton {
+  min-height: 29px;
+}
+
+.institutionActivityIcon {
+  overflow: hidden;
+}
+
+.institutionActivitySectionIcon {
+  width: 15px !important;
+  height: 15px !important;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.institutionMiniActionIcon {
+  width: 16pxpx !important;
+  display: block;
+  object-fit: contain;
+}
+
+.institutionActivityCard .institutionChooseFileButton {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  width: 124px;
+  height: 36px;
+  background: #DFE6E9;
+  border: 0.5px solid #2A7308;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+  border-radius: 8px;
+  color: #2A7308;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.institutionActivityCard .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 16px;
+  object-fit: contain;
+}
+
+.institutionActivityCard .institutionChooseFileButton > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.03em;
+  color: #2A7308;
+}
+
+.institutionActivityCard .institutionFilePreview,
+.institutionActivityCard .institutionFilePicker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transform: translateY(4px);
+}
+
+.institutionActivityCard .institutionFileName,
+.institutionActivityCard .institutionFilePreview > .institutionFileName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionCoordinatorSteps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 34px;
+  row-gap: 15px;
+}
+
+.institutionActivityIcon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.institutionActivityIcon-orange {
+  background: #c95f16;
+}
+
+.institutionActivitySectionIcon {
+  width: 15px !important;
+  height: 15px !important;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.institutionActivityActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.institutionMiniAction {
+  min-width: 74px;
+  height: 34px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.institutionMiniActionIcon {
+  width: 14px !important;
+  height: 14px !important;
+  display: block;
+  object-fit: contain;
+}
+
+.institutionResearchInnovationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.institutionResearchInnovationGrid > * {
+  min-width: 0;
+}
+
+.institutionResearchDetailsField {
+  grid-column: 1 / -1;
+  min-height: 100px;
+}
+
+.institutionResearchDetailsTextarea {
+  min-height: 58px;
+  resize: vertical;
+}
+
+.institutionResearchProofField {
+  grid-column: span 2;
+  max-width: 560px;
+}
+
+.institutionResearchInnovationCard .institutionChooseFileButton {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  width: 124px;
+  height: 36px;
+  background: #DFE6E9;
+  border: 0.5px solid #2A7308;
+  box-shadow: -4px -4px 4px #FFFFFF, 4px 4px 8px #C4C4C4;
+  border-radius: 8px;
+  color: #2A7308;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.institutionResearchInnovationCard .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  object-fit: contain;
+}
+
+.institutionResearchInnovationCard .institutionFilePicker,
+.institutionResearchInnovationCard .institutionFilePreview {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transform: translateY(4px);
+}
+
+.institutionResearchInnovationCard .institutionFileName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionSelectArrow {
+  top: 46% !important;
+  transform: translateY(-50%) !important;
+}
+
+.institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+.institutionFileError {
+  margin-top: 7px;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.institutionUploadField .institutionFilePicker {
+  max-width: 100%;
+}
+
+.institutionUploadField .institutionFileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionCustomSelectList {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: calc(100% + 12px);
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  padding: 11px;
+
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px rgba(196, 196, 196, 0.85);
+
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.institutionCustomSelectOption {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+
+  color: #2f3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCustomSelectOptionActive {
+  color: #2D4CC8;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionCustomSelectOption:hover,
+.institutionCustomSelectOption:focus-visible {
+  color: #2D4CC8;
+  outline: 0;
+}
+
+.institutionResearchActivities {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.institutionResearchActivityBlock {
+  min-width: 0;
+}
+
+.institutionResearchActivityBlock + .institutionResearchActivityBlock {
+  padding-top: 18px;
+  border-top: 1px solid rgba(76, 85, 104, 0.14);
+}
+
+.institutionResearchActivityTopRow {
+  min-height: 34px;
+  margin: 0 0 10px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.institutionResearchActivityNumber {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #4c5568;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.institutionResearchItemActions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.institutionResearchItemAction {
+  min-width: 70px;
+  height: 32px;
+  padding: 0 9px;
+  font-size: 14px;
+}
+
+.institutionEmptyCircle {
+  background: transparent;
+}
+
+.institutionConfirmationCheckBox:not(.institutionConfirmationCheckBoxActive)
+  .institutionConfirmationCheckMark {
+  background: transparent;
+}
+
+.institutionConfirmationCheckBox:not(.institutionConfirmationCheckBoxActive)
+  .institutionConfirmationCheckMark::after {
+  opacity: 0;
+}
+
+.institutionResearchBottomActions {
+  grid-column: 3;
+  align-self: end;
+
+  min-height: 68px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 18px;
+
+  padding: 0 2px 4px 0;
+}
+
+.institutionResearchSaveCancelButton {
+  min-width: 92px;
+  height: 42px;
+  padding: 0 14px;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.institutionResearchSaveCancelButton img {
+  width: 16px !important;
+  height: 16px !important;
+  object-fit: contain;
+}
+
+.institutionActivityHeaderRight {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+.dashboardLayout {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+
+  .dashboardLayout > :first-child {
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .dashboardLayout > .mainContent {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .dashboardLayout > .mainContent > :first-child {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 1180px) {
+.institutionIdentity {
+    width: 310px;
+    flex-basis: 310px;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionCoordinatorSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+.institutionOverviewCard {
+    align-items: flex-start;
+  }
+
+  .institutionIdentity {
+    width: 270px;
+    flex-basis: 270px;
+  }
+
+  .institutionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionSpanTwo {
+    grid-column: auto;
+  }
+
+  .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .institutionFieldLabel {
+    font-size: 15px;
+  }
+
+.institutionProfessionalGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionProfessionalGrid > * {
+    grid-column: auto !important;
+  }
+
+  .institutionProfessionalGrid > :nth-child(9) {
+    grid-column: 1 / -1 !important;
+  }
+
+.institutionBasicInfoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionBasicInfoGrid > *,
+  .institutionBasicInfoGrid > .institutionBasicHalfField {
+    grid-column: auto;
+  }
+
+  .institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+    grid-column: 1 / -1;
+  }
+
+.institutionBasicInfoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionBasicInfoGrid > *,
+  .institutionBasicInfoGrid > .institutionBasicHalfField {
+    grid-column: auto;
+  }
+
+  .institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+    grid-column: 1 / -1;
+  }
+
+.institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionDocumentsCard .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .institutionRegistrationGrid,
+  .institutionActivityGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionRegistrationGrid > *,
+  .institutionActivityGrid > * {
+    grid-column: auto;
+  }
+
+  .institutionActivityGrid > .institutionProofField {
+    grid-column: 1 / -1;
+  }
+
+  .institutionActivityProjectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionActivityProjectGrid > *,
+  .institutionActivityProjectGrid > .institutionProjectHalf,
+  .institutionActivityProjectGrid > .institutionProjectProof {
+    grid-column: auto;
+  }
+
+  .institutionActivityProjectGrid > .institutionProjectProof {
+    grid-column: 1 / -1;
+  }
+
+  .institutionResearchInnovationGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionResearchDetailsField,
+  .institutionResearchProofField {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .institutionResearchBottomActions {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 48px;
+    padding-top: 4px;
+    justify-content: flex-end;
+  }
+}
+
+
+@media (max-width: 520px) {
+.institutionHeadingRow h1 {
+    font-size: 18px;
+  }
+
+  .institutionIdentity {
+    align-items: flex-start;
+  }
+
+  .institutionAvatarWrap {
+    width: 110px;
+    flex-basis: 110px;
+  }
+
+  .institutionIdentityText h2 {
+    font-size: 20px;
+  }
+
+  .institutionRole,
+  .institutionAdminId {
+    font-size: 14px;
+  }
+
+  .institutionCompletionHeader {
+    align-items: flex-start;
+  }
+
+  .institutionCompletionHeader h3 {
+    font-size: 17px;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionBasicTab {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .institutionInformationHeader {
+    flex-wrap: wrap;
+  }
+
+  .institutionEditActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionField {
+    min-height: 64px;
+  }
+
+  .institutionFieldAction {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .institutionFieldAction::before {
+    width: 28px;
+    height: 28px;
+  }
+
+  .institutionFilePreview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .institutionBottomActions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .institutionBottomButton {
+    width: 100%;
+  }
+
+.institutionBottomActions {
+    padding-right: 0;
+  }
+
+  .institutionChooseFileButton {
+    flex: 0 0 auto;
+  }
+
+.institutionInformationHeader {
+    gap: 10px;
+  }
+
+  .institutionEditActions {
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+  }
+
+  .institutionActionButton {
+    min-width: 64px;
+    padding: 0 8px;
+  }
+
+.institutionHeaderActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionInlinePopup {
+    order: 1;
+  }
+
+  .institutionEditActions,
+  .institutionEditButton {
+    order: 2;
+  }
+
+.institutionCheckRow {
+    align-items: flex-start;
+  }
+
+  .institutionConfirmationCheckBox {
+    flex: 0 0 30px;
+  }
+
+  .institutionInformationHeader {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationTitle h2 {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .institutionHeaderActions {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .institutionEditButton {
+    flex: 0 0 auto !important;
+  }
+
+  .institutionBasicInfoGrid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    gap: 14px !important;
+  }
+
+  .institutionBasicInfoGrid > *,
+  .institutionBasicInfoGrid > .institutionBasicHalfField,
+  .institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionBasicHalfField,
+  .institutionBasicDepartmentsField,
+  .institutionDepartmentsTextareaField {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionBasicInfoGrid .institutionField {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionFieldText,
+  .institutionSelectWrap,
+  .institutionDepartmentsTextareaWrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .institutionFieldLabel,
+  .institutionFieldValue,
+  .institutionFieldInput,
+  .institutionSelect,
+  .institutionTextarea {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  .institutionDepartmentsTextareaWrap .institutionDepartmentsTextarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 54px !important;
+  }
+
+  .institutionDepartmentsTextareaField .institutionDepartmentsEditAction {
+    right: 0 !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions)) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions))
+    .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions))
+    .institutionHeaderActions {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    row-gap: 12px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionInformationTitle {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionHeaderActions {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    margin-left: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionEditActions {
+    width: auto !important;
+    margin-left: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionInlinePopup {
+    order: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionEditActions {
+    order: 1 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    row-gap: 10px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    order: 1 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionHeaderActions {
+    display: contents !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditButton {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionInlinePopup {
+    order: 3 !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)::after {
+    content: "";
+    order: 2 !important;
+    flex-basis: 100% !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditActions {
+    order: 4 !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+  }
+
+.institutionCustomSelectList {
+    left: -12px;
+    right: -12px;
+  }
+
+  .institutionCustomSelectOption {
+    min-height: 52px;
+  }
+
+  .institutionCoordinatorSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionActivityHeader {
+    flex-wrap: wrap;
+  }
+
+  .institutionActivityHeader .institutionInformationTitle {
+    flex: 1 1 100%;
+  }
+
+  .institutionActivityActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionRegistrationGrid .institutionField,
+  .institutionActivityGrid .institutionField,
+  .institutionActivityProjectGrid .institutionField {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .institutionActivityCard .institutionFilePicker,
+  .institutionActivityCard .institutionFilePreview {
+    flex-wrap: wrap;
+  }
+
+  .institutionActivityCard .institutionChooseFileButton {
+    flex: 0 0 auto;
+  }
+
+  .institutionCoordinatorSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionResearchInnovationCard .institutionActivityHeader {
+    flex-wrap: wrap;
+  }
+
+  .institutionResearchInnovationCard .institutionInformationTitle {
+    flex: 1 1 100%;
+  }
+
+  .institutionResearchInnovationCard .institutionActivityActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionResearchInnovationCard .institutionEditButton {
+    margin-left: auto;
+  }
+
+  .institutionUploadField .institutionFileName {
+    flex-basis: 100%;
+  }
+
+  .institutionResearchItemAction {
+    min-width: 66px;
+    height: 31px;
+    padding: 0 8px;
+  }
+
+  .institutionResearchInnovationCard .institutionActivityHeaderRight {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeaderRight
+    .institutionInlinePopup {
+    order: 2;
+  }
+}
+
+@media (max-width: 420px) {
+.institutionDocumentsCard .institutionChooseFileButton {
+    width: 124px;
+    flex: 0 0 124px;
+  }
+
+  .institutionResearchBottomActions {
+    justify-content: stretch;
+  }
+
+  .institutionResearchSaveCancelButton {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .institutionCalendarPopup {
+    width: min(410px, calc(100vw - 32px));
+    right: -10px;
+  }
+}
+
+
+.corporateCoordinatorPage .institutionEditButton {
+  width: 34px;
+  height: 34px;
+  padding: 5px;
+}
+
+.corporateCoordinatorPage .institutionFieldAction {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+}
+
+.corporateCoordinatorPage .institutionFieldAction::before {
+  width: 30px;
+  height: 30px;
+}
+
+.corporateCoordinatorPage .institutionFieldAction img {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.corporateCoordinatorPage .institutionSectionIcon {
+  width: 26px;
+  height: 26px;
+}
+
+.corporateCoordinatorPage .institutionSectionIcon img {
+  max-width: 18px;
+  max-height: 18px;
+}
+
+.corporateCoordinatorPage .institutionCompletedCircle,
+.corporateCoordinatorPage .institutionEmptyCircle {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
+.corporateCoordinatorPage .institutionCompletedCircle img {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.corporateCoordinatorPage .institutionInlinePopupIcon {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+}
+
+.corporateCoordinatorPage .institutionBasicInfoGrid .institutionSelectArrow {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.corporateCoordinatorPage .institutionDocumentsCard .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.corporateCoordinatorPage .institutionCameraButton {
+  width: 41px;
+  height: 41px;
+}
+
+
+.corporateCoordinatorPage .institutionCoordinatorSteps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 34px;
+  row-gap: 15px;
+}
+
+.corporateCoordinatorPage .institutionCompletedCircle.corporateStepDone {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #487533 !important;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.corporateCoordinatorPage .corporateCompletionCheckMark {
+  position: relative;
+  width: 9px;
+  height: 6px;
+  display: block;
+}
+
+.corporateCoordinatorPage .corporateCompletionCheckMark::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  width: 6px;
+  height: 3px;
+  border-left: 1.6px solid #ffffff;
+  border-bottom: 1.6px solid #ffffff;
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.corporateCoordinatorPage .institutionEmptyCircle {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  background: transparent;
+  border: 1px solid #aaaeb5;
+  border-radius: 50%;
+}
+
+
+.corporateCoordinatorPage .institutionCheckRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.corporateCoordinatorPage .institutionConfirmationCheckbox {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.corporateCoordinatorPage .institutionConfirmationCheckBox {
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 8px;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.corporateCoordinatorPage .institutionConfirmationCheckMark {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 5px;
+}
+
+.corporateCoordinatorPage
+  .institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark {
+  background: #186348;
+}
+
+.corporateCoordinatorPage .institutionConfirmationCheckMark::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 4px;
+  left: 50%;
+  top: 46%;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.corporateCoordinatorPage
+  .institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark::after {
+  opacity: 1;
+}
+
+.corporateCoordinatorPage .institutionConfirmationCheckBoxActive {
+  background: #DFE6E9;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.corporateCoordinatorPage
+  .institutionConfirmationCheckbox:focus-visible
+  + .institutionConfirmationCheckBox {
+  outline: 2px solid #186348;
+  outline-offset: 2px;
+}
+
+
+.corporateCoordinatorPage .institutionSelectField {
+  position: relative;
+  overflow: visible;
+}
+
+.corporateCoordinatorPage .institutionSelectWrap {
+  position: relative;
+  overflow: visible;
+}
+
+.corporateCoordinatorPage .institutionCustomSelectTrigger {
+  width: 100%;
+  min-height: 24px;
+  padding: 0 34px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4c5568;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.corporateCoordinatorPage
+  .institutionCustomSelectTrigger
+  .institutionSelectArrow {
+  position: absolute;
+  right: 0;
+  top: 46%;
+  width: 30px !important;
+  height: 30px !important;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.corporateCoordinatorPage .institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+.corporateCoordinatorPage .institutionCustomSelectList {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: calc(100% + 12px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 11px;
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px rgba(196, 196, 196, 0.85);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.corporateCoordinatorPage .institutionCustomSelectOption {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  color: #2f3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.corporateCoordinatorPage .institutionCustomSelectOptionActive {
+  color: #2D4CC8;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.corporateCoordinatorPage .institutionCustomSelectOption:hover,
+.corporateCoordinatorPage .institutionCustomSelectOption:focus-visible {
+  color: #2D4CC8;
+  outline: 0;
+}
+
+
+.dobNeumorphicField {
+  position: relative;
+  overflow: visible !important;
+  z-index: 100;
+}
+
+.dobNeumorphicValue {
+  width: 100%;
+  min-height: 24px;
+  padding: 0;
+  color: #4c5568;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dobNeumorphicIconButton {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.dobNeumorphicIconButton img {
+  position: relative;
+  z-index: 4;
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain;
+}
+
+.corporateRegistrationGrid,
+.institutionInformationCard {
+  overflow: visible !important;
+}
+
+.dobNeumorphicCalendar {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  z-index: 99999;
+  width: 380px;
+  padding: 12px 14px 14px;
+  color: #2f3547;
+  background: #dfe6e9;
+  border-radius: 14px;
+  box-shadow: -10px -10px 18px #ffffff, 10px 10px 18px rgba(196,196,196,.95);
+}
+
+.dobCalendarToolbar {
+  display: grid;
+  grid-template-columns: 42px minmax(0,1.45fr) minmax(0,.95fr) 42px;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dobCalendarArrow,
+.dobCalendarPicker,
+.dobCalendarDay,
+.dobCalendarPill,
+.dobCalendarRoundArrow {
+  color: #2f3547;
+  background: #dfe6e9;
+  border: 0;
+  cursor: pointer;
+  box-shadow: -5px -5px 10px #ffffff, 5px 5px 10px rgba(196,196,196,.9);
+}
+
+.dobCalendarArrow {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 23px;
+}
+
+.dobCalendarPicker {
+  height: 42px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.dobCalendarWeekdays,
+.dobCalendarDayGrid {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 5px;
+}
+
+.dobCalendarWeekdays {
+  margin-bottom: 6px;
+  color: #596174;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dobCalendarDay {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dobCalendarMuted {
+  color: #969ca8;
+  box-shadow: inset -3px -3px 6px rgba(255,255,255,.78), inset 3px 3px 6px rgba(196,196,196,.58);
+}
+
+.dobCalendarSelected,
+.dobCalendarPillSelected {
+  color: #2d4cc8;
+  font-weight: 700;
+  box-shadow: inset -4px -4px 7px #ffffff, inset 4px 4px 7px rgba(196,196,196,.9);
+}
+
+.dobCalendarPillGrid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px 7px;
+}
+
+.dobCalendarPill {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 26px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dobCalendarYearRange {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.dobCalendarRoundArrow {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #2d4cc8;
+  font-size: 19px;
+}
+
+.dobCalendarArrow:active,
+.dobCalendarPicker:active,
+.dobCalendarDay:active,
+.dobCalendarPill:active,
+.dobCalendarRoundArrow:active {
+  box-shadow: inset -4px -4px 7px #ffffff, inset 4px 4px 7px rgba(196,196,196,.9);
+}
+
+
+.institutionInformationHeader {
+  position: relative;
+}
+
+.institutionInlinePopup {
+  position: absolute;
+  right: 190px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  min-width: 172px;
+  height: 46px;
+  padding: 0 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  background: #dfe6e9;
+  border-radius: 9px;
+  box-shadow:
+    -4px -4px 8px #ffffff,
+    4px 4px 8px #c4c4c4;
+
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.institutionInlinePopupSaved {
+  color: #2a7308;
+  border: 1px solid #4d973b;
+}
+
+.institutionInlinePopupDiscarded {
+  color: #d65a00;
+  border: 1px solid #e8752e;
+}
+
+.institutionInlinePopupIcon {
+  width: 24px !important;
+  height: 24px !important;
+  flex: 0 0 24px;
+  object-fit: contain;
+}
+
+
+@media (max-width: 820px) {
+  .institutionInlinePopup {
+    position: static;
+    transform: none;
+    margin-left: auto;
+    margin-right: 10px;
+  }
+}
+
+
+@media (max-width: 700px) {
+.dobNeumorphicCalendar {
+    left: 0;
+    right: auto;
+    width: min(360px, calc(100vw - 24px));
+  }
+
+  .dobCalendarToolbar {
+    grid-template-columns: 38px minmax(0,1.35fr) minmax(0,.9fr) 38px;
+    gap: 6px;
+  }
+
+  .dobCalendarArrow { width: 38px; height: 40px; }
+  .dobCalendarPicker { height: 40px; padding: 0 8px; font-size: 13px; }
+  .dobCalendarDay { height: 32px; }
+.corporateCoordinatorPage {
+    overflow-x: clip;
+  }
+
+  .dobNeumorphicCalendar {
+    left: 0;
+    right: auto;
+    width: min(360px, calc(100vw - 40px));
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .dobCalendarToolbar,
+  .dobCalendarWeekdays,
+  .dobCalendarDayGrid,
+  .dobCalendarPillGrid,
+  .dobCalendarYearRange {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .dobCalendarPicker {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .dobCalendarPicker span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .institutionCoordinatorSteps,
+  .institutionCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 24px !important;
+    row-gap: 14px !important;
+  }
+
+  .institutionCompletionStep {
+    min-width: 0;
+    width: 100%;
+    white-space: normal;
+  }
+
+  .institutionCompletionStep > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
+
+
+@media (max-width: 767px) {
+.superAdminPage.institutionAdminPage {
+    padding: 0;
+  }
+
+  .dashboardLayout {
+    display: block;
+    min-height: 100vh;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .institutionPageContent {
+    padding: 15px 12px 24px;
+  }
+
+  .institutionHeadingRow {
+    display: block;
+  }
+
+  .savedBadge {
+    margin-top: 13px;
+    max-width: 100%;
+  }
+
+  .institutionOverviewCard {
+    display: block;
+    padding: 16px;
+  }
+
+  .institutionIdentity {
+    width: 100%;
+  }
+
+  .institutionDivider {
+    width: 100%;
+    height: 1px;
+    margin: 18px 0;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .institutionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionSpanTwo,
+  .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: auto;
+  }
+
+  .institutionDepartmentsField {
+    grid-column: auto;
+  }
+
+  .institutionInformationCard {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .institutionInformationHeader {
+    align-items: flex-start;
+  }
+
+  .institutionEditActions {
+    gap: 8px;
+  }
+
+  .institutionActionButton {
+    min-width: 68px;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .institutionBottomActions {
+    justify-content: center;
+  }
+
+.institutionProfessionalGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionProfessionalGrid > *,
+  .institutionProfessionalGrid > :nth-child(9) {
+    grid-column: auto !important;
+  }
+
+  .institutionFilePicker,
+  .institutionFilePreview {
+    flex-wrap: wrap;
+  }
+
+.institutionHeaderActions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .institutionInlinePopup {
+    min-width: 138px;
+    height: 36px;
+    padding: 0 10px;
+  }
+
+.institutionBasicInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionBasicInfoGrid > *,
+  .institutionBasicInfoGrid > .institutionBasicHalfField,
+  .institutionBasicInfoGrid > .institutionBasicDepartmentsField {
+    grid-column: auto;
+  }
+
+.institutionOverviewCard {
+    margin-bottom: 18px;
+  }
+
+.institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionDocumentsCard .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: auto;
+  }
+
+  .institutionDocumentsCard .institutionFilePreview,
+  .institutionDocumentsCard .institutionFilePicker {
+    flex-wrap: wrap;
+  }
+
+.institutionDepartmentsTextarea {
+    min-height: 54px;
+  }
+
+.institutionDepartmentsTextareaWrap {
+    min-height: 54px;
+  }
+
+  .institutionRegistrationGrid,
+  .institutionActivityGrid,
+  .institutionActivityProjectGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionRegistrationGrid > *,
+  .institutionActivityGrid > *,
+  .institutionActivityGrid > .institutionProofField,
+  .institutionActivityProjectGrid > *,
+  .institutionActivityProjectGrid > .institutionProjectHalf,
+  .institutionActivityProjectGrid > .institutionProjectProof {
+    grid-column: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .institutionActivityHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .institutionActivityHeader .institutionInformationTitle {
+    min-width: 0;
+  }
+
+  .institutionActivityHeader .institutionInformationTitle h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .institutionActivityActions {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .institutionMiniAction {
+    min-width: 62px;
+    height: 32px;
+    padding: 0 8px;
+  }
+
+  .institutionActivityCard .institutionFilePreview,
+  .institutionActivityCard .institutionFilePicker {
+    flex-wrap: wrap;
+  }
+
+  .institutionResearchInnovationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionResearchInnovationGrid > *,
+  .institutionResearchDetailsField,
+  .institutionResearchProofField {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .institutionResearchInnovationCard .institutionActivityHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .institutionResearchInnovationCard .institutionInformationTitle {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .institutionResearchInnovationCard .institutionInformationTitle h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .institutionMiniAction {
+    min-width: 64px;
+    height: 32px;
+    padding: 0 8px;
+  }
+
+  .institutionResearchInnovationCard .institutionFilePicker,
+  .institutionResearchInnovationCard .institutionFilePreview {
+    flex-wrap: wrap;
+  }
+
+  .institutionUploadField .institutionFilePicker {
+    flex-wrap: wrap;
+  }
+
+  .institutionUploadField .institutionFileName {
+    flex-basis: calc(100% - 136px);
+  }
+
+  .institutionCustomSelectList {
+    max-height: 260px;
+  }
+
+  .institutionResearchActivityTopRow {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .institutionResearchActivityNumber {
+    flex: 1 1 100%;
+  }
+
+  .institutionResearchItemActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionResearchBottomActions {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: auto;
+
+    margin-top: 2px;
+    padding: 8px 0 0;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .institutionResearchSaveCancelButton {
+    min-width: 86px;
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .institutionActivityHeaderRight {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .institutionActivityHeaderRight .institutionInlinePopup {
+    min-width: 130px;
+    height: 34px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+
+  .institutionIdentity {
+    gap: 18px !important;
+  }
+
+  .institutionAvatarWrap {
+    margin-right: 0 !important;
+  }
+
+  .institutionIdentityText {
+    min-width: 0 !important;
+  }
+
+  .institutionActivityHeader {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    column-gap: 10px !important;
+    row-gap: 10px !important;
+  }
+
+  .institutionActivityHeader .institutionInformationTitle {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    gap: 10px !important;
+  }
+
+  .institutionActivityHeader .institutionInformationTitle h2 {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .institutionActivityHeader .institutionActivityIcon {
+    flex: 0 0 26px !important;
+  }
+
+  .institutionActivityHeader
+    .institutionActivityHeaderRight:not(:has(.institutionActivityActions)) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionActivityHeader
+    .institutionActivityHeaderRight:not(:has(.institutionActivityActions))
+    .institutionEditButton {
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    margin-left: 0 !important;
+  }
+
+  .institutionActivityHeader
+    .institutionActivityHeaderRight:has(.institutionActivityActions) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    gap: 8px !important;
+  }
+
+  .institutionActivityHeader
+    .institutionActivityHeaderRight:has(.institutionActivityActions)
+    .institutionActivityActions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    margin-left: auto !important;
+    gap: 8px !important;
+  }
+
+  .institutionActivityHeader
+    .institutionActivityHeaderRight:has(.institutionActivityActions)
+    .institutionInlinePopup {
+    flex: 0 0 auto !important;
+  }
+
+  .institutionResearchInnovationCard .institutionActivityHeader {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader
+    .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader
+    .institutionActivityHeaderRight:not(:has(.institutionActivityActions)) {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader
+    .institutionActivityHeaderRight:has(.institutionActivityActions) {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding-top: 4px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader
+    .institutionActivityHeaderRight:has(.institutionActivityActions)
+    .institutionActivityActions {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    margin: 0 0 0 auto !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:not(:has(.institutionActivityActions)) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:not(:has(.institutionActivityActions))
+    .institutionInformationTitle {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:not(:has(.institutionActivityActions))
+    .institutionInformationTitle h2 {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:not(:has(.institutionActivityActions))
+    .institutionActivityHeaderRight {
+    display: flex !important;
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    min-width: 34px !important;
+    margin: 0 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:not(:has(.institutionActivityActions))
+    .institutionEditButton {
+    position: static !important;
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:has(.institutionActivityActions) {
+    flex-wrap: wrap !important;
+  }
+
+  .institutionResearchInnovationCard
+    .institutionActivityHeader:has(.institutionActivityActions)
+    .institutionActivityHeaderRight {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+  }
+.institutionCoordinatorSteps,
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr !important;
+    column-gap: 0 !important;
+    row-gap: 12px !important;
+  }
+
+  .institutionCompletionStep {
+    min-width: 0;
+    width: 100%;
+    white-space: normal;
+    align-items: center;
+  }
+
+  .institutionCompletionStep > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}

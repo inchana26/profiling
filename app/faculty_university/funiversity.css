@@ -1,0 +1,4666 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #dfe6e9;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100%;
+  min-height: 100vh;
+  padding: 8px;
+  color: #2f3547;
+  background: #dfe6e9;
+  font-family: "Segoe UI";
+}
+
+.dashboardLayout {
+  width: 100%;
+  min-height: calc(100vh - 16px);
+  display: flex;
+  overflow: hidden;
+  background: #dfe6e9;
+  border-radius: 10px;
+  box-shadow: -6px -6px 12px #ffffff, 6px 6px 12px #c4c4c4;
+}
+
+.mainContent {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.institutionPageContent {
+  flex: 1 1 auto;
+  padding: 22px 20px 34px;
+}
+
+.institutionHeadingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 17px;
+}
+
+.institutionHeadingRow h1 {
+  margin: 0;
+  color: #2f3547;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.institutionHeadingRow p {
+  margin: 13px 0 0;
+  color: #4c5568;
+  font-size: 14px;
+}
+
+.savedBadge {
+  min-height: 45px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border-radius: 24px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.institutionOverviewCard {
+  min-height: 155px;
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: #dfe6e9;
+  border-radius: 15px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionIdentity {
+  width: 355px;
+  flex: 0 0 355px;
+  display: flex;
+  align-items: center;
+}
+
+.institutionAvatarWrap {
+  position: relative;
+  width: 126px;
+  height: 112px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 0 0 126px;
+}
+
+.institutionAvatar {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #DFE6E9;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px #C4C4C4;
+}
+
+.institutionAvatarInner {
+  position: absolute;
+  width: 88px;
+  height: 88px;
+  top: 9px;
+  left: 9px;
+  overflow: hidden;
+  background: #DFE6E9;
+  border-radius: 50%;
+}
+
+.institutionAvatarImage {
+  position: absolute !important;
+  width: 88px !important;
+  height: 88px !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 50%;
+}
+
+.institutionAvatarEmpty {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #DFE6E9;
+}
+
+.institutionCameraButton {
+  position: absolute;
+  width: 41px;
+  height: 41px;
+  left: 67px;
+  top: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -4px -4px 4px rgba(255, 255, 255, 0.2),
+    4px 4px 4px #C4C4C4;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.institutionProfileImageInput {
+  display: none;
+}
+
+.institutionIdentityText h2 {
+  margin: 0 0 7px;
+  font-size: 24px;
+  font-weight: 700;
+
+  font-family: "Segoe UI";
+  line-height: 32px;
+  letter-spacing: 0.03em;
+  color: #374151;}
+
+.institutionRole {
+  margin-bottom: 8px;
+  color: #2D4CC8;
+  font-size: 16px;
+  font-weight: 600;
+
+  font-family: "Segoe UI";
+  line-height: 24px;
+  letter-spacing: 0.03em;}
+
+.institutionActiveBadge {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  color: #256306;
+  background: #CDDDC5;
+  border-radius: 20px;
+  font-size: 14px;
+
+  font-family: "Segoe UI";
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: 0.03em;}
+
+.institutionActiveDot {
+  width: 9px;
+  height: 9px;
+  background: #2a7308;
+  border-radius: 50%;
+}
+
+.institutionDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 28px 0 12px;
+  background: #2d4cc8;
+}
+
+.institutionCompletion {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.institutionCompletionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.institutionCompletionHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+
+  font-family: "Segoe UI";
+  line-height: 28px;
+  letter-spacing: 0.03em;
+  color: #374151;}
+
+.institutionCompletionHeader span {
+  color: #2d4cc8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.institutionProgressTrack {
+  width: 100%;
+  height: 15px;
+  margin-top: 14px;
+  padding: 3px;
+  background: #dfe6e9;
+  border-radius: 20px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionProgressBar {
+  height: 100%;
+  background: #2d4cc8;
+  border-radius: 20px;
+}
+
+.institutionCompletionSteps {
+  display: grid;
+  grid-template-columns: minmax(145px, 1fr) minmax(250px, 1.6fr) minmax(125px, 0.9fr);
+  gap: 15px 20px;
+  margin-top: 15px;
+  width: 100%;
+  min-width: 0;
+}
+
+.institutionCompletionStep {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  white-space: nowrap;
+  font-family: "Segoe UI";
+  line-height: 22px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #374151;
+}
+
+.institutionCompletedCircle,
+.institutionEmptyCircle {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border: 1px solid #aaaeb5;
+  border-radius: 50%;
+}
+
+.institutionCompletedCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #487533;
+  border-color: #487533;
+  font-size: 11px;
+}
+
+.institutionInformationCard {
+  margin-bottom: 22px;
+  padding: 20px;
+  background: #dfe6e9;
+  border-radius: 16px;
+  box-shadow: -8px -8px 16px #FFFFFF, 8px 8px 16px #C4C4C4;
+}
+
+.institutionInformationHeader {
+  min-height: 30px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.institutionInformationTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.institutionInformationTitle h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+
+  font-family: "Segoe UI";
+  line-height: 28px;
+  letter-spacing: 0.02em;
+  color: #374151;}
+
+.institutionSectionIcon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  flex: 0 0 28px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.institutionPurpleIcon {
+  background: #67096e;
+}
+
+.institutionPinkIcon {
+  background: #bf1869;
+}
+
+.institutionWhiteIcon {
+  filter: brightness(0) invert(1);
+}
+
+.institutionEditButton {
+  width: 34px;
+  height: 34px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+}
+
+.institutionEditActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.institutionActionButton {
+  min-width: 78px;
+  height: 36px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.institutionSaveButton {
+  color: #2a7308;
+}
+
+.institutionCancelButton {
+  color: #d65a00;
+}
+
+.institutionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.institutionField {
+  min-width: 0;
+  min-height: 68px;
+  padding: 12px 13px;
+  background: #dfe6e9;
+  border-radius: 8px;
+  box-shadow: inset -4px -4px 4px #FFFFFF, inset 4px 4px 4px #C4C4C4;
+}
+
+.institutionEditableField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 10px;
+}
+
+.institutionFieldText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.institutionFieldLabel {
+  display: block;
+  margin-bottom: 4px;
+  color: #2F3547;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+
+  font-family: "Segoe UI";
+  letter-spacing: 0.03em;}
+
+.institutionFieldValue,
+.institutionFieldInput,
+.institutionSelect {
+  width: 100%;
+  color: #2F3547;
+  font-size: 16px;
+  line-height: 24px;
+
+  font-family: "Segoe UI";
+  font-weight: 400;
+  letter-spacing: 0.03em;}
+
+.institutionFieldInput,
+.institutionSelect {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+.institutionFieldInput {
+  min-height: 24px;
+}
+
+.institutionPlaceholder {
+  color: #59616d;
+}
+
+.institutionFieldAction {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dfe6e9;
+  box-shadow:
+    inset -4px -4px 4px #ffffff,
+    inset 4px 4px 4px #c4c4c4c4;
+  border-radius: 50%;
+}
+
+.institutionFieldAction::before {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #dfe6e9;
+  box-shadow: 4px 4px 4px #c6c6c9, -4px -4px 4px #ffffff;
+  border-radius: 50%;
+}
+
+.institutionFieldAction img {
+  position: relative;
+  z-index: 1;
+}
+
+.institutionSelectField {
+  position: relative;
+}
+
+.institutionSelectWrap {
+  position: relative;
+}
+
+.institutionSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 24px;
+}
+
+.institutionSelectArrow {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  width: 30px !important;
+  height: 30px !important;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.institutionDocumentsGrid .institutionField {
+  min-height: 112px;
+}
+
+.institutionFilePreview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4c5568;
+  font-size: 12px;
+}
+
+/* .institutionChooseFileButton {
+  padding: 5px 10px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border: 1px solid #76a565;
+  border-radius: 5px;
+} */
+
+.institutionConfirmationCard {
+  padding-bottom: 20px;
+}
+
+.institutionConfirmationTitle {
+  margin-bottom: 18px;
+}
+
+.institutionConfirmationInner {
+  min-height: 84px;
+  padding: 14px;
+  background: #dfe6e9;
+  border-radius: 7px;
+  box-shadow: inset -4px -4px 4px #ffffff, inset 4px 4px 4px #c4c4c4;
+}
+
+.institutionCheckRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4c5568;
+  font-size: 14px;
+  cursor: pointer;
+  transform: translatey(4);
+}
+
+.institutionCheckRow input {
+  width: 20px;
+  height: 20px;
+  accent-color: #2f8754;
+}
+
+.institutionBottomActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 10px 8px 16px;
+}
+
+.institutionBottomButton {
+  min-width: 150px;
+  height: 48px;
+  padding: 0 20px;
+  background: #dfe6e9;
+  border-radius: 24px;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.institutionReviewButton {
+  color: #2d4cc8;
+}
+
+.institutionFinalSaveButton {
+  color: #2a7308;
+}
+
+.institutionCompletedCircle {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.institutionCompletedCircle img {
+  width: 17px !important;
+  height: 17px !important;
+  object-fit: contain;
+}
+
+.institutionFilePicker,
+.institutionFilePreview {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.institutionNativeFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* .institutionChooseFileButton {
+  min-height: 29px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #2a7308;
+  background: #dfe6e9;
+  border: 1px solid #76a565;
+  border-radius: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+} */
+
+.institutionFileName,
+.institutionFilePreview > span {
+  min-width: 0;
+  overflow: hidden;
+  color: #4c5568;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionBottomActions {
+  margin-top: 4px;
+  padding-right: 8px;
+  padding-bottom: 24px;
+}
+
+.institutionBottomButton {
+  min-width: 137px;
+  height: 44px;
+}
+
+.institutionInformationCard {
+  overflow: visible;
+}
+
+.institutionEditButton img,
+.institutionActionButton img,
+.institutionFieldAction img,
+.institutionSectionIcon img,
+.institutionChooseFileButton img,
+.institutionCameraButton img {
+  display: block;
+  object-fit: contain;
+}
+
+.institutionInformationCard:not(.institutionConfirmationCard) {
+  align-self: stretch;
+}
+
+.institutionSectionIcon {
+  overflow: hidden;
+}
+
+.institutionSectionIcon img {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  object-fit: contain;
+}
+
+.institutionEditActions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.institutionHeaderActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
+.institutionInlinePopup {
+  min-width: 148px;
+  height: 38px;
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  background: #dfe6e9;
+  border-radius: 7px;
+
+  box-shadow:
+    -4px -4px 8px #ffffff,
+    4px 4px 8px #c4c4c4;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  animation: institutionInlinePopupIn 0.18s ease-out;
+}
+
+.institutionInlinePopupSaved {
+  color: #2a7308;
+  border: 1px solid #78a96a;
+}
+
+.institutionInlinePopupDiscarded {
+  color: #d65a00;
+  border: 1px solid #e59a67;
+}
+
+.institutionInlinePopupIcon {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+
+@keyframes institutionInlinePopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.institutionOverviewCard {
+  margin-bottom: 24px;
+}
+
+.institutionInformationCard {
+  margin-top: 0;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0 12px;
+  gap: 8px;
+
+  width: 124px;
+  height: 36px;
+
+  background: #DFE6E9;
+  border: 0.5px solid #2A7308;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+  border-radius: 8px;
+
+  color: #2A7308;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.institutionDocumentsCard .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  object-fit: contain;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Segoe UI";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.03em;
+
+  color: #2A7308;
+}
+
+.institutionDocumentsCard .institutionFilePreview,
+.institutionDocumentsCard .institutionFilePicker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transform: translatey(4);
+}
+
+.institutionDocumentsCard .institutionFileName,
+.institutionDocumentsCard .institutionFilePreview > .institutionFileName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionDocumentsCard .institutionHeaderActions {
+  margin-left: auto;
+}
+
+.institutionDocumentsCard .institutionEditActions {
+  display: flex;
+  align-items: center;
+}
+
+.institutionCheckRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.institutionConfirmationCheckbox {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.institutionConfirmationCheckBox {
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px;
+
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 8px;
+
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  cursor: pointer;
+}
+
+.institutionConfirmationCheckMark {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border-radius: 5px;
+}
+
+.institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark {
+  background: #186348;
+}
+
+.institutionConfirmationCheckMark::after {
+  content: "";
+  position: absolute;
+
+  width: 8px;
+  height: 4px;
+
+  left: 50%;
+  top: 46%;
+
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.institutionConfirmationCheckBoxActive
+  .institutionConfirmationCheckMark::after {
+  opacity: 1;
+}
+
+.institutionConfirmationCheckBoxActive {
+  transform: none;
+  background: #DFE6E9;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionConfirmationCheckbox:focus-visible
+  + .institutionConfirmationCheckBox {
+  outline: 2px solid #186348;
+  outline-offset: 2px;
+}
+.institutionSelectField {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionSelectWrap {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionCustomSelectTrigger {
+  width: 100%;
+  min-height: 24px;
+  padding: 0 34px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4c5568;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.institutionCustomSelectTrigger .institutionSelectArrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 30px !important;
+  height: 30px !important;
+  transform: translateY(-50%);
+}
+
+.institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+.institutionCustomSelectList {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: calc(100% + 14px);
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 14px;
+
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px rgba(196, 196, 196, 0.85);
+}
+
+.institutionCustomSelectOption {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+
+  color: #2f3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCustomSelectOptionActive {
+  color: #2D4CC8;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionCustomSelectOption:hover,
+.institutionCustomSelectOption:focus-visible {
+  color: #2D4CC8;
+  outline: 0;
+}
+
+.institutionCompletionSteps .institutionProfileStepCheck {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  background: #487533;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.institutionProfileStepCheckMark {
+  position: relative;
+  width: 9px;
+  height: 6px;
+  display: block;
+}
+
+.institutionProfileStepCheckMark::after {
+  content: "";
+  position: absolute;
+
+  left: 1px;
+  top: 0px;
+
+  width: 6px;
+  height: 3px;
+
+  border-left: 1.6px solid #ffffff;
+  border-bottom: 1.6px solid #ffffff;
+
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.institutionCompletionSteps .institutionProfileStepCheck img {
+  display: none !important;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton {
+  min-height: 29px;
+}
+
+.institutionSelectArrow {
+  top: 46% !important;
+  transform: translateY(-50%) !important;
+}
+
+.institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+.institutionUploadField .institutionFilePicker {
+  max-width: 100%;
+}
+
+.institutionUploadField .institutionFileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionCustomSelectList {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: calc(100% + 12px);
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  padding: 11px;
+
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px rgba(196, 196, 196, 0.85);
+
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.institutionCustomSelectOption {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+
+  color: #2f3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
+
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.8);
+
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCustomSelectOptionActive {
+  color: #2D4CC8;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
+}
+
+.institutionCustomSelectOption:hover,
+.institutionCustomSelectOption:focus-visible {
+  color: #2D4CC8;
+  outline: 0;
+}
+
+.institutionEmptyCircle {
+  background: transparent;
+}
+
+.institutionConfirmationCheckBox:not(.institutionConfirmationCheckBoxActive)
+  .institutionConfirmationCheckMark {
+  background: transparent;
+}
+
+.institutionConfirmationCheckBox:not(.institutionConfirmationCheckBoxActive)
+  .institutionConfirmationCheckMark::after {
+  opacity: 0;
+}
+
+@media (min-width: 768px) {
+.dashboardLayout {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+
+  .dashboardLayout > :first-child {
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .dashboardLayout > .mainContent {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .dashboardLayout > .mainContent > :first-child {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 1180px) {
+.institutionIdentity {
+    width: 310px;
+    flex-basis: 310px;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+.institutionOverviewCard {
+    align-items: flex-start;
+  }
+
+  .institutionIdentity {
+    width: 270px;
+    flex-basis: 270px;
+  }
+
+  .institutionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .institutionFieldLabel {
+    font-size: 15px;
+  }
+
+.institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionDocumentsCard .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+.superAdminPage.institutionAdminPage {
+    padding: 0;
+  }
+
+  .dashboardLayout {
+    display: block;
+    min-height: 100vh;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .institutionPageContent {
+    padding: 15px 12px 24px;
+  }
+
+  .institutionHeadingRow {
+    display: block;
+  }
+
+  .savedBadge {
+    margin-top: 13px;
+    max-width: 100%;
+  }
+
+  .institutionOverviewCard {
+    display: block;
+    padding: 16px;
+  }
+
+  .institutionIdentity {
+    width: 100%;
+  }
+
+  .institutionDivider {
+    width: 100%;
+    height: 1px;
+    margin: 18px 0;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .institutionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: auto;
+  }
+
+  .institutionInformationCard {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .institutionInformationHeader {
+    align-items: flex-start;
+  }
+
+  .institutionEditActions {
+    gap: 8px;
+  }
+
+  .institutionActionButton {
+    min-width: 68px;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .institutionBottomActions {
+    justify-content: center;
+  }
+
+  .institutionFilePicker,
+  .institutionFilePreview {
+    flex-wrap: wrap;
+  }
+
+.institutionHeaderActions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .institutionInlinePopup {
+    min-width: 138px;
+    height: 36px;
+    padding: 0 10px;
+  }
+
+.institutionOverviewCard {
+    margin-bottom: 18px;
+  }
+
+.institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionDocumentsCard .institutionDocumentsGrid .institutionField:last-child {
+    grid-column: auto;
+  }
+
+  .institutionDocumentsCard .institutionFilePreview,
+  .institutionDocumentsCard .institutionFilePicker {
+    flex-wrap: wrap;
+  }
+
+  .institutionUploadField .institutionFilePicker {
+    flex-wrap: wrap;
+  }
+
+  .institutionUploadField .institutionFileName {
+    flex-basis: calc(100% - 136px);
+  }
+
+  .institutionCustomSelectList {
+    max-height: 260px;
+  }
+
+  .institutionIdentity {
+    gap: 18px !important;
+  }
+
+  .institutionAvatarWrap {
+    margin-right: 0 !important;
+  }
+
+  .institutionIdentityText {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 520px) {
+.institutionHeadingRow h1 {
+    font-size: 18px;
+  }
+
+  .institutionIdentity {
+    align-items: flex-start;
+  }
+
+  .institutionAvatarWrap {
+    width: 110px;
+    flex-basis: 110px;
+  }
+
+  .institutionIdentityText h2 {
+    font-size: 20px;
+  }
+
+  .institutionRole {
+    font-size: 14px;
+  }
+
+  .institutionCompletionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .institutionCompletionHeader h3 {
+    font-size: 18px;
+  }
+
+  .institutionSectionIcon {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    flex: 0 0 24px !important;
+  }
+
+  .institutionSectionIcon img,
+  .institutionWhiteIcon {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .institutionInformationHeader {
+    flex-wrap: wrap;
+  }
+
+  .institutionEditActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionField {
+    min-height: 64px;
+  }
+
+  .institutionFieldAction {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .institutionFieldAction::before {
+    width: 28px;
+    height: 28px;
+  }
+
+  .institutionFilePreview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .institutionBottomActions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .institutionBottomButton {
+    width: 60%;
+  }
+
+.institutionBottomActions {
+    padding-right: 0;
+  }
+
+  .institutionChooseFileButton {
+    flex: 0 0 auto;
+  }
+
+.institutionInformationHeader {
+    gap: 10px;
+  }
+
+  .institutionEditActions {
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+  }
+
+  .institutionActionButton {
+    min-width: 64px;
+    padding: 0 8px;
+  }
+
+.institutionHeaderActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .institutionInlinePopup {
+    order: 1;
+  }
+
+  .institutionEditActions,
+  .institutionEditButton {
+    order: 2;
+  }
+
+.institutionCheckRow {
+    align-items: flex-start;
+  }
+
+  .institutionConfirmationCheckBox {
+    flex: 0 0 30px;
+  }
+
+  .institutionInformationHeader {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationTitle h2 {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .institutionHeaderActions {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .institutionEditButton {
+    flex: 0 0 auto !important;
+  }
+
+  .institutionFieldText,
+  .institutionSelectWrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .institutionFieldLabel,
+  .institutionFieldValue,
+  .institutionFieldInput,
+  .institutionSelect {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions)) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions))
+    .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationHeader:not(:has(.institutionEditActions))
+    .institutionHeaderActions {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    row-gap: 20px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionInformationTitle {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionHeaderActions {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    margin-left: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionEditActions {
+    width: auto !important;
+    margin-left: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionInlinePopup {
+    order: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+
+  .institutionInformationHeader:has(.institutionEditActions)
+    .institutionEditActions {
+    order: 1 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    row-gap: 10px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionInformationTitle {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    order: 1 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionHeaderActions {
+    display: contents !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditButton {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionInlinePopup {
+    order: 3 !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)::after {
+    content: "";
+    order: 2 !important;
+    flex-basis: 100% !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditActions {
+    order: 4 !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+  }
+
+.institutionCustomSelectList {
+    left: -12px;
+    right: -12px;
+  }
+
+  .institutionCustomSelectOption {
+    min-height: 52px;
+  }
+
+  .institutionUploadField .institutionFileName {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+.institutionDocumentsCard .institutionChooseFileButton {
+    width: 124px;
+    flex: 0 0 124px;
+  }
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: #DFE6E9;
+  font-family: "Segoe UI";
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout {
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+  background: #DFE6E9;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+  position: relative;
+  top: auto;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  flex: 0 0 220px;
+  align-self: stretch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1100;
+}
+
+.superAdminPage.institutionAdminPage .mainContent {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.superAdminPage.institutionAdminPage .institutionScrollArea {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.superAdminPage.institutionAdminPage .institutionPageContent {
+  width: 100%;
+  min-height: max-content;
+  padding: 22px 20px 34px;
+  overflow: visible;
+}
+.superAdminPage.institutionAdminPage,
+.superAdminPage.institutionAdminPage *,
+.superAdminPage.institutionAdminPage button,
+.superAdminPage.institutionAdminPage input,
+.superAdminPage.institutionAdminPage select,
+.superAdminPage.institutionAdminPage textarea {
+  font-family: "Segoe UI";
+}
+
+@media (max-width: 767px) {
+  html,
+  body {
+    overflow: hidden;
+  }
+
+  .superAdminPage.institutionAdminPage,
+  .superAdminPage.institutionAdminPage .dashboardLayout,
+  .superAdminPage.institutionAdminPage .mainContent {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .superAdminPage.institutionAdminPage .dashboardLayout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionScrollArea {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+html,
+body {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  background: #DFE6E9 !important;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  padding: 8px !important;
+  overflow: hidden !important;
+  background: #DFE6E9 !important;
+  font-family: "Segoe UI";
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout {
+  width: 100% !important;
+  height: calc(100vh - 16px) !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+
+  background: #DFE6E9 !important;
+  border-radius: 10px !important;
+
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px #C4C4C4 !important;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+  position: relative !important;
+  top: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  align-self: stretch !important;
+  flex: 0 0 220px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1100 !important;
+}
+
+.superAdminPage.institutionAdminPage .mainContent {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionScrollArea {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.superAdminPage.institutionAdminPage .institutionPageContent {
+  width: 100% !important;
+  min-height: max-content !important;
+  padding: 22px 20px 34px !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage,
+.superAdminPage.institutionAdminPage *,
+.superAdminPage.institutionAdminPage button,
+.superAdminPage.institutionAdminPage input,
+.superAdminPage.institutionAdminPage select,
+.superAdminPage.institutionAdminPage textarea {
+  font-family: "Segoe UI";
+}
+
+.institutionProgressBar {
+  transition: width 0.35s ease !important;
+}
+
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage {
+    padding: 0 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .dashboardLayout {
+    width: 100% !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .superAdminPage.institutionAdminPage .mainContent {
+    height: 100% !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionScrollArea {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
+
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100% !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  color: #374151 !important;
+  font-family: "Segoe UI";
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout {
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.superAdminPage.institutionAdminPage .mainContent {
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  align-self: flex-start !important;
+  flex-shrink: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 900 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionScrollArea {
+  width: 100% !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionPageContent {
+  width: 100% !important;
+  padding: 22px 20px 24px !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage,
+.superAdminPage.institutionAdminPage *,
+.superAdminPage.institutionAdminPage button,
+.superAdminPage.institutionAdminPage input,
+.superAdminPage.institutionAdminPage select,
+.superAdminPage.institutionAdminPage textarea {
+  font-family: "Segoe UI";
+}
+
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage .dashboardLayout {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+  }
+
+  .superAdminPage.institutionAdminPage .mainContent {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 205px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 18px) !important;
+    flex: none !important;
+    flex-basis: auto !important;
+    padding: 0 0 12px !important;
+    overflow-y: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    z-index: 2000 !important;
+  }
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #DFE6E9;
+}
+
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100% !important;
+  background: #DFE6E9 !important;
+}
+
+.superAdminPage.institutionAdminPage {
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  color: #374151 !important;
+  font-family: "Segoe UI" !important;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout {
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.superAdminPage.institutionAdminPage .mainContent {
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  align-self: flex-start !important;
+  flex-shrink: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 900 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionPageContent {
+  width: 100% !important;
+  padding: 22px 20px 34px !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomActions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 24px !important;
+  margin-top: 4px !important;
+  padding: 10px 8px 24px !important;
+  background: #DFE6E9 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomButton {
+  min-width: 137px !important;
+  height: 44px !important;
+  padding: 0 20px !important;
+  background: #DFE6E9 !important;
+  border-radius: 24px !important;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px #C4C4C4 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionReviewButton {
+  color: #2D4CC8 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+  color: #235F07 !important;
+}
+
+.superAdminPage.institutionAdminPage,
+.superAdminPage.institutionAdminPage *,
+.superAdminPage.institutionAdminPage button,
+.superAdminPage.institutionAdminPage input,
+.superAdminPage.institutionAdminPage select,
+.superAdminPage.institutionAdminPage textarea {
+  font-family: "Segoe UI" !important;
+}
+
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage .dashboardLayout {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+  }
+
+  .superAdminPage.institutionAdminPage .mainContent {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 205px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 18px) !important;
+    flex: none !important;
+    flex-basis: auto !important;
+    padding: 0 0 12px !important;
+    overflow-y: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    z-index: 2000 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    justify-content: center !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+
+
+.institutionFilePickerControl {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.institutionRadioSelectCircle {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dfe6e9;
+  border: 2px solid rgba(173, 181, 187, 0.65);
+  border-radius: 50%;
+  box-shadow:
+    inset 3px 3px 5px rgba(196, 196, 196, 0.85),
+    inset -3px -3px 5px rgba(255, 255, 255, 0.92);
+}
+
+.institutionRadioSelectCircle::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 2px solid #c2cbd0;
+  border-radius: 50%;
+  background: #e7edef;
+}
+
+.institutionRadioSelectCircleActive {
+  border-color: transparent;
+  box-shadow:
+    -3px -3px 6px rgba(255, 255, 255, 0.95),
+    3px 3px 6px rgba(196, 196, 196, 0.85);
+}
+
+.institutionRadioSelectCircleActive::after {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: #2d4cc8;
+}
+
+.institutionRadioSelectCheck {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -53%);
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.institutionRadioSelectOptionText {
+  min-width: 0;
+  flex: 1 1 auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.institutionInformationCard {
+  overflow: visible;
+}
+
+@media (max-width: 767px) {
+
+  .institutionRadioSelectCircle {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 700px) {
+  
+}
+
+@media (max-width: 420px) {
+  
+
+  
+
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 420px) {
+  
+}
+
+
+
+
+
+
+
+
+
+@media (max-width: 420px) {
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 420px) {
+  
+}
+
+.institutionRadioSelectCircle {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  box-sizing: border-box !important;
+
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.6),
+    inset 4px 4px 4px #C4C4C4 !important;
+}
+
+.institutionRadioSelectCircle::before {
+  content: "" !important;
+  position: absolute !important;
+
+  width: 13px !important;
+  height: 13px !important;
+
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border: 1.5px solid #C6C6C9 !important;
+  border-radius: 50% !important;
+}
+
+.institutionRadioSelectCircle::after {
+  content: none !important;
+}
+
+.institutionRadioSelectCheck {
+  display: none !important;
+}
+
+.institutionRadioSelectCircleActive {
+  width: 28px !important;
+  height: 28px !important;
+
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+}
+
+.institutionRadioSelectCircleActive::before {
+  width: 16px !important;
+  height: 16px !important;
+
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+  border-radius: 50% !important;
+}
+
+.institutionRadioSelectCircleActive::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+
+  width: 7px !important;
+  height: 4px !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  border-left: 1.5px solid #FFFFFF !important;
+  border-bottom: 1.5px solid #FFFFFF !important;
+
+  transform: translate(-50%, -62%) rotate(-45deg) !important;
+  z-index: 2 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+.institutionRadioSelectOption {
+  align-items: center !important;
+}
+
+
+
+.institutionRadioSelectCircle {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.6),
+    inset 4px 4px 4px #C4C4C4 !important;
+}
+
+.institutionRadioSelectCircle::before {
+  content: "" !important;
+  position: absolute !important;
+  width: 13px !important;
+  height: 13px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: transparent !important;
+  border: 1.5px solid #C6C6C9 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+}
+
+.institutionRadioSelectCircle::after {
+  content: "" !important;
+  position: absolute !important;
+  opacity: 0 !important;
+}
+
+.institutionRadioSelectCircleActive {
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+}
+
+.institutionRadioSelectCircleActive::before {
+  width: 16px !important;
+  height: 16px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+  border-radius: 50% !important;
+}
+
+.institutionRadioSelectCircleActive::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 6px !important;
+  height: 3px !important;
+  left: 50% !important;
+  top: 50% !important;
+  opacity: 1 !important;
+
+  border-left: 1.8px solid #FFFFFF !important;
+  border-bottom: 1.8px solid #FFFFFF !important;
+
+  transform: translate(-48%, -68%) rotate(-45deg) !important;
+  transform-origin: center !important;
+  z-index: 3 !important;
+}
+
+.institutionRadioSelectCheck {
+  display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+.institutionRadioSelectCircle {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  order: 0 !important;
+  flex-grow: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #DFE6E9 !important;
+}
+
+.institutionRadioSelectCircleActive {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+}
+
+.institutionRadioSelectCircleActive::before {
+  content: "" !important;
+
+  position: absolute !important;
+  width: 16px !important;
+  height: 16px !important;
+
+  left: calc(50% - 8px) !important;
+  top: calc(50% - 8px) !important;
+
+  transform: none !important;
+
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.66' fill='%232D4CC8' stroke='%232D4CC8' stroke-width='1.5'/%3E%3Cpath d='M5.33 8L7.1 9.77L10.67 6.23' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 16px 16px no-repeat !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.institutionRadioSelectCircleActive::after {
+  content: none !important;
+}
+
+.institutionRadioSelectCheck {
+  display: none !important;
+}
+
+
+
+
+
+
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.superAdminPage.institutionAdminPage .dashboardLayout > .sidebar::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .institutionHeadingRow {
+    flex-wrap: wrap;
+  }
+}
+
+.institutionInformationCard {
+  position: relative;
+}
+
+.institutionSectionFlowPopup {
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  min-height: 38px;
+
+  margin: 8px 16px 10px auto;
+  padding: 7px 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+
+  color: #d65a00;
+  background: #dfe6e9;
+  border: 1px solid #e59a67;
+  border-radius: 7px;
+
+  box-shadow:
+    -4px -4px 8px #ffffff,
+    4px 4px 8px #c4c4c4;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+
+  box-sizing: border-box;
+  z-index: 20;
+  animation: institutionInlinePopupIn 0.18s ease-out;
+}
+
+.institutionSectionFlowPopup .institutionInlinePopupIcon {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .institutionSectionFlowPopup {
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    margin: 8px 12px 10px;
+  }
+}
+
+.institutionInformationCard {
+  position: relative !important;
+}
+
+.institutionSectionFlowPopup {
+  position: absolute !important;
+
+  
+  top: 12px !important;
+  right: 70px !important;
+
+  width: auto !important;
+  max-width: min(430px, calc(100% - 170px)) !important;
+  min-height: 34px !important;
+
+  margin: 0 !important;
+  padding: 5px 10px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+
+  box-sizing: border-box !important;
+  z-index: 60 !important;
+}
+
+.institutionSectionFlowPopup + * {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .institutionSectionFlowPopup {
+    top: 10px !important;
+    right: 62px !important;
+    max-width: calc(100% - 150px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .institutionSectionFlowPopup {
+    top: 48px !important;
+    left: 12px !important;
+    right: 12px !important;
+
+    width: auto !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 700px) {
+  
+
+  
+}
+
+@media (max-width: 420px) {
+  
+
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 767px) {
+  
+
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 767px) {
+  
+
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 767px) {
+  
+
+  
+}
+
+@media (max-width: 767px) {
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+}
+
+@media (max-width: 767px) {
+  
+
+  
+}
+
+@media (max-width: 767px) {
+  
+
+  
+  
+}
+
+@media (max-width: 767px) {
+  
+
+  
+}
+
+.institutionGreenIcon {
+  background: #2f7d32;
+}
+
+.institutionBlueIcon {
+  background: #2d5bc8;
+}
+
+.institutionOrangeIcon {
+  background: #c95f16;
+}
+
+.institutionSectionIcon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+}
+
+.institutionSectionIcon img,
+.institutionWhiteIcon {
+  width: 23px ;
+  height: 23px;
+  max-width: 23px ;
+  max-height: 23px;
+  object-fit: contain;
+}
+
+.institutionFieldAction {
+  width: 49.96px !important;
+  height: 49.96px !important;
+  flex: 0 0 49.96px !important;
+}
+
+.institutionFieldAction::before {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.institutionFieldAction img {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.institutionSelectArrow {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.institutionFacultyRegistrationGrid,
+.institutionFacultyProfessionalGrid,
+.institutionFacultySkillsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.institutionFacultyRegistrationGrid > *,
+.institutionFacultyProfessionalGrid > *,
+.institutionFacultySkillsGrid > * {
+  min-width: 0;
+}
+
+.institutionFacultyProfessionalGrid > :last-child,
+.institutionFacultySkillsGrid > :last-child:nth-child(3n + 1) {
+  grid-column: span 1;
+}
+
+.institutionMultiSelectCheck {
+  position: relative !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow:
+    inset 4px 4px 4px rgba(196, 196, 196, 0.8),
+    inset -4px -4px 4px #FFFFFF !important;
+  box-sizing: border-box !important;
+}
+
+.institutionMultiSelectCheckActive {
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 4px rgba(196, 196, 196, 0.8) !important;
+}
+
+.institutionMultiSelectCheckMark {
+  position: absolute !important;
+  width: 16px !important;
+  height: 16px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  border-radius: 3px !important;
+  background: transparent !important;
+}
+
+.institutionMultiSelectCheckActive .institutionMultiSelectCheckMark {
+  background: #2A7308 !important;
+}
+
+.institutionMultiSelectCheckActive .institutionMultiSelectCheckMark::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 6px !important;
+  height: 3px !important;
+  left: 50% !important;
+  top: 45% !important;
+  border-left: 1.5px solid #FFFFFF !important;
+  border-bottom: 1.5px solid #FFFFFF !important;
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+}
+
+.institutionCustomSelectList[aria-multiselectable="true"]
+  .institutionRadioSelectOption {
+  gap: 12px !important;
+}
+
+.institutionSectionFlowPopup {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .institutionFacultyRegistrationGrid,
+  .institutionFacultyProfessionalGrid,
+  .institutionFacultySkillsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .institutionFacultyRegistrationGrid,
+  .institutionFacultyProfessionalGrid,
+  .institutionFacultySkillsGrid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .institutionFacultyRegistrationGrid > *,
+  .institutionFacultyProfessionalGrid > *,
+  .institutionFacultySkillsGrid > * {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .institutionInformationHeader {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "title actions"
+      "popup popup" !important;
+    align-items: center !important;
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .institutionInformationHeader .institutionInformationTitle {
+    grid-area: title !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .institutionInformationHeader .institutionInformationTitle h2 {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .institutionInformationHeader .institutionHeaderActions {
+    grid-area: actions !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    gap: 8px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionHeaderActions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionInlinePopup {
+    flex: 1 1 100% !important;
+    order: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 38px !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 18px !important;
+  }
+
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditButton,
+  .institutionInformationHeader:has(.institutionInlinePopup)
+    .institutionEditActions {
+    order: 1 !important;
+    margin-left: auto !important;
+  }
+
+  .institutionCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .institutionCompletionStep {
+    white-space: normal !important;
+  }
+
+  .institutionCustomSelectList,
+  .institutionRadioSelectList {
+    max-width: calc(100vw - 40px) !important;
+  }
+
+  .institutionRadioSelectOptionText {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr !important;
+  }
+
+  .institutionInformationHeader {
+    grid-template-columns: minmax(0, 1fr) 34px !important;
+  }
+
+  .institutionActionButton {
+    min-width: 68px !important;
+    padding: 0 9px !important;
+  }
+}
+
+.institutionRadioSelectField {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionRadioSelectField.institutionSelectFieldOpen {
+  z-index: 300;
+  overflow: visible;
+}
+
+.institutionRadioSelectField .institutionSelectWrap {
+  position: static;
+  overflow: visible;
+}
+
+.institutionRadioSelectField .institutionCustomSelectList,
+.institutionRadioSelectField .institutionRadioSelectList {
+  left: 0 !important;
+  right: 0 !important;
+  top: calc(100% + 2px) !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  gap: 2px !important;
+  padding: 10px 12px !important;
+  background: #DFE6E9 !important;
+  border-radius: 0 0 14px 14px !important;
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.72),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.62) !important;
+  overflow-x: hidden !important;
+}
+
+.institutionRadioSelectField .institutionRadioSelectListScrollable {
+  max-height: 184px !important;
+  overflow-y: auto !important;
+}
+
+.institutionRadioSelectOption {
+  min-height: 54px !important;
+  height: 54px !important;
+  flex: 0 0 54px !important;
+  padding: 0 18px !important;
+  gap: 16px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.institutionRadioSelectCircle {
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  flex: 0 0 28px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset -4px -4px 4px rgba(255,255,255,.68),
+    inset 4px 4px 4px rgba(196,196,196,.82) !important;
+}
+
+.institutionRadioSelectCircleActive {
+  box-shadow:
+    -7px -7px 8px rgba(255,255,255,.92),
+    7px 7px 8px rgba(196,196,196,.88) !important;
+}
+
+.institutionCustomSelectList[aria-multiselectable="true"]
+  .institutionRadioSelectOption {
+  gap: 12px !important;
+}
+
+.institutionMultiSelectCheck {
+  position: relative !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow:
+    inset 4px 4px 4px rgba(196,196,196,.8),
+    inset -4px -4px 4px #FFFFFF !important;
+}
+
+.institutionMultiSelectCheckActive {
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 4px rgba(196,196,196,.8) !important;
+}
+
+.institutionMultiSelectCheckMark {
+  position: absolute !important;
+  width: 16px !important;
+  height: 16px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+.institutionMultiSelectCheckActive .institutionMultiSelectCheckMark {
+  background: #2A7308 !important;
+}
+
+.institutionMultiSelectCheckActive .institutionMultiSelectCheckMark::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 7px !important;
+  height: 4px !important;
+  left: 50% !important;
+  top: 44% !important;
+  border-left: 2px solid #FFFFFF !important;
+  border-bottom: 2px solid #FFFFFF !important;
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+}
+
+
+@media (max-width: 1024px) {
+  .institutionCompletionSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .institutionCompletionStep {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 767px) {
+  .institutionCompletionSteps {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .institutionRadioSelectField .institutionCustomSelectList,
+  .institutionRadioSelectField .institutionRadioSelectList {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .institutionRadioSelectOption {
+    height: auto !important;
+    min-height: 52px !important;
+    flex-basis: auto !important;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+}
+
+.institutionDocumentsCard,
+.institutionDocumentsCard .institutionDocumentsGrid,
+.institutionDocumentsCard .institutionGovernmentIdField {
+  overflow: visible !important;
+}
+
+.institutionDocumentsCard .institutionGovernmentIdField {
+  position: relative !important;
+  min-height: 112px !important;
+  height: auto !important;
+  z-index: 20 !important;
+}
+
+.institutionDocumentsCard .institutionGovernmentIdFieldOpen {
+  z-index: 3000 !important;
+}
+
+.institutionDocumentsCard .institutionGovernmentIdPicker {
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  grid-template-areas:
+    "doctype choose"
+    ". filename" !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  column-gap: 14px !important;
+  row-gap: 3px !important;
+  align-items: start !important;
+  overflow: visible !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeWrap {
+  grid-area: doctype !important;
+  position: static !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  overflow: visible !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeSelect {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 8px 0 10px !important;
+  display: flex !important;
+  font-size: 13px;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  color: #2f3547 !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+}
+
+
+.institutionDocumentsCard .institutionDocumentTypeSelect > span {
+  display: block !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  font-size: 14px;
+}
+
+
+
+.institutionDocumentsCard .institutionDocumentTypeSelect > span {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeArrow {
+  position: static !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  flex: 0 0 30px !important;
+  margin: 0 !important;
+  transform: rotate(0deg) !important;
+  transition: transform 0.16s ease !important;
+  pointer-events: none !important;
+  object-fit: contain !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeArrowOpen {
+  transform: rotate(180deg) !important;
+}
+
+.institutionDocumentsCard
+  .institutionGovernmentIdPicker
+  .institutionFilePickerControl {
+  grid-area: choose !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  align-self: start !important;
+}
+
+.institutionDocumentsCard
+  .institutionGovernmentIdPicker
+  .institutionFileName {
+  grid-area: filename !important;
+  width: 124px !important;
+  max-width: 124px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+
+
+
+.institutionDocumentsCard .institutionDocumentTypeMenu {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: calc(36px + 6px) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 252px !important;
+  max-height: 252px !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  color: #354052 !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.72),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.62) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #96999c transparent !important;
+  z-index: 4000 !important;
+  box-sizing: border-box !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeMenu::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeMenu::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeMenu::-webkit-scrollbar-thumb {
+  background: #96999c !important;
+  border-radius: 10px !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeOption {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 50px !important;
+  height: 50px !important;
+  flex: 0 0 50px !important;
+  margin: 0 !important;
+  padding: 0 14px 0 74px !important;
+  display: flex !important;
+  align-items: center !important;
+  color: #354052 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  font-size: 16px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.institutionDocumentsCard .institutionDocumentTypeOption::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 30px !important;
+  top: 50% !important;
+  width: 28px !important;
+  height: 28px !important;
+  transform: translateY(-50%) !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.68),
+    inset 4px 4px 4px rgba(196, 196, 196, 0.82) !important;
+}
+
+.institutionDocumentsCard
+  .institutionDocumentTypeOption:not([aria-selected="true"])::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 37.5px !important;
+  top: 50% !important;
+  width: 13px !important;
+  height: 13px !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  border: 1.5px solid #C6C6C9 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+}
+
+.institutionDocumentsCard
+  .institutionDocumentTypeOption[aria-selected="true"]::before {
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+}
+
+.institutionDocumentsCard
+  .institutionDocumentTypeOption[aria-selected="true"]::after {
+  content: "✓" !important;
+  position: absolute !important;
+  left: 36px !important;
+  top: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #FFFFFF !important;
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+  border-radius: 50% !important;
+  font-size: 10px !important;
+  line-height: 16px !important;
+  font-weight: 700 !important;
+  box-sizing: border-box !important;
+}
+
+.institutionDocumentsCard
+  .institutionDocumentTypeOption[aria-selected="true"] {
+  color: #2D4CC8 !important;
+}
+
+.institutionDocumentsCard
+  .institutionDocumentTypeOption:hover,
+.institutionDocumentsCard
+  .institutionDocumentTypeOption:focus-visible {
+  color: #2D4CC8 !important;
+  background: transparent !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 767px) {
+  .institutionDocumentsCard .institutionGovernmentIdDropdownList {
+    left: 0 !important;
+    right: 0 !important;
+    top: 146px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .institutionDocumentsCard .institutionGovernmentIdField {
+    min-height: 150px !important;
+  }
+
+  .institutionDocumentsCard .institutionGovernmentIdPicker {
+    display: grid !important;
+    grid-template-columns: 124px !important;
+    grid-template-areas:
+      "doctype"
+      "choose"
+      "filename" !important;
+    justify-content: start !important;
+    justify-items: start !important;
+    align-items: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    row-gap: 8px !important;
+    column-gap: 0 !important;
+  }
+
+  .institutionDocumentsCard .institutionDocumentTypeWrap,
+  .institutionDocumentsCard .institutionDocumentTypeSelect {
+    width: 244px !important;
+    min-width: 0 !important;
+    max-width: min(244px, calc(100vw - 56px)) !important;
+  }
+
+  .institutionDocumentsCard .institutionDocumentTypeSelect {
+    padding-left: 10px !important;
+    padding-right: 6px !important;
+  }
+
+  .institutionDocumentsCard
+    .institutionGovernmentIdPicker
+    .institutionFilePickerControl,
+  .institutionDocumentsCard
+    .institutionGovernmentIdPicker
+    .institutionChooseFileButton,
+  .institutionDocumentsCard
+    .institutionGovernmentIdPicker
+    .institutionFileName {
+    width: 124px !important;
+    min-width: 0 !important;
+    max-width: 124px !important;
+  }
+
+  .institutionDocumentsCard .institutionDocumentTypeMenu {
+    left: 0 !important;
+    right: auto !important;
+    top: 42px !important;
+    width: min(320px, calc(100vw - 56px)) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 56px) !important;
+    height: 252px !important;
+    max-height: 252px !important;
+  }
+
+  .institutionDocumentsCard .institutionDocumentTypeOption {
+    min-height: 50px !important;
+    height: auto !important;
+    flex-basis: auto !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+
+
+/* ===== ALL SHARED FACULTY DROPDOWNS — SAME FRAME/SPACING ===== */
+
+.institutionSelectField,
+.institutionRadioSelectField {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.institutionSelectFieldOpen,
+.institutionRadioSelectField.institutionSelectFieldOpen {
+  z-index: 3000 !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  box-shadow:
+    -6px -6px 8px rgba(255, 255, 255, 0.92),
+    6px 6px 8px rgba(196, 196, 196, 0.88) !important;
+}
+
+.institutionSelectField .institutionSelectWrap,
+.institutionRadioSelectField .institutionSelectWrap {
+  position: static !important;
+  overflow: visible !important;
+}
+
+.institutionCustomSelectTrigger {
+  position: relative !important;
+  z-index: 2 !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  padding-right: 36px !important;
+
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.institutionCustomSelectTrigger
+  .institutionSelectArrow {
+  position: absolute !important;
+  right: 1px !important;
+  top: 8% !important;
+
+  width: 30px !important;
+  height: 30px !important;
+
+  transform: translateY(-50%) rotate(0deg) !important;
+  transition: transform 0.16s ease !important;
+  pointer-events: none !important;
+}
+
+.institutionCustomSelectTrigger
+  .institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+/* Same open dropdown frame for every shared dropdown */
+.institutionSelectField
+  .institutionCustomSelectList,
+.institutionRadioSelectField
+  .institutionCustomSelectList,
+.institutionSelectField
+  .institutionRadioSelectList,
+.institutionRadioSelectField
+  .institutionRadioSelectList {
+  position: absolute !important;
+
+  left: 0 !important;
+  right: 0 !important;
+  top: calc(100% + 2px) !important;
+
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  gap: 0 !important;
+  row-gap: 0 !important;
+
+  padding: 4px 0 !important;
+  margin: 0 !important;
+
+  color: #354052 !important;
+  background: #DFE6E9 !important;
+
+  border: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.72),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.62) !important;
+
+  box-sizing: border-box !important;
+
+  z-index: 4000 !important;
+
+  overflow-x: hidden !important;
+}
+
+/* Same scroller as Government ID */
+.institutionRadioSelectListScrollable,
+.institutionCustomSelectList[aria-multiselectable="true"] {
+  max-height: 184px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+
+  scrollbar-width: thin !important;
+  scrollbar-color: #96999c transparent !important;
+}
+
+.institutionRadioSelectListScrollable::-webkit-scrollbar,
+.institutionCustomSelectList[aria-multiselectable="true"]::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.institutionRadioSelectListScrollable::-webkit-scrollbar-track,
+.institutionCustomSelectList[aria-multiselectable="true"]::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.institutionRadioSelectListScrollable::-webkit-scrollbar-thumb,
+.institutionCustomSelectList[aria-multiselectable="true"]::-webkit-scrollbar-thumb {
+  background: #96999c !important;
+  border-radius: 10px !important;
+}
+
+/* Same internal option spacing */
+.institutionCustomSelectOption,
+.institutionRadioSelectOption {
+  position: relative !important;
+
+  width: 100% !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+
+  margin: 0 !important;
+  padding: 0 14px !important;
+
+  display: flex !important;
+  align-items: center !important;
+
+  color: #354052 !important;
+  background: transparent !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+
+  font-size: 16px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.institutionRadioSelectOption {
+  gap: 12px !important;
+}
+
+.institutionCustomSelectOption:hover,
+.institutionCustomSelectOption:focus-visible,
+.institutionRadioSelectOption:hover,
+.institutionRadioSelectOption:focus-visible {
+  color: #2D4CC8 !important;
+  background: transparent !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.institutionCustomSelectOptionActive,
+.institutionRadioSelectOption[aria-selected="true"] {
+  color: #2D4CC8 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.institutionRadioSelectOptionText {
+  min-width: 0 !important;
+  color: inherit !important;
+
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* SINGLE SELECT radio — same look everywhere */
+.institutionRadioSelectCircle {
+  position: relative !important;
+
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  flex: 0 0 28px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.68),
+    inset 4px 4px 4px rgba(196, 196, 196, 0.82) !important;
+}
+
+.institutionRadioSelectCircle::before {
+  content: "" !important;
+
+  position: absolute !important;
+
+  width: 14px !important;
+  height: 14px !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  background: transparent !important;
+  border: 1.5px solid #C6C6C9 !important;
+  border-radius: 50% !important;
+
+  box-sizing: border-box !important;
+}
+
+.institutionRadioSelectCircleActive {
+  box-shadow:
+    8px 8px 8px #C4C4C4,
+    -8px -8px 8px #FFFFFF !important;
+}
+
+.institutionRadioSelectCircleActive::before {
+  width: 16px !important;
+  height: 16px !important;
+
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+}
+
+.institutionRadioSelectCheck {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  transform: translate(-50%, -53%) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  color: #FFFFFF !important;
+
+  font-size: 10px !important;
+  line-height: 1 !important;
+  font-weight: 700 !important;
+
+  z-index: 2 !important;
+}
+
+/* MULTI SELECT — same square style everywhere */
+.institutionCustomSelectList[aria-multiselectable="true"]
+  .institutionRadioSelectOption {
+  gap: 12px !important;
+}
+
+.institutionMultiSelectCheck {
+  position: relative !important;
+
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+
+  background: #DFE6E9 !important;
+
+  border: 0 !important;
+  border-radius: 4px !important;
+
+  box-shadow:
+    inset 4px 4px 4px rgba(196, 196, 196, 0.8),
+    inset -4px -4px 4px #FFFFFF !important;
+
+  box-sizing: border-box !important;
+}
+
+.institutionMultiSelectCheckActive {
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 4px rgba(196, 196, 196, 0.8) !important;
+}
+
+.institutionMultiSelectCheckMark {
+  position: absolute !important;
+
+  width: 16px !important;
+  height: 16px !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+.institutionMultiSelectCheckActive
+  .institutionMultiSelectCheckMark {
+  background: #2A7308 !important;
+}
+
+.institutionMultiSelectCheckActive
+  .institutionMultiSelectCheckMark::after {
+  content: "" !important;
+
+  position: absolute !important;
+
+  width: 7px !important;
+  height: 4px !important;
+
+  left: 50% !important;
+  top: 44% !important;
+
+  border-left: 2px solid #FFFFFF !important;
+  border-bottom: 2px solid #FFFFFF !important;
+
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+}
+
+/* Mobile — same frame/spacing, no broken long content */
+@media (max-width: 767px) {
+  .institutionSelectField
+    .institutionCustomSelectList,
+  .institutionRadioSelectField
+    .institutionCustomSelectList,
+  .institutionSelectField
+    .institutionRadioSelectList,
+  .institutionRadioSelectField
+    .institutionRadioSelectList {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .institutionCustomSelectOption,
+  .institutionRadioSelectOption {
+    min-height: 50px !important;
+    height: auto !important;
+    flex-basis: auto !important;
+
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .institutionRadioSelectOptionText {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+/* Government ID Proof copied from supplied reference */
+.raisedSelect {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.raisedSelectButton {
+  width: 100%;
+  min-width: 0;
+  min-height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #2F3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+}
+
+.raisedSelectPlaceholder {
+  color: #657080;
+}
+
+.raisedSelectArrow {
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  flex: 0 0 9px;
+  border-right: 1.5px solid #374151;
+  border-bottom: 1.5px solid #374151;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.15s ease;
+}
+
+.raisedSelectArrowOpen {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.raisedSelectMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: -13px;
+  width: calc(100% + 26px);
+  max-height: 224px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #DFE6E9;
+  border-radius: 0 0 12px 12px;
+  box-shadow:
+    inset -5px -5px 8px rgba(255, 255, 255, 0.95),
+    inset 5px 5px 8px rgba(196, 196, 196, 0.82);
+  scrollbar-width: thin;
+  scrollbar-color: #8D8D8D transparent;
+  z-index: 120;
+}
+
+.raisedSelectMenu::-webkit-scrollbar {
+  width: 7px;
+}
+
+.raisedSelectMenu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.raisedSelectMenu::-webkit-scrollbar-thumb {
+  background: #8D8D8D;
+  border-radius: 10px;
+}
+
+.raisedSelectOption {
+  width: 100%;
+  min-height: 42px;
+  flex: 0 0 42px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #2F3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.raisedSelectOptionSelected {
+  color: #2D4CC8;
+}
+
+.raisedSelectRadio {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    inset 3px 3px 5px #C4C4C4,
+    inset -3px -3px 5px #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+
+
+.raisedSelectOptionText {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Government ID compact dropdown */
+.governmentIdProofField {
+  overflow: visible;
+  z-index: 7;
+}
+
+.governmentIdProofField .raisedSelectCompact {
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  height: 34px;
+  flex: 0 0 160px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  background: #DFE6E9;
+  border-radius: 7px;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+}
+
+.governmentIdProofField .raisedSelectCompact.raisedSelectOpen {
+  border-radius: 7px 7px 0 0;
+  z-index: 100;
+}
+
+.governmentIdProofField .raisedSelectCompact .raisedSelectButton {
+  font-size: 14px;
+}
+
+.governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+  top: calc(100% + 6px);
+  left: -12px;
+  width: 336px;
+  max-width: calc(100vw - 40px);
+  max-height: 224px;
+}
+
+/* Show 4 options, then scroll for longer lists */
+.raisedSelectMenu {
+  max-height: 224px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .raisedSelectField {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .raisedSelectMenu {
+    left: -13px;
+    width: calc(100% + 26px);
+    max-height: 224px;
+  }
+
+  .raisedSelectOption {
+    min-height: 42px;
+    flex-basis: 42px;
+    font-size: 14px;
+  }
+
+  .raisedSelectRadio {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .governmentIdProofField .raisedSelectCompact {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    flex-basis: 150px;
+  }
+
+  .governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+    width: min(336px, calc(100vw - 48px));
+    max-width: min(336px, calc(100vw - 48px));
+  }
+}
+
+
+/* Dropdown corrections requested */
+
+/* Before selection: exact 28px inset circle */
+.raisedSelectRadio {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  padding: 0;
+  color: transparent;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.6),
+    inset 4px 4px 4px #C4C4C4;
+  font-size: 0;
+}
+
+/* After selection: exact raised 28px circle */
+
+
+/* Blue 16px selected circle */
+
+
+
+
+
+/* Keep option spacing like the reference */
+.raisedSelectOption {
+  gap: 14px;
+}
+
+/* Leave a small visible gap below opened dropdowns so they do not touch next row */
+.raisedSelectMenu {
+  margin-bottom: 10px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* GOVERNMENT ID ONLY:
+   menu width must follow the whole Government ID field/card width,
+   not the small Document Type control width */
+.governmentIdProofField {
+  position: relative;
+  overflow: visible;
+}
+
+.governmentIdProofField .raisedSelectCompact {
+  position: static;
+}
+
+.governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  top: calc(100% + 8px);
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+/* Government ID field gets the same raised/open appearance */
+.governmentIdProofField:has(.raisedSelectOpen) {
+  z-index: 100;
+  border-radius: 12px 12px 0 0;
+  box-shadow:
+    -5px -5px 10px #FFFFFF,
+    5px 5px 10px #C4C4C4;
+}
+
+/* Keep the opened list bottom edge visible */
+.governmentIdProofField .raisedSelectMenu,
+.raisedSelectField .raisedSelectMenu {
+  padding-bottom: 10px;
+}
+
+/* Mobile keeps the list exactly inside the field width */
+@media (max-width: 700px) {
+  .governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+}
+
+
+/* FINAL PENDING FIXES ONLY */
+
+/* Before clicking/selecting: exact Figma Frame 2095586208 */
+.raisedSelectOption .raisedSelectRadio:not(.raisedSelectRadioSelected) {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  flex: 0 0 28px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #DFE6E9;
+  box-shadow:
+    inset -4px -4px 4px rgba(255, 255, 255, 0.6),
+    inset 4px 4px 4px #C4C4C4;
+  color: transparent;
+  font-size: 0;
+}
+
+/* record - 16px */
+.raisedSelectOption
+  .raisedSelectRadio:not(.raisedSelectRadioSelected)::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 50%;
+  top: calc(50% + 1px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* inner Vector - 13px circle */
+.raisedSelectOption
+  .raisedSelectRadio:not(.raisedSelectRadioSelected)::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  left: calc(50% - 0.5px);
+  top: calc(50% - 0.5px);
+  transform: translate(-50%, -50%);
+  border: 1.5px solid #C6C6C9;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+
+.raisedSelectOption .raisedSelectRadio
+
+/* checkmark-circle-02: 16px x 16px */
+.raisedSelectOption .raisedSelectRadio
+
+/* white check vector inside the 16px blue circle */
+.raisedSelectOption .raisedSelectRadio
+
+/* Exactly four options visible; remaining options scroll.
+   Bottom padding is inside the scroll area so the last option
+   never touches the rounded bottom border. */
+.raisedSelectMenu {
+  max-height: 236px;
+  padding: 8px 10px 18px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0 0 12px 12px;
+  scroll-padding-bottom: 18px;
+}
+
+.raisedSelectOption {
+  min-height: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+}
+
+/* Government ID menu: same width as the WHOLE Government ID card.
+   Anchor it to the card instead of the small Document Type button. */
+.governmentIdProofField {
+  position: relative;
+  overflow: visible;
+}
+
+.governmentIdProofField .raisedSelectCompact {
+  position: static;
+}
+
+.governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  margin-top: 0;
+  padding: 8px 10px 18px;
+  box-sizing: border-box;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Raise the entire Government ID card while its dropdown is open,
+   matching Gender / Department / Office Location. */
+.governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen) {
+  z-index: 120;
+  border-radius: 12px 12px 0 0;
+  box-shadow:
+    -5px -5px 10px #FFFFFF,
+    5px 5px 10px #C4C4C4;
+}
+
+/* Keep a visible gap below opened lists before the next field/card. */
+.raisedSelectFieldOpen {
+  margin-bottom: 12px;
+}
+
+.governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen) {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 700px) {
+  .raisedSelectOption .raisedSelectRadio,
+  .raisedSelectOption .raisedSelectRadio
+
+  .raisedSelectMenu,
+  .governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+    padding-bottom: 18px;
+    max-height: 228px;
+  }
+}
+
+.institutionDocumentsCard .institutionGovernmentIdField.governmentIdProofField {
+  position: relative !important;
+  min-height: 112px !important;
+  height: 112px !important;
+  max-height: 112px !important;
+  overflow: visible !important;
+}
+
+/* Same Government ID placement before and after Edit.
+   Existing control widths are preserved. */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionGovernmentIdPicker {
+  position: static !important;
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: max-content max-content !important;
+  grid-template-rows: 36px 20px !important;
+  grid-template-areas:
+    "doctype choose"
+    ". filename" !important;
+  column-gap: 10px !important;
+  row-gap: 4px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  overflow: visible !important;
+  transform: translateX(-4);
+}
+
+/* EDIT mode Document Type */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact {
+  grid-area: doctype !important;
+  margin: 0 !important;
+}
+
+/* VIEW mode Document Type */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionDocumentTypeWrap {
+  grid-area: doctype !important;
+  margin: 0 !important;
+}
+
+/* Choose File stays next to Document Type, inside the middle card */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionFilePickerControl,
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionChooseFileButton {
+  grid-area: choose !important;
+  margin: 0 !important;
+  align-self: center !important;
+}
+
+/* No File Chosen stays directly below Choose File, inside the card */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionFileName {
+  position: static !important;
+  grid-area: filename !important;
+  width: 124px !important;
+  max-width: 124px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 18px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transform: none !important;
+}
+
+/* Open menu starts below the complete Government ID card.
+   Menu styling/width behavior itself is otherwise unchanged. */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact
+  .raisedSelectMenu {
+  top: 112px !important;
+  margin-top: 0 !important;
+  transform: none !important;
+}
+
+@media (max-width: 700px) {
+  .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField {
+    min-height: 150px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .institutionGovernmentIdPicker {
+    grid-template-columns: max-content !important;
+    grid-template-rows: auto auto auto !important;
+    grid-template-areas:
+      "doctype"
+      "choose"
+      "filename" !important;
+    row-gap: 8px !important;
+  }
+
+  .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .raisedSelectCompact
+    .raisedSelectMenu {
+    top: calc(100% + 8px) !important;
+  }
+}
+
+/* Government ID Proof — BEFORE EDIT only, match correct edit layout */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionDocumentTypeWrap {
+  grid-area: doctype !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+}
+
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionDocumentTypeSelect {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+}
+
+/* Keep file controls in the already-correct positions */
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionFilePickerControl {
+  grid-area: choose !important;
+}
+
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionFileName {
+  grid-area: filename !important;
+}
+
