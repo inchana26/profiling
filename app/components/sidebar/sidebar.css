@@ -535,7 +535,7 @@
   body.mobileSidebarOpen .sidebarBottom {
     display: block;
 
-    margin-top: 12px;
+    margin-top: 28px;
     margin-bottom: 0;
 
     padding: 0 24px;
@@ -676,7 +676,7 @@
   .sidebarBottom {
     width: 100% !important;
 
-    margin-top: 30px !important;
+    margin-top: 54px !important;
     margin-bottom: 0 !important;
   }
 
