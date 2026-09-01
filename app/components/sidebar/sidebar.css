@@ -159,7 +159,7 @@
 ========================================================= */
 
 .sidebarBottom {
-  margin-top: auto;
+  margin-top: 13px;
   margin-bottom: 9px;
 }
 
@@ -245,6 +245,7 @@
 
 
   .sidebarBottom {
+    margin-top: 13px;
     margin-bottom: 20px;
   }
 }
@@ -503,6 +504,8 @@
     display: block !important;
   }
 }
+
+
 /* Move logo slightly up only on desktop/webpage */
 @media (min-width: 768px) {
   .mainLogo {
