@@ -2216,7 +2216,6 @@ export default function FacultyUniversityPage() {
                     label="Gender"
                     value={registrationDraft.gender}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Male",
                       "Female",
@@ -2235,7 +2234,6 @@ export default function FacultyUniversityPage() {
                     label="Program Name"
                     value={registrationDraft.designation}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Digital Skills",
                       "Youth Skills",
@@ -2255,7 +2253,6 @@ export default function FacultyUniversityPage() {
                     label="Project Name"
                     value={registrationDraft.ministryName}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Youth Skills Project",
                       "Digital Literacy Project",
@@ -2274,7 +2271,6 @@ export default function FacultyUniversityPage() {
                     label="Centre Name"
                     value={registrationDraft.department}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Bengaluru Training Centre",
                       "Mysuru Training Centre",
@@ -2320,7 +2316,6 @@ export default function FacultyUniversityPage() {
                     label="Qualification"
                     value={registrationDraft.qualification}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Ph.D.",
                       "M.Tech",
@@ -2344,7 +2339,6 @@ export default function FacultyUniversityPage() {
                     label="Training Experience"
                     value={registrationDraft.totalExperience}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "0–1 Year",
                       "2–3 Years",
@@ -2363,7 +2357,6 @@ export default function FacultyUniversityPage() {
                     label="Employment Status"
                     value={registrationDraft.employmentStatus}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Active",
                       "Inactive",
@@ -2517,7 +2510,6 @@ export default function FacultyUniversityPage() {
                     label="Trainer Type"
                     value={professionalDraft.trainerType}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Master Trainer",
                       "Senior Trainer",
@@ -2539,7 +2531,6 @@ export default function FacultyUniversityPage() {
                     label="Public Sector Experience"
                     value={professionalDraft.socialSectorExperience}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "No Experience",
                       "Less than 1 Year",
@@ -2560,7 +2551,6 @@ export default function FacultyUniversityPage() {
                     label="Primary Domain"
                     value={professionalDraft.trainingExperience}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Skill Development",
                       "Digital Skills",
@@ -2669,7 +2659,6 @@ export default function FacultyUniversityPage() {
                     label="Government Training"
                     value={professionalDraft.communityTraining}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Yes",
                       "No",
@@ -2687,7 +2676,6 @@ export default function FacultyUniversityPage() {
                     label="Mentoring / Coaching"
                     value={professionalDraft.mentoring}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Yes",
                       "No",
@@ -2868,7 +2856,6 @@ export default function FacultyUniversityPage() {
                     label="Skill Level"
                     value={skillsDraft.skillLevel}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Beginner",
                       "Intermediate",
@@ -2951,7 +2938,6 @@ export default function FacultyUniversityPage() {
                     label="Career Goals"
                     value={skillsDraft.careerAspirations}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
                       "Senior Trainer",
                       "Master Trainer",

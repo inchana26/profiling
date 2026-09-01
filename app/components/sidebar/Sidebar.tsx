@@ -56,9 +56,6 @@ const sidebarItems = [
     icon: "/assets/superadminicons/creditcard.svg",
     href: "/billing",
   },
-
-  /* ================= CONFIGURATION ================= */
-
   {
     title: "Configuration",
     icon: "/assets/superadminicons/settings.svg",
@@ -71,7 +68,6 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-
       {/* ================= LOGO ================= */}
 
       <div className="logoArea">
@@ -87,10 +83,7 @@ export default function Sidebar() {
 
       {/* ================= NAVIGATION ================= */}
 
-      <nav
-        className="sidebarNav"
-        aria-label="Super admin navigation"
-      >
+      <nav className="sidebarNav" aria-label="Super admin navigation">
         {sidebarItems.map((item) => {
           const isActive = pathname === item.href;
 
@@ -99,18 +92,10 @@ export default function Sidebar() {
               href={item.href}
               key={item.title}
               className={`sidebarItem ${
-                item.title === "Dashboard"
-                  ? "dashboardItem"
-                  : ""
-              } ${
-                isActive
-                  ? "sidebarItemActive"
-                  : ""
-              }`}
+                item.title === "Dashboard" ? "dashboardItem" : ""
+              } ${isActive ? "sidebarItemActive" : ""}`}
               onClick={() => {
-                document.body.classList.remove(
-                  "mobileSidebarOpen"
-                );
+                document.body.classList.remove("mobileSidebarOpen");
               }}
             >
               <Image
@@ -131,17 +116,13 @@ export default function Sidebar() {
       {/* ================= LOGOUT ================= */}
 
       <div className="sidebarBottom">
-        <button
-          type="button"
-          className="logoutButton"
-        >
+        <button type="button" className="logoutButton">
           <Image
             src="/assets/superadminicons/log-out.svg"
             alt=""
             aria-hidden="true"
             width={18}
             height={18}
-            className="sidebarIcon"
           />
 
           <span>Logout</span>

@@ -1,6 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import {
+  getCountries,
+  getCountryCallingCode,
+  type Country,
+} from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
+import { getExampleNumber } from "libphonenumber-js/max";
+import examples from "libphonenumber-js/examples.mobile.json";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { City } from "country-state-city";
 import "./ngo.css";
@@ -172,6 +180,418 @@ function EditField({
 }
 
 const NGO_DROPDOWN_OPEN_EVENT = "ngo-dropdown-open";
+
+type PhoneCountrySelectProps = {
+  label: string;
+  country: Country | null;
+  value: string;
+  onCountryChange: (country: Country) => void;
+  onChange: (value: string) => void;
+};
+
+const PHONE_COUNTRIES = getCountries();
+const countryNames =
+  typeof Intl !== "undefined" && "DisplayNames" in Intl
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
+
+const getCountryName = (country: Country) =>
+  countryNames?.of(country) || country;
+
+const getCountryMaxDigits = (country: Country) => {
+  const example = getExampleNumber(country, examples);
+
+  if (example?.nationalNumber) {
+    return example.nationalNumber.length;
+  }
+
+  // Safe fallback only when the library has no mobile example.
+  return 15 - getCountryCallingCode(country).length;
+};
+
+function PhoneCountrySelect({
+  label,
+  country,
+  value,
+  onCountryChange,
+  onChange,
+}: PhoneCountrySelectProps) {
+  const [open, setOpen] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  /* Keep edits local until Apply is clicked. */
+  const [pendingCountry, setPendingCountry] = useState<Country | null>(country);
+  const [pendingValue, setPendingValue] = useState(value);
+
+  const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const selectId = useId();
+
+  /* Value shown in the CLOSED top field = last applied value only. */
+  const callingCode = country
+    ? `+${getCountryCallingCode(country)}`
+    : "";
+
+  /* Values used inside the OPEN editor. */
+  const pendingCallingCode = pendingCountry
+    ? `+${getCountryCallingCode(pendingCountry)}`
+    : "";
+
+  const pendingMaxDigits = pendingCountry
+    ? getCountryMaxDigits(pendingCountry)
+    : 15;
+
+  const filteredCountries = PHONE_COUNTRIES.filter((item) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+
+    const name = getCountryName(item).toLowerCase();
+    const code = `+${getCountryCallingCode(item)}`;
+
+    return (
+      name.includes(q) ||
+      item.toLowerCase().includes(q) ||
+      code.includes(q)
+    );
+  });
+
+  /* If the saved parent value changes while closed, keep draft in sync. */
+  useEffect(() => {
+    if (!open) {
+      setPendingCountry(country);
+      setPendingValue(value);
+    }
+  }, [country, value, open]);
+
+  const discardPendingChanges = () => {
+    setPendingCountry(country);
+    setPendingValue(value);
+    setCountryOpen(false);
+    setSearch("");
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target as Node)
+      ) {
+        setPendingCountry(country);
+        setPendingValue(value);
+        setOpen(false);
+        setCountryOpen(false);
+        setSearch("");
+      }
+    };
+
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+
+      if (customEvent.detail !== selectId) {
+        setPendingCountry(country);
+        setPendingValue(value);
+        setOpen(false);
+        setCountryOpen(false);
+        setSearch("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    window.addEventListener(
+      NGO_DROPDOWN_OPEN_EVENT,
+      closeOtherDropdown as EventListener
+    );
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      window.removeEventListener(
+        NGO_DROPDOWN_OPEN_EVENT,
+        closeOtherDropdown as EventListener
+      );
+    };
+  }, [selectId, country, value]);
+
+  useEffect(() => {
+    if (countryOpen) {
+      window.setTimeout(() => searchRef.current?.focus(), 0);
+    }
+  }, [countryOpen]);
+
+  const openMainField = () => {
+    const nextOpen = !open;
+
+    if (nextOpen) {
+      /* Every new open starts from the last applied values. */
+      setPendingCountry(country);
+      setPendingValue(value);
+
+      window.dispatchEvent(
+        new CustomEvent(NGO_DROPDOWN_OPEN_EVENT, {
+          detail: selectId,
+        })
+      );
+    } else {
+      /* Closing with the top arrow works like Cancel. */
+      setPendingCountry(country);
+      setPendingValue(value);
+      setCountryOpen(false);
+      setSearch("");
+    }
+
+    setOpen(nextOpen);
+  };
+
+  const openCountryList = () => {
+    if (!countryOpen) {
+      window.dispatchEvent(
+        new CustomEvent(NGO_DROPDOWN_OPEN_EVENT, {
+          detail: selectId,
+        })
+      );
+    }
+
+    setCountryOpen(true);
+  };
+
+  const handleNumberChange = (rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, "");
+
+    if (!pendingCountry) {
+      setPendingValue("");
+      return;
+    }
+
+    setPendingValue(digits.slice(0, pendingMaxDigits));
+  };
+
+  const selectCountry = (nextCountry: Country) => {
+    setPendingCountry(nextCountry);
+
+    const nextMaxDigits = getCountryMaxDigits(nextCountry);
+    setPendingValue((current) =>
+      current.replace(/\D/g, "").slice(0, nextMaxDigits)
+    );
+
+    setCountryOpen(false);
+    setSearch("");
+  };
+
+  const applyPhoneChanges = () => {
+    if (pendingCountry) {
+      onCountryChange(pendingCountry);
+    }
+
+    onChange(pendingValue);
+
+    setCountryOpen(false);
+    setSearch("");
+    setOpen(false);
+  };
+
+  return (
+    <div
+      ref={rootRef}
+      className={`institutionPhoneAccordion ${
+        open ? "institutionPhoneAccordionOpen" : ""
+      }`}
+    >
+      <button
+        type="button"
+        className="institutionField institutionPhoneMainTrigger"
+        aria-expanded={open}
+        onClick={openMainField}
+      >
+        <span className="institutionPhoneMainText">
+          <span className="institutionFieldLabel">{label}</span>
+
+          <span
+            className={
+              country && value
+                ? "institutionPhoneMainSavedValue"
+                : "institutionSelectPlaceholderValue"
+            }
+          >
+            {country && value ? `${callingCode} ${value}` : "Select"}
+          </span>
+        </span>
+
+        <Icon
+          src={images.arrowDown}
+          width={30}
+          height={30}
+          className={`institutionSelectArrow institutionPhoneMainArrow ${
+            open ? "institutionSelectArrowOpen" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="institutionPhonePanel">
+          <div className="institutionPhonePanelLabel">Country Code</div>
+
+          <div className="institutionPhoneCountryBox">
+            <div
+              className={`institutionPhoneCountryTrigger ${
+                countryOpen ? "institutionPhoneCountryTriggerOpen" : ""
+              }`}
+              onClick={openCountryList}
+            >
+              <span
+                className="institutionPhoneSearchMini"
+                aria-hidden="true"
+              />
+
+              <input
+                ref={searchRef}
+                type="text"
+                value={
+                  countryOpen
+                    ? search
+                    : pendingCountry
+                      ? `${getCountryName(pendingCountry)}`
+                      : ""
+                }
+                onFocus={openCountryList}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setCountryOpen(true);
+                }}
+                className="institutionPhoneCountrySearchInput"
+                placeholder="Search Country"
+                aria-label="Search Country"
+                autoComplete="off"
+              />
+
+              {pendingCountry && !countryOpen && (
+                <span className="institutionPhoneSelectedCountryCode">
+                  {pendingCountry} ({pendingCallingCode})
+                </span>
+              )}
+
+              <Icon
+                src={images.arrowDown}
+                width={24}
+                height={24}
+                className={`institutionPhoneArrow ${
+                  countryOpen ? "institutionPhoneArrowOpen" : ""
+                }`}
+              />
+            </div>
+
+            {countryOpen && (
+              <div className="institutionPhoneCountryMenu">
+                <div
+                  className="institutionPhoneCountryList institutionRadioSelectListScrollable"
+                  role="listbox"
+                >
+                  {filteredCountries.map((item) => {
+                    const selected = pendingCountry === item;
+                    const ItemFlag = flags[item];
+                    const itemCallingCode =
+                      `+${getCountryCallingCode(item)}`;
+
+                    return (
+                      <button
+                        type="button"
+                        key={item}
+                        className={`institutionCustomSelectOption institutionRadioSelectOption institutionPhoneCountryOption ${
+                          selected
+                            ? "institutionCustomSelectOptionActive institutionPhoneCountryOptionSelected"
+                            : ""
+                        }`}
+                        role="option"
+                        aria-selected={selected}
+                        onClick={() => selectCountry(item)}
+                      >
+                        <span className="institutionPhoneCountryName">
+                          <span className="institutionPhoneFlag">
+                            {ItemFlag ? (
+                              <ItemFlag
+                                title={getCountryName(item)}
+                              />
+                            ) : null}
+                          </span>
+
+                          <span className="institutionPhoneCountryText">
+                            {item} ({itemCallingCode}) - {getCountryName(item)}
+                          </span>
+                        </span>
+
+                        <span
+                          className={`institutionRadioSelectCircle ${
+                            selected
+                              ? "institutionRadioSelectCircleActive"
+                              : ""
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {selected && (
+                            <span className="institutionRadioSelectCheck">
+                              ✓
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="institutionPhonePanelLabel institutionPhoneNumberTitle">
+            {label}
+          </div>
+
+          <div
+            className={`institutionPhoneNumberInputWrap ${
+              !pendingCountry ? "institutionPhoneNumberInputDisabled" : ""
+            }`}
+          >
+            <input
+              type="tel"
+              inputMode="numeric"
+              className="institutionPhoneNumberInput"
+              value={pendingValue}
+              disabled={!pendingCountry}
+              maxLength={pendingMaxDigits}
+              placeholder={
+                pendingCountry
+                  ? `Enter ${pendingMaxDigits} Digit Mobile number`
+                  : "Select Country First"
+              }
+              onChange={(event) =>
+                handleNumberChange(event.target.value)
+              }
+            />
+          </div>
+
+          <div className="institutionPhonePanelActions">
+            <button
+              type="button"
+              className="institutionPhonePanelAction institutionPhonePanelCancel"
+              onClick={discardPendingChanges}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="institutionPhonePanelAction institutionPhonePanelApply"
+              onClick={applyPhoneChanges}
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 
 function SelectField({
   label,
@@ -1157,6 +1577,9 @@ export default function CoordinatorNgoProfile() {
   });
 
   const [draftRegistration, setDraftRegistration] = useState(registration);
+  const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
+  const [alternatePhoneCountry, setAlternatePhoneCountry] =
+    useState<Country | null>(null);
   const [draftProfessional, setDraftProfessional] = useState(professional);
   const [draftSkills, setDraftSkills] = useState(skills);
 
@@ -1260,15 +1683,29 @@ export default function CoordinatorNgoProfile() {
     }, 2500);
   };
 
+  const isValidPhoneNumber = (value: string, country: Country | null) => {
+    if (!value || !country) return false;
+
+    const digits = value.replace(/\D/g, "");
+    const requiredDigits = getCountryMaxDigits(country);
+
+    return digits.length === requiredDigits;
+  };
+
   const save = (section: SectionName) => {
     if (section === "registration") {
       const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com$/;
-      const indianPhoneRegex = /^[6-9][0-9]{9}$/;
 
       const validOfficialEmail = emailRegex.test(draftRegistration.officialEmail);
       const validAlternateEmail = emailRegex.test(draftRegistration.alternateEmail);
-      const validMobile = indianPhoneRegex.test(draftRegistration.mobile);
-      const validAlternatePhone = indianPhoneRegex.test(draftRegistration.alternatePhone);
+      const validMobile = isValidPhoneNumber(
+        draftRegistration.mobile,
+        mobileCountry
+      );
+      const validAlternatePhone = isValidPhoneNumber(
+        draftRegistration.alternatePhone,
+        alternatePhoneCountry
+      );
 
       if (
         !validOfficialEmail ||
@@ -1356,9 +1793,7 @@ export default function CoordinatorNgoProfile() {
     fullName: "lock",
     employeeCode: "lock",
     officialEmail: "edit",
-    mobile: "edit",
     alternateEmail: "edit",
-    alternatePhone: "edit",
     joining: "lock",
     tenantId: "lock",
     onboarding: "lock",
@@ -1373,8 +1808,8 @@ export default function CoordinatorNgoProfile() {
     ["Highest Qualification", "qualification"],
     ["Employee Code", "employeeCode"],
     ["Official Email", "officialEmail"],
-    ["Mobile Number", "mobile"],
     ["Alternate Email", "alternateEmail"],
+    ["Mobile Number", "mobile"],
     ["Alternate Phone", "alternatePhone"],
     ["Total Experience", "experience"],
     ["Date of Joining", "joining"],
@@ -1463,10 +1898,6 @@ export default function CoordinatorNgoProfile() {
     ).sort((a, b) => a.localeCompare(b));
   }, []);
 
-  const sanitizeIndianPhone = (value: string) =>
-    value.replace(/\D/g, "").slice(0, 10);
-
-  const indianPhonePattern = "[6-9][0-9]{9}";
   const emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$";
 
   const registrationDropdownOptions: Record<string, string[]> = {
@@ -1801,6 +2232,36 @@ export default function CoordinatorNgoProfile() {
               <div className="institutionGrid ngoRegistrationGrid">
                 {registrationFields.map(([label, key]) => {
                   if (editing !== "registration") {
+                    if (key === "mobile") {
+                      return (
+                        <DisplayField
+                          key={key}
+                          label={label}
+                          value={
+                            registration.mobile && mobileCountry
+                              ? `+${getCountryCallingCode(mobileCountry)} ${registration.mobile}`
+                              : ""
+                          }
+                          placeholder="Select"
+                        />
+                      );
+                    }
+
+                    if (key === "alternatePhone") {
+                      return (
+                        <DisplayField
+                          key={key}
+                          label={label}
+                          value={
+                            registration.alternatePhone && alternatePhoneCountry
+                              ? `+${getCountryCallingCode(alternatePhoneCountry)} ${registration.alternatePhone}`
+                              : ""
+                          }
+                          placeholder="Select"
+                        />
+                      );
+                    }
+
                     return (
                       <DisplayField
                         key={key}
@@ -1845,6 +2306,42 @@ export default function CoordinatorNgoProfile() {
                     );
                   }
 
+                  if (key === "mobile") {
+                    return (
+                      <PhoneCountrySelect
+                        key={key}
+                        label={label}
+                        country={mobileCountry}
+                        value={draftRegistration.mobile}
+                        onCountryChange={setMobileCountry}
+                        onChange={(value) =>
+                          setDraftRegistration((current) => ({
+                            ...current,
+                            mobile: value,
+                          }))
+                        }
+                      />
+                    );
+                  }
+
+                  if (key === "alternatePhone") {
+                    return (
+                      <PhoneCountrySelect
+                        key={key}
+                        label={label}
+                        country={alternatePhoneCountry}
+                        value={draftRegistration.alternatePhone}
+                        onCountryChange={setAlternatePhoneCountry}
+                        onChange={(value) =>
+                          setDraftRegistration((current) => ({
+                            ...current,
+                            alternatePhone: value,
+                          }))
+                        }
+                      />
+                    );
+                  }
+
                   return (
                     <EditField
                       key={key}
@@ -1855,33 +2352,17 @@ export default function CoordinatorNgoProfile() {
                       type={
                         key === "officialEmail" || key === "alternateEmail"
                           ? "email"
-                          : key === "mobile" || key === "alternatePhone"
-                          ? "tel"
                           : "text"
-                      }
-                      maxLength={
-                        key === "mobile" || key === "alternatePhone"
-                          ? 10
-                          : undefined
                       }
                       pattern={
                         key === "officialEmail" || key === "alternateEmail"
                           ? emailPattern
-                          : key === "mobile" || key === "alternatePhone"
-                          ? indianPhonePattern
                           : undefined
                       }
                       inputMode={
                         key === "officialEmail" || key === "alternateEmail"
                           ? "email"
-                          : key === "mobile" || key === "alternatePhone"
-                          ? "numeric"
                           : "text"
-                      }
-                      sanitize={
-                        key === "mobile" || key === "alternatePhone"
-                          ? sanitizeIndianPhone
-                          : undefined
                       }
                       placeholder={registrationPlaceholders[key] ?? ""}
                       onChange={(value) =>

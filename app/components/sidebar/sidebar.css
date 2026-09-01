@@ -1,32 +1,18 @@
 .sidebar {
   width: 220px;
   flex: 0 0 220px;
-
   display: flex;
   flex-direction: column;
-
   padding: 22px 16px;
-
   background: #DFE6E9;
-
   box-shadow:
     -8px -8px 16px #FFFFFF,
     8px 8px 16px #C4C4C4;
-
   z-index: 2;
-
   position: sticky;
   top: 0;
-
   height: 100vh;
-  height: 100dvh;
-
   align-self: flex-start;
-
-  box-sizing: border-box;
-
-  /* NO SIDEBAR SCROLL */
-  overflow: hidden;
 }
 
 
@@ -36,24 +22,17 @@
 
 .logoArea {
   height: 90px;
-  min-height: 90px;
-
   display: flex;
   align-items: center;
-
   padding-left: 8px;
-
-  flex-shrink: 0;
-
-  box-sizing: border-box;
 }
 
 
 .mainLogo {
   width: 150px;
   height: auto;
-
   object-fit: contain;
+
 }
 
 
@@ -62,17 +41,9 @@
 ========================================================= */
 
 .sidebarNav {
-  width: 100%;
-
   display: flex;
   flex-direction: column;
-
   gap: 13px;
-
-  padding: 0;
-  margin: 0;
-
-  flex-shrink: 0;
 }
 
 
@@ -82,27 +53,17 @@
 
 .sidebarItem {
   width: 100%;
-
   height: 42px;
-  min-height: 42px;
-
-  flex: 0 0 42px;
-
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   padding: 0 14px;
 
   color: #374151;
   background: #DFE6E9;
 
   text-decoration: none;
-
   border-radius: 7px;
-
-  box-sizing: border-box;
 
   box-shadow:
     -4px -4px 8px #FFFFFF,
@@ -113,24 +74,22 @@
 .sidebarItem span {
   font-size: 14px;
   font-weight: 500;
-
   color: #374151;
-
-  line-height: 1;
-
-  white-space: nowrap;
 }
 
 
 /* =========================================================
    SIDEBAR ICONS
+   MATCH TEXT COLOR #374151
 ========================================================= */
 
 .sidebarIcon {
   object-fit: contain;
-
   flex-shrink: 0;
 
+  /*
+    Converts the existing SVG icon to approximately #374151
+  */
   filter:
     brightness(0)
     saturate(100%)
@@ -145,11 +104,11 @@
 
 /* =========================================================
    DASHBOARD
+   NO BLUE / NO INSET
 ========================================================= */
 
 .dashboardItem {
   color: #374151 !important;
-
   background: #DFE6E9 !important;
 
   box-shadow:
@@ -182,7 +141,6 @@
 
 .sidebarItemActive {
   color: #2D4CC8;
-
   background: #DFE6E9;
 
   box-shadow:
@@ -201,14 +159,8 @@
 ========================================================= */
 
 .sidebarBottom {
-  width: 100%;
-
   margin-top: auto;
   margin-bottom: 9px;
-
-  padding: 0;
-
-  flex-shrink: 0;
 }
 
 
@@ -218,9 +170,7 @@
 
 .logoutButton {
   width: 100%;
-
   height: 42px;
-  min-height: 42px;
 
   display: flex;
   align-items: center;
@@ -237,126 +187,9 @@
 
   cursor: pointer;
 
-  box-sizing: border-box;
-
   box-shadow:
     -4px -4px 8px #FFFFFF,
     4px 4px 8px #C4C4C4;
-}
-
-
-.logoutButton span {
-  font-size: 14px;
-  font-weight: 500;
-
-  line-height: 1;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   SHORT DESKTOP / LAPTOP HEIGHT
-
-   IMPORTANT:
-   This fixes your current webpage screenshot.
-   Items stay separated but everything fits.
-========================================================= */
-
-@media (min-width: 701px) and (max-height: 760px) {
-
-  .sidebar {
-    padding-top: 14px;
-    padding-bottom: 14px;
-  }
-
-
-  .logoArea {
-    height: 68px;
-    min-height: 68px;
-  }
-
-
-  .sidebarNav {
-    gap: 8px;
-  }
-
-
-  .sidebarItem {
-    height: 36px;
-    min-height: 36px;
-
-    flex-basis: 36px;
-  }
-
-
-  .sidebarItem span {
-    font-size: 13px;
-  }
-
-
-  .logoutButton {
-    height: 36px;
-    min-height: 36px;
-  }
-
-
-  .logoutButton span {
-    font-size: 13px;
-  }
-
-
-  .sidebarBottom {
-    margin-bottom: 5px;
-  }
-}
-
-
-/* =========================================================
-   VERY SHORT DESKTOP HEIGHT
-========================================================= */
-
-@media (min-width: 701px) and (max-height: 650px) {
-
-  .sidebar {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-
-  .logoArea {
-    height: 58px;
-    min-height: 58px;
-  }
-
-
-  .mainLogo {
-    width: 140px;
-  }
-
-
-  .sidebarNav {
-    gap: 7px;
-  }
-
-
-  .sidebarItem {
-    height: 34px;
-    min-height: 34px;
-
-    flex-basis: 34px;
-  }
-
-
-  .logoutButton {
-    height: 34px;
-    min-height: 34px;
-  }
-
-
-  .sidebarBottom {
-    margin-bottom: 2px;
-  }
 }
 
 
@@ -364,7 +197,7 @@
    TABLET
 ========================================================= */
 
-@media (max-width: 1100px) and (min-width: 901px) {
+@media (max-width: 1100px) {
 
   .sidebar {
     width: 190px;
@@ -377,36 +210,22 @@
    SMALL TABLET
 ========================================================= */
 
-@media (max-width: 900px) and (min-width: 701px) {
+@media (max-width: 900px) {
 
   .sidebar {
     width: 80px;
     flex-basis: 80px;
-
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-
-  .logoArea {
-    padding-left: 0;
-
-    justify-content: center;
   }
 
 
   .mainLogo {
     width: 55px;
-
     object-fit: contain;
   }
 
 
   .sidebarItem {
     justify-content: center;
-
-    padding-left: 8px;
-    padding-right: 8px;
   }
 
 
@@ -417,298 +236,160 @@
 
   .logoutButton {
     justify-content: center;
-
-    padding-left: 8px;
-    padding-right: 8px;
   }
 
 
   .logoutButton span {
     display: none;
   }
+
+
+  .sidebarBottom {
+    margin-bottom: 20px;
+  }
 }
+
 
 /* =========================================================
    MOBILE
-   FINAL CLEAN VERSION
-   - WEB/DESKTOP ABOVE IS UNCHANGED
-   - MENU STARTS JUST BELOW HEADER
-   - MENU DOES NOT OVERLAP HEADER
-   - ALL ITEMS INCLUDING CONFIGURATION + LOGOUT ARE AVAILABLE
-   - IF HEIGHT IS SHORT, ONLY THE MENU AREA SCROLLS
 ========================================================= */
 
-@media screen and (max-width: 700px) {
-
-  /* =======================================================
-     MOBILE SIDEBAR SHELL
-  ======================================================= */
+@media (max-width: 700px) {
 
   .sidebar,
   .dashboardLayout > .sidebar {
-    position: fixed !important;
+    position: fixed;
 
-    top: 0 !important;
-    right: 0 !important;
-    left: auto !important;
+    top: 0;
+    right: 0;
+    left: auto;
 
-    width: 205px !important;
-    min-width: 205px !important;
-    max-width: 205px !important;
+    width: 205px;
 
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
+    height: auto;
+    min-height: auto;
+    max-height: calc(100vh - 18px);
 
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 0 0 12px;
 
-    display: block !important;
+    display: block;
 
-    background: transparent !important;
-    box-shadow: none !important;
+    overflow-y: auto;
 
-    pointer-events: none !important;
+    background: transparent;
 
-    z-index: 2000 !important;
+    box-shadow: none;
 
-    box-sizing: border-box !important;
+    pointer-events: none;
+
+    z-index: 2000;
   }
 
 
   /* =======================================================
      MOBILE LOGO
-     KEEP NEURO LXP VISIBLE
   ======================================================= */
 
-  .sidebar .logoArea,
-  .dashboardLayout > .sidebar .logoArea {
-    position: fixed !important;
+  .logoArea {
+    position: fixed;
 
-    top: 10px !important;
-    left: 16px !important;
+    top: 12px;
+    left: 16px;
 
-    width: 135px !important;
+    width: 135px;
+    height: 55px;
 
-    height: 55px !important;
-    min-height: 55px !important;
-    max-height: 55px !important;
+    padding-left: 0;
 
-    padding: 0 !important;
-    margin: 0 !important;
+    display: flex;
+    align-items: center;
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
+    pointer-events: none;
 
-    opacity: 1 !important;
-    visibility: visible !important;
-
-    pointer-events: none !important;
-
-    z-index: 2100 !important;
-
-    box-sizing: border-box !important;
+    z-index: 2001;
   }
 
 
-  .sidebar .mainLogo,
-  .dashboardLayout > .sidebar .mainLogo {
-    display: block !important;
+  .mainLogo {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+  }
 
-    width: 120px !important;
-    max-width: 120px !important;
 
-    height: auto !important;
-
-    opacity: 1 !important;
-    visibility: visible !important;
-
-    object-fit: contain !important;
+  .sidebarNav,
+  .sidebarBottom {
+    display: none;
   }
 
 
   /* =======================================================
-     CLOSED STATE
-  ======================================================= */
-
-  body:not(.mobileSidebarOpen) .sidebarNav,
-  body:not(.mobileSidebarOpen) .sidebarBottom,
-  body:not(.mobileSidebarOpen)
-    .dashboardLayout
-    > .sidebar
-    .sidebarNav,
-  body:not(.mobileSidebarOpen)
-    .dashboardLayout
-    > .sidebar
-    .sidebarBottom {
-    display: none !important;
-  }
-
-
-  /* =======================================================
-     OPEN MENU
-     This is the important position fix.
-     Starts just under the mobile header like your 1st image.
+     MOBILE SIDEBAR OPEN
   ======================================================= */
 
   body.mobileSidebarOpen .sidebar,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar {
-    position: fixed !important;
+  body.mobileSidebarOpen .dashboardLayout > .sidebar {
+    top: 76px;
+    right: 10px;
 
-    top: 76px !important;
-    right: 10px !important;
-    left: auto !important;
+    width: 205px;
 
-    width: 205px !important;
-    min-width: 205px !important;
-    max-width: 205px !important;
+    padding: 0 0 12px;
 
-    height: auto !important;
+    background: #DFE6E9;
 
-    /*
-      Keep menu below header and inside viewport.
-    */
-    max-height: calc(100dvh - 84px) !important;
-
-    padding: 0 0 10px !important;
-    margin: 0 !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-
-    background: #DFE6E9 !important;
-
-    border-radius: 7px !important;
+    border-radius: 7px;
 
     box-shadow:
       -8px -8px 16px #FFFFFF,
-      8px 8px 16px #C4C4C4 !important;
+      8px 8px 16px #C4C4C4;
 
-    pointer-events: auto !important;
-
-    /*
-      If the full list does not fit on a shorter phone,
-      scroll only this opened menu. No content gets lost.
-    */
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-
-    overscroll-behavior: contain;
-
-    z-index: 2000 !important;
-
-    box-sizing: border-box !important;
-
-    scrollbar-width: thin;
+    pointer-events: auto;
   }
 
 
-  /* =======================================================
-     NAVIGATION
-  ======================================================= */
+  body.mobileSidebarOpen .sidebarNav {
+    width: 100%;
 
-  body.mobileSidebarOpen .sidebarNav,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar
-    .sidebarNav {
-    width: 100% !important;
+    display: flex;
+    flex-direction: column;
 
-    display: flex !important;
-    flex-direction: column !important;
+    gap: 6px;
 
-    gap: 5px !important;
+    padding: 0;
 
-    padding: 0 !important;
-    margin: 0 !important;
-
-    flex: none !important;
-
-    box-sizing: border-box !important;
+    overflow: visible;
   }
 
 
-  /* =======================================================
-     MENU ITEM
-  ======================================================= */
+  body.mobileSidebarOpen .sidebarItem {
+    width: 100%;
+    height: 42px;
 
-  body.mobileSidebarOpen .sidebarNav .sidebarItem,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar
-    .sidebarNav
-    .sidebarItem {
-    width: 100% !important;
+    flex: none;
 
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 
-    flex: 0 0 42px !important;
+    gap: 12px;
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
+    padding: 0 14px;
 
-    gap: 12px !important;
-
-    padding: 0 14px !important;
-    margin: 0 !important;
-
-    color: #374151 !important;
-    background: #DFE6E9 !important;
-
-    text-decoration: none !important;
-
-    border: none !important;
-    border-radius: 0 !important;
-
-    box-sizing: border-box !important;
-
-    box-shadow:
-      -4px -4px 8px #FFFFFF,
-      4px 4px 8px #C4C4C4 !important;
+    border-radius: 0;
   }
 
 
-  body.mobileSidebarOpen .sidebarNav .sidebarItem span {
-    display: inline !important;
+  body.mobileSidebarOpen .sidebarItem span {
+    display: inline;
 
-    padding: 0 !important;
-    margin: 0 !important;
-
-    font-size: 14px !important;
-    font-weight: 500 !important;
-
-    line-height: 1 !important;
-
-    color: #374151 !important;
-
-    white-space: nowrap !important;
+    font-size: 14px;
+    font-weight: 500;
   }
 
 
-  body.mobileSidebarOpen
-    .sidebarNav
-    .sidebarItem
-    .sidebarIcon {
-    width: 18px !important;
-    min-width: 18px !important;
-    max-width: 18px !important;
-
-    height: 18px !important;
-    min-height: 18px !important;
-    max-height: 18px !important;
-
-    flex: 0 0 18px !important;
-
-    padding: 0 !important;
-    margin: 0 !important;
-
-    object-fit: contain !important;
+  body.mobileSidebarOpen .sidebarIcon {
+    flex-shrink: 0;
 
     filter:
       brightness(0)
@@ -718,12 +399,12 @@
       saturate(1066%)
       hue-rotate(182deg)
       brightness(91%)
-      contrast(88%) !important;
+      contrast(88%);
   }
 
 
   /* =======================================================
-     DASHBOARD
+     DASHBOARD MOBILE
   ======================================================= */
 
   body.mobileSidebarOpen .dashboardItem {
@@ -741,175 +422,90 @@
   }
 
 
-  /* =======================================================
-     ACTIVE ITEM
-  ======================================================= */
-
-  body.mobileSidebarOpen .sidebarItemActive {
-    color: #2D4CC8 !important;
-    background: #DFE6E9 !important;
-
-    box-shadow:
-      inset -4px -4px 8px #FFFFFF,
-      inset 4px 4px 8px #C4C4C4 !important;
-  }
-
-
-  body.mobileSidebarOpen .sidebarItemActive span {
-    color: #2D4CC8 !important;
+  body.mobileSidebarOpen .dashboardItem .sidebarIcon {
+    filter:
+      brightness(0)
+      saturate(100%)
+      invert(25%)
+      sepia(11%)
+      saturate(1066%)
+      hue-rotate(182deg)
+      brightness(91%)
+      contrast(88%) !important;
   }
 
 
   /* =======================================================
-     LOGOUT
+     MOBILE LOGOUT
   ======================================================= */
 
-  body.mobileSidebarOpen .sidebarBottom,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar
-    .sidebarBottom {
-    width: 100% !important;
+  body.mobileSidebarOpen .sidebarBottom {
+    display: block;
 
-    display: block !important;
+    margin-top: 12px;
+    margin-bottom: 0;
 
-    margin: 10px 0 0 !important;
-
-    padding: 0 14px !important;
-
-    flex: none !important;
-
-    box-sizing: border-box !important;
+    padding: 0 24px;
   }
 
 
   body.mobileSidebarOpen .logoutButton {
-    width: 100% !important;
+    width: 100%;
+    height: 42px;
 
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
+    gap: 12px;
 
-    gap: 12px !important;
-
-    padding: 0 14px !important;
-    margin: 0 !important;
-
-    color: #374151 !important;
-    background: #DFE6E9 !important;
-
-    border: none !important;
-    border-radius: 7px !important;
-
-    box-sizing: border-box !important;
-
-    box-shadow:
-      -4px -4px 8px #FFFFFF,
-      4px 4px 8px #C4C4C4 !important;
+    padding: 0 14px;
   }
 
 
   body.mobileSidebarOpen .logoutButton span {
-    display: inline !important;
-
-    font-size: 14px !important;
-    font-weight: 500 !important;
-
-    line-height: 1 !important;
-
-    color: #374151 !important;
-
-    white-space: nowrap !important;
-  }
-
-
-  body.mobileSidebarOpen .logoutButton img {
-    width: 18px !important;
-    height: 18px !important;
-
-    flex: 0 0 18px !important;
-
-    object-fit: contain !important;
+    display: inline;
   }
 }
 
 
 /* =========================================================
-   320 x 691 AND SIMILAR
-   Keep same appearance, only slightly compact so more fits.
+   MOBILE SIDEBAR CLOSED / OPEN
 ========================================================= */
 
-@media screen and (max-width: 700px) and (max-height: 720px) {
+@media (max-width: 700px) {
 
-  body.mobileSidebarOpen .sidebar,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar {
-    top: 76px !important;
-
-    max-height: calc(100dvh - 82px) !important;
+  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar .sidebarNav,
+  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar .sidebarBottom,
+  body:not(.mobileSidebarOpen) .sidebar .sidebarNav,
+  body:not(.mobileSidebarOpen) .sidebar .sidebarBottom {
+    display: none !important;
   }
 
 
-  body.mobileSidebarOpen .sidebarNav,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar
-    .sidebarNav {
-    gap: 5px !important;
+  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar,
+  body:not(.mobileSidebarOpen) .sidebar {
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
   }
 
 
-  body.mobileSidebarOpen .sidebarNav .sidebarItem,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar
-    .sidebarNav
-    .sidebarItem {
-    height: 39px !important;
-    min-height: 39px !important;
-    max-height: 39px !important;
-
-    flex-basis: 39px !important;
+  body.mobileSidebarOpen .dashboardLayout > .sidebar .sidebarNav,
+  body.mobileSidebarOpen .sidebar .sidebarNav {
+    display: flex !important;
+    flex-direction: column !important;
   }
 
 
-  body.mobileSidebarOpen .logoutButton {
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
+  body.mobileSidebarOpen .dashboardLayout > .sidebar .sidebarBottom,
+  body.mobileSidebarOpen .sidebar .sidebarBottom {
+    display: block !important;
   }
 }
-
-
-/* =========================================================
-   SMALL MOBILE WIDTH
-========================================================= */
-
-@media screen and (max-width: 360px) {
-
-  body.mobileSidebarOpen .sidebar,
-  body.mobileSidebarOpen
-    .dashboardLayout
-    > .sidebar {
-    width: 205px !important;
-    min-width: 205px !important;
-    max-width: 205px !important;
-
-    right: 6px !important;
-  }
-}
-/* =========================================================
-   DESKTOP ONLY - MOVE NEURO LXP LOGO SLIGHTLY UP
-   MOBILE / TABLET REMAINS SAME
-========================================================= */
-
-@media (min-width: 1101px) {
-  .logoArea {
-    transform: translateY(-8px);
+/* Move logo slightly up only on desktop/webpage */
+@media (min-width: 768px) {
+  .mainLogo {
+    transform: translateY(-15px);
   }
 }
