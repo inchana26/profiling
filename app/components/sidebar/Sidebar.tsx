@@ -6,61 +6,17 @@ import { usePathname } from "next/navigation";
 import "./sidebar.css";
 
 const sidebarItems = [
-  {
-    title: "Dashboard",
-    icon: "/assets/superadminicons/dashboardsquare.svg",
-    href: "/super_admin",
-  },
-  {
-    title: "Analytics",
-    icon: "/assets/superadminicons/chart.svg",
-    href: "/analytics",
-  },
-  {
-    title: "Users",
-    icon: "/assets/superadminicons/group.svg",
-    href: "/users",
-  },
-  {
-    title: "Courses",
-    icon: "/assets/superadminicons/bookopen.svg",
-    href: "/courses",
-  },
-  {
-    title: "Instructors",
-    icon: "/assets/superadminicons/teaching.svg",
-    href: "/instructors",
-  },
-  {
-    title: "Tenants",
-    icon: "/assets/superadminicons/building.svg",
-    href: "/tenants",
-  },
-  {
-    title: "Assessment",
-    icon: "/assets/superadminicons/clipboard.svg",
-    href: "/assessment",
-  },
-  {
-    title: "Certificate",
-    icon: "/assets/superadminicons/graduation-cap.svg",
-    href: "/certificate",
-  },
-  {
-    title: "Reports",
-    icon: "/assets/superadminicons/trending-down.svg",
-    href: "/reports",
-  },
-  {
-    title: "Billing",
-    icon: "/assets/superadminicons/creditcard.svg",
-    href: "/billing",
-  },
-  {
-    title: "Configuration",
-    icon: "/assets/superadminicons/settings.svg",
-    href: "/configuration",
-  },
+  { title: "Dashboard", icon: "/assets/superadminicons/dashboardsquare.svg", href: "/super_admin" },
+  { title: "Analytics", icon: "/assets/superadminicons/chart.svg", href: "/analytics" },
+  { title: "Users", icon: "/assets/superadminicons/group.svg", href: "/users" },
+  { title: "Courses", icon: "/assets/superadminicons/bookopen.svg", href: "/courses" },
+  { title: "Instructors", icon: "/assets/superadminicons/teaching.svg", href: "/instructors" },
+  { title: "Tenants", icon: "/assets/superadminicons/building.svg", href: "/tenants" },
+  { title: "Assessment", icon: "/assets/superadminicons/clipboard.svg", href: "/assessment" },
+  { title: "Certificate", icon: "/assets/superadminicons/graduation-cap.svg", href: "/certificate" },
+  { title: "Reports", icon: "/assets/superadminicons/trending-down.svg", href: "/reports" },
+  { title: "Billing", icon: "/assets/superadminicons/creditcard.svg", href: "/billing" },
+  { title: "Configuration", icon: "/assets/superadminicons/settings.svg", href: "/configuration" },
 ];
 
 export default function Sidebar() {
@@ -68,8 +24,6 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* ================= LOGO ================= */}
-
       <div className="logoArea">
         <Image
           src="/assets/superadminicons/logo.png"
@@ -80,8 +34,6 @@ export default function Sidebar() {
           priority
         />
       </div>
-
-      {/* ================= NAVIGATION ================= */}
 
       <nav className="sidebarNav" aria-label="Super admin navigation">
         {sidebarItems.map((item) => {
@@ -94,9 +46,7 @@ export default function Sidebar() {
               className={`sidebarItem ${
                 item.title === "Dashboard" ? "dashboardItem" : ""
               } ${isActive ? "sidebarItemActive" : ""}`}
-              onClick={() => {
-                document.body.classList.remove("mobileSidebarOpen");
-              }}
+              onClick={() => document.body.classList.remove("mobileSidebarOpen")}
             >
               <Image
                 src={item.icon}
@@ -106,14 +56,11 @@ export default function Sidebar() {
                 height={18}
                 className="sidebarIcon"
               />
-
               <span>{item.title}</span>
             </Link>
           );
         })}
       </nav>
-
-      {/* ================= LOGOUT ================= */}
 
       <div className="sidebarBottom">
         <button type="button" className="logoutButton">
@@ -123,8 +70,8 @@ export default function Sidebar() {
             aria-hidden="true"
             width={18}
             height={18}
+            className="sidebarIcon"
           />
-
           <span>Logout</span>
         </button>
       </div>
