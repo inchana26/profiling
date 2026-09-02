@@ -69,6 +69,22 @@ const UNIVERSITY_ROUTES: Record<string, string> = {
   "/university/audit": "Audit and system",
 };
 
+const COORDINATOR_BOOTCAMP_ROUTES: Record<string, string> = {
+  "/coordinator_bootcamp": "Profile and Identity",
+};
+
+const COORDINATOR_CORPORATE_ROUTES: Record<string, string> = {
+  "/coordinator_corporate": "Profile and Identity",
+};
+
+const COORDINATOR_GOVERNMENT_ROUTES: Record<string, string> = {
+  "/coordinator_government": "Profile and Identity",
+};
+
+const COORDINATOR_NGO_ROUTES: Record<string, string> = {
+  "/coordinator_ngo": "Profile and Identity",
+};
+
 const STUDENT_ROUTES: Record<string, string[]> = {
   "/student_profile": ["Student Profile", "Student Profile"],
   "/studentprofile": ["Student Profile", "Student Profile"],
@@ -133,6 +149,8 @@ export default function Header() {
     normalizedPath.startsWith("/institutionadmin");
 
   const isBootcamp =
+    normalizedPath === "/coordinator_bootcamp" ||
+    normalizedPath.startsWith("/coordinator_bootcamp/") ||
     normalizedPath === "/bootcamp" ||
     normalizedPath.startsWith("/bootcamp_") ||
     normalizedPath.startsWith("/bootcamp/");
@@ -144,7 +162,20 @@ export default function Header() {
     normalizedPath.startsWith("/university_") ||
     normalizedPath.startsWith("/university/");
 
+  const isCorporate =
+    normalizedPath === "/coordinator_corporate" ||
+    normalizedPath.startsWith("/coordinator_corporate/");
+
+  const isCoordinatorGovernment =
+    normalizedPath === "/coordinator_government" ||
+    normalizedPath.startsWith("/coordinator_government/");
+
+  const isNgo =
+    normalizedPath === "/coordinator_ngo" ||
+    normalizedPath.startsWith("/coordinator_ngo/");
+
   const isGovernment =
+    isCoordinatorGovernment ||
     normalizedPath === "/government" ||
     normalizedPath.startsWith("/government_") ||
     normalizedPath.startsWith("/government/") ||
@@ -165,16 +196,36 @@ export default function Header() {
       ? "institutionAdminProfileImage"
       : isSuperAdmin
         ? "superAdminProfileImage"
-        : null;
+        : isUniversity
+          ? "universityCoordinatorProfileImage"
+          : isBootcamp
+            ? "bootcampCoordinatorProfileImage"
+            : isCorporate
+              ? "corporateCoordinatorProfileImage"
+              : isCoordinatorGovernment
+                ? "governmentCoordinatorProfileImage"
+                : isNgo
+                  ? "ngoCoordinatorProfileImage"
+                  : null;
 
-  const currentPage = isGovernment
+  const currentPage = isCorporate
+    ? COORDINATOR_CORPORATE_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isNgo
+    ? COORDINATOR_NGO_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isCoordinatorGovernment
+    ? COORDINATOR_GOVERNMENT_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isGovernment
     ? GOVERNMENT_ROUTES[normalizedPath] ??
       "Profile and Identity"
     : isUniversity
     ? UNIVERSITY_ROUTES[normalizedPath] ??
       "Profile and Identity"
     : isBootcamp
-      ? BOOTCAMP_ROUTES[normalizedPath] ??
+      ? COORDINATOR_BOOTCAMP_ROUTES[normalizedPath] ??
+        BOOTCAMP_ROUTES[normalizedPath] ??
         "Profile and Identity"
       : isInstitutionAdmin
         ? INSTITUTION_ADMIN_ROUTES[normalizedPath] ??
@@ -185,10 +236,14 @@ export default function Header() {
           : SUPER_ADMIN_ROUTES[normalizedPath] ??
             "Profile and Identity";
 
-  const profileTitle = isGovernment
+  const profileTitle = isCorporate
+    ? "Corporate Coordinator Profile"
+    : isNgo
+    ? "NGO Coordinator Profile"
+    : isGovernment
     ? "Government Coordinator Profile"
     : isUniversity
-    ? "University Coordinator Profile"
+    ? "University/ College Coordinator Profile"
     : isBootcamp
       ? "Bootcamp Coordinator Profile"
       : isInstitutionAdmin
@@ -197,7 +252,11 @@ export default function Header() {
           ? "Platform admin Profile"
           : "Super admin Profile";
 
-  const userName = isGovernment
+  const userName = isCorporate
+    ? "Antony Thomas"
+    : isNgo
+    ? "Antony Thomas"
+    : isGovernment
     ? "Antony Thomas"
     : isUniversity
     ? "Antony Thomas"
@@ -211,7 +270,11 @@ export default function Header() {
             ? "Student"
             : "Rajesh Mehta";
 
-  const userRole = isGovernment
+  const userRole = isCorporate
+    ? "Corporate Coordinator"
+    : isNgo
+    ? "NGO Coordinator"
+    : isGovernment
     ? "Government Coordinator"
     : isUniversity
     ? "University Coordinator"
@@ -225,32 +288,44 @@ export default function Header() {
             ? "Student"
             : "Super admin";
 
-  const arrowRightIcon = isGovernment
+  const arrowRightIcon = isCorporate
+    ? "/assets/superadminicons/arrowright.svg"
+    : isNgo
+    ? "/assets/superadminicons/arrowright.svg"
+    : isGovernment
     ? "/assets/superadminicons/arrowright.svg"
     : isBootcamp
-    ? "/assets/bootcampicons/arrowright.svg"
+    ? "/assets/superadminicons/arrowright.svg"
     : isUniversity
       ? "/assets/superadminicons/arrowright.svg"
       : isPlatformAdmin
         ? "/assets/platformadmin.imagesandicons/arrowright.svg"
         : "/assets/superadminicons/arrowright.svg";
 
-  const notificationIcon = isGovernment
-    ? "/assets/universityicons/notification.svg"
+  const notificationIcon = isCorporate
+    ? "/assets/superadminicons/notification.svg"
+    : isNgo
+    ? "/assets/superadminicons/notification.svg"
+    : isGovernment
+    ? "/assets/superadminicons/notification.svg"
     : isBootcamp
-    ? "/assets/bootcampicons/notification.svg"
+    ? "/assets/superadminicons/notification.svg"
     : isUniversity
-      ? "/assets/universityicons/notification.svg"
+      ? "/assets/superadminicons/notification.svg"
       : isPlatformAdmin
         ? "/assets/platformadmin.imagesandicons/notification.svg"
         : "/assets/superadminicons/notification.svg";
 
-  const profileImage = isGovernment
-    ? "/assets/institutionimages/profile.png"
+  const profileImage = isCorporate
+    ? headerProfileImage || "/assets/institutionimages/profile.png"
+    : isNgo
+    ? headerProfileImage || "/assets/institutionimages/profile.png"
+    : isCoordinatorGovernment
+    ? headerProfileImage || "/assets/institutionimages/profile.png"
     : isUniversity
-    ? "/assets/institutionimages/profile.png"
+    ? headerProfileImage || "/assets/institutionimages/profile.png"
     : isBootcamp
-      ? "/assets/institutionimages/profile.png"
+      ? headerProfileImage || "/assets/institutionimages/profile.png"
       : isInstitutionAdmin
         ? headerProfileImage || "/assets/institutionimages/profile.png"
         : isPlatformAdmin
@@ -292,6 +367,85 @@ export default function Header() {
       );
     };
   }, [profileStorageKey]);
+
+  useEffect(() => {
+    const isCoordinatorPage =
+      isUniversity ||
+      isBootcamp ||
+      isCorporate ||
+      isCoordinatorGovernment ||
+      isNgo;
+
+    if (!isCoordinatorPage || !profileStorageKey) {
+      return;
+    }
+
+    const handleCoordinatorProfileUpload = (event: Event) => {
+      const input = event.target;
+
+      if (!(input instanceof HTMLInputElement)) {
+        return;
+      }
+
+      if (
+        input.type !== "file" ||
+        !input.classList.contains("institutionProfileImageInput")
+      ) {
+        return;
+      }
+
+      const file = input.files?.[0];
+
+      if (!file || !file.type.startsWith("image/")) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        if (typeof reader.result !== "string") {
+          return;
+        }
+
+        // IMPORTANT:
+        // profileStorageKey belongs ONLY to the coordinator page
+        // currently being used. No other coordinator key is changed.
+        localStorage.setItem(
+          profileStorageKey,
+          reader.result
+        );
+
+        setHeaderProfileImage(reader.result);
+
+        window.dispatchEvent(
+          new Event("profileImageUpdated")
+        );
+      };
+
+      reader.readAsDataURL(file);
+    };
+
+    document.addEventListener(
+      "change",
+      handleCoordinatorProfileUpload,
+      true
+    );
+
+    return () => {
+      document.removeEventListener(
+        "change",
+        handleCoordinatorProfileUpload,
+        true
+      );
+    };
+  }, [
+    isUniversity,
+    isBootcamp,
+    isCorporate,
+    isCoordinatorGovernment,
+    isNgo,
+    profileStorageKey,
+  ]);
 
   useEffect(() => {
     document.body.classList.toggle(

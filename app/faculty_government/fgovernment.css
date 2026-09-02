@@ -678,12 +678,12 @@ button {
   width: 124px;
   height: 36px;
   background: #DFE6E9;
-  border: 0.5px solid #2A7308;
+  border: 0;
   box-shadow:
     -4px -4px 4px #FFFFFF,
     4px 4px 8px #C4C4C4;
   border-radius: 8px;
-  color: #2A7308;
+  color: #2F3547;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -692,6 +692,7 @@ button {
   height: 14px !important;
   flex: 0 0 14px;
   object-fit: contain;
+  filter: brightness(0) saturate(100%);
 }
 .institutionDocumentsCard .institutionChooseFileButton > span {
   display: flex;
@@ -703,7 +704,26 @@ button {
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.03em;
+  color: #2F3547;
+}
+
+/* After a file is uploaded, keep the current green uploaded state. */
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded {
+  border: 0.5px solid #2A7308;
   color: #2A7308;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  > span {
+  color: #2A7308;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  .institutionChooseFileIcon {
+  filter: none;
 }
 .institutionDocumentsCard .institutionFilePreview,
 .institutionDocumentsCard .institutionFilePicker {
@@ -3837,8 +3857,8 @@ body {
   background: #DFE6E9;
   border-radius: 7px;
   box-shadow:
-    -4px -4px 6px #FFFFFF,
-    4px 4px 7px #C4C4C4;
+    inset -4px -4px 6px #FFFFFF,
+    inset 4px 4px 7px #C4C4C4;
   cursor: text;
 }
 .institutionPhoneCountryTriggerOpen {
@@ -3982,8 +4002,8 @@ body {
   background: #DFE6E9;
   border-radius: 7px;
   box-shadow:
-    -4px -4px 6px #FFFFFF,
-    4px 4px 7px #C4C4C4;
+    inset -4px -4px 6px #FFFFFF,
+    inset 4px 4px 7px #C4C4C4;
 }
 .institutionPhoneNumberInputDisabled {
   opacity: 0.72;

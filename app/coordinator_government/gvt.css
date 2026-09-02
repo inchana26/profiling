@@ -4003,7 +4003,7 @@ body {
   border-radius: 7px;
   box-shadow:
     inset -4px -4px 6px #FFFFFF,
-    inset 4px 4px 7px #C4C4C4;
+   inset  4px 4px 7px #C4C4C4;
 }
 .institutionPhoneNumberInputDisabled {
   opacity: 0.72;
@@ -4673,68 +4673,34 @@ body {
 }
 
 /* =========================================================
-   NGO COORDINATOR - DATE OF BIRTH CUSTOM CALENDAR
+   GOVERNMENT COORDINATOR - DATE OF BIRTH EDIT FIELD
+   Keeps the same field/card sizing while preventing the
+   CalendarDateField runtime error.
 ========================================================= */
-.institutionCalendarField {
+.institutionCoordinatorDateField {
   position: relative;
-  padding: 0 !important;
-  overflow: visible !important;
-  z-index: 20;
 }
 
-.institutionCalendarFieldOpen {
-  z-index: 250;
-}
-
-.institutionCalendarTrigger {
-  width: 100%;
-  min-height: 68px;
-  padding: 12px 10px 12px 13px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.institutionCoordinatorDateInput {
+  min-width: 0;
   color: #2f3547;
   background: transparent;
-  border: 0;
-  outline: 0;
-  text-align: left;
+}
+
+.institutionCoordinatorDateInput::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 42px;
+  height: 42px;
   cursor: pointer;
 }
 
-.institutionCalendarIconWrap {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #dfe6e9;
-  border-radius: 50%;
-  box-shadow:
-    inset -4px -4px 4px #ffffff,
-    inset 4px 4px 4px rgba(196, 196, 196, 0.8);
+.institutionCoordinatorCalendarIcon {
+  pointer-events: none;
 }
 
-.institutionCalendarIconWrap::before {
-  content: "";
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: #dfe6e9;
-  border-radius: 50%;
-  box-shadow:
-    4px 4px 4px #c6c6c9,
-    -4px -4px 4px #ffffff;
-}
-
-.institutionCalendarSvgIcon {
-  position: relative;
-  z-index: 1;
+.institutionCoordinatorCalendarSvg {
   display: block !important;
   width: 18px !important;
   height: 18px !important;
@@ -4743,225 +4709,323 @@ body {
   object-fit: contain !important;
 }
 
+@media (max-width: 700px) {
+  .institutionCoordinatorDateInput {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+
+
+/* ===== Date of Birth custom calendar ===== */
+.institutionCoordinatorDateField {
+  position: relative;
+  overflow: visible;
+}
+
+.institutionCalendarInputButton {
+  width: 100%;
+  min-height: 24px;
+  padding: 0;
+  display: block;
+  color: #2F3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-family: "Segoe UI";
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCalendarInputPlaceholder {
+  color: #59616d;
+}
+
+.institutionCoordinatorCalendarIcon {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
 .institutionCalendarPopup {
+  box-sizing: border-box;
   position: absolute;
+  top: calc(100% + 14px);
   left: 0;
-  top: calc(100% + 10px);
-  z-index: 1000;
+  z-index: 500;
   width: 100%;
   min-width: 100%;
   max-width: 100%;
-  box-sizing: border-box;
-  padding: 14px;
-  background: #dfe6e9;
-  border-radius: 18px;
+  padding: 14px 12px 16px;
+  overflow: hidden;
+  background: #DFE6E9;
+  border-radius: 15px;
   box-shadow:
-    -8px -8px 16px #ffffff,
-    8px 8px 16px rgba(196, 196, 196, 0.9);
+    -8px -8px 16px #FFFFFF,
+    8px 8px 16px rgba(196, 196, 196, 0.88);
 }
 
 .institutionCalendarTop {
+  width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
+  grid-template-columns: minmax(0, 1.32fr) minmax(0, 1.08fr);
+  column-gap: 10px;
+  align-items: center;
 }
 
 .institutionCalendarHeaderButton {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
   height: 48px;
-  padding: 0 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  color: #25324a;
-  background: #dfe6e9;
-  border-radius: 12px;
+  min-height: 48px;
+  padding: 0 28px 0 14px;
+  overflow: hidden;
+  color: #2F3547;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
   box-shadow:
-    -4px -4px 8px #ffffff,
-    4px 4px 8px rgba(196, 196, 196, 0.8);
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.78);
   font-size: 16px;
+  line-height: 48px;
   font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.institutionCalendarHeaderArrow {
+.institutionCalendarHeaderButton > span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 14px;
-  line-height: 1;
-}
-
-.institutionCalendarMonthNav {
-  min-height: 42px;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.institutionCalendarCurrentMonth {
-  color: #25324a;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.institutionCalendarRoundNav {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #2d4cc8;
-  background: #dfe6e9;
-  border-radius: 50%;
-  box-shadow:
-    -4px -4px 8px #ffffff,
-    4px 4px 8px rgba(196, 196, 196, 0.8);
-  font-size: 21px;
-  line-height: 1;
-  cursor: pointer;
 }
 
 .institutionCalendarWeekdays,
 .institutionCalendarDaysGrid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 5px;
+  row-gap: 5px;
 }
 
 .institutionCalendarWeekdays {
-  padding: 6px 0 4px;
+  margin: 14px 0 7px;
 }
 
 .institutionCalendarWeekdays span {
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #626a78;
-  font-size: 15px;
+  min-width: 0;
+  color: #5E6675;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 700;
+  text-align: center;
 }
 
 .institutionCalendarDay {
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
-  height: 42px;
+  height: 34px;
+  min-height: 34px;
   padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #25324a;
+  color: #2F3547;
   background: transparent;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
+  border: 0;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 34px;
+  text-align: center;
   cursor: pointer;
 }
 
-.institutionCalendarDay:hover,
-.institutionCalendarDaySelected {
-  color: #2d4cc8;
-  background: #dfe6e9;
-  box-shadow:
-    inset -3px -3px 6px #ffffff,
-    inset 3px 3px 6px rgba(196, 196, 196, 0.8);
-  font-weight: 700;
+.institutionCalendarDayMuted {
+  color: #B1B7C0;
 }
 
-.institutionCalendarDayMuted {
-  color: #b4bac4;
+.institutionCalendarDaySelected,
+.institutionCalendarChoiceSelected {
+  color: #2453E6;
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px rgba(196, 196, 196, 0.86);
 }
 
 .institutionCalendarMonthsGrid,
 .institutionCalendarYearsGrid {
+  box-sizing: border-box;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 10px;
+  margin-top: 14px;
 }
 
 .institutionCalendarChoice {
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
   height: 46px;
-  padding: 0 8px;
+  min-height: 46px;
+  padding: 0 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #25324a;
-  background: #dfe6e9;
-  border-radius: 11px;
+  overflow: hidden;
+  color: #173253;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 10px;
   box-shadow:
-    -4px -4px 8px #ffffff,
-    4px 4px 8px rgba(196, 196, 196, 0.8);
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.72);
   font-size: 14px;
+  line-height: 1;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.institutionCalendarChoice:hover,
-.institutionCalendarChoiceSelected {
-  color: #2d4cc8;
-  box-shadow:
-    inset -4px -4px 8px #ffffff,
-    inset 4px 4px 8px rgba(196, 196, 196, 0.8);
-}
-
-.institutionCalendarYearsView {
-  width: 100%;
-}
-
 .institutionCalendarYearRange {
-  min-height: 48px;
-  margin-bottom: 10px;
-  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 12px 0 10px;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 46px;
+  column-gap: 10px;
   align-items: center;
-  justify-content: space-between;
 }
 
 .institutionCalendarYearRange strong {
-  color: #17213a;
-  font-size: 15px;
+  min-width: 0;
+  margin: 0;
+  color: #172A48;
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
 }
 
-@media (max-width: 700px) {
+.institutionCalendarRoundNav {
+  box-sizing: border-box;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2453E6;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 50%;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px rgba(196, 196, 196, 0.72);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The popup always inherits the exact width of the Date of Birth field.
+   Only internal spacing/text scales on smaller devices. */
+@media (max-width: 767px) {
   .institutionCalendarPopup {
-    left: 0;
-    right: auto;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
+    top: calc(100% + 10px);
+    padding: 12px 10px 14px;
   }
 
   .institutionCalendarTop {
-    grid-template-columns: 1fr 0.8fr;
+    column-gap: 8px;
   }
 
   .institutionCalendarHeaderButton {
     height: 44px;
-    padding: 0 10px;
+    min-height: 44px;
+    padding-left: 11px;
+    padding-right: 25px;
     font-size: 14px;
+    line-height: 44px;
+  }
+
+  .institutionCalendarWeekdays,
+  .institutionCalendarDaysGrid {
+    column-gap: 3px;
+    row-gap: 4px;
+  }
+
+  .institutionCalendarWeekdays span {
+    font-size: 12px;
   }
 
   .institutionCalendarDay {
-    height: 38px;
-    font-size: 13px;
+    height: 32px;
+    min-height: 32px;
+    font-size: 12px;
+    line-height: 32px;
+  }
+
+  .institutionCalendarMonthsGrid,
+  .institutionCalendarYearsGrid {
+    column-gap: 6px;
+    row-gap: 8px;
   }
 
   .institutionCalendarChoice {
-    height: 42px;
+    height: 43px;
+    min-height: 43px;
     font-size: 13px;
+  }
+
+  .institutionCalendarYearRange {
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+  }
+
+  .institutionCalendarRoundNav {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .institutionCalendarYearRange strong {
+    font-size: 15px;
   }
 }
 
 @media (max-width: 420px) {
-  .institutionCalendarMonthsGrid,
-  .institutionCalendarYearsGrid {
-    gap: 6px;
+  .institutionCalendarPopup {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .institutionCalendarHeaderButton {
+    font-size: 13px;
+  }
+
+  .institutionCalendarDay {
+    height: 30px;
+    min-height: 30px;
+    line-height: 30px;
   }
 
   .institutionCalendarChoice {
-    padding: 0 4px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 3px;
+    font-size: 12px;
   }
 }

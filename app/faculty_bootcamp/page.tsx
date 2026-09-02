@@ -20,7 +20,7 @@ const images = {
   sad: "/assets/fbootcampicons/sad.svg",
   registration: "/assets/fbootcampicons/file-edit.svg",
   academicProfessional: "/assets/fbootcampicons/bag.svg",
-  skillsDevelopment: "/assets/fbootcampicons/target.svg",
+  skillsDevelopment: "/assets/fbootcampicons/targets.svg",
   documents: "/assets/fbootcampicons/file.svg",
   confirmation: "/assets/fbootcampicons/checkmark-circlewhite.svg",
 };
@@ -1596,7 +1596,7 @@ export default function FacultyUniversityPage() {
             </section>
 
             <section className="institutionInformationCard">
-              <SectionHeader title="Skills & Growth" iconSrc={images.skillsDevelopment} iconTone="blue" editing={editingSection === "skills"} popupType={sectionPopup?.section === "skills" ? sectionPopup.type : null} popupMessage={sectionPopup?.section === "skills" ? sectionPopup.message : undefined} onEdit={() => startSectionEdit("skills")} onSave={() => saveSection("skills")} onCancel={() => cancelSection("skills")} />
+              <SectionHeader title="Skills & Growth" iconSrc="/assets/fbootcampicons/targets.svg" iconTone="blue" editing={editingSection === "skills"} popupType={sectionPopup?.section === "skills" ? sectionPopup.type : null} popupMessage={sectionPopup?.section === "skills" ? sectionPopup.message : undefined} onEdit={() => startSectionEdit("skills")} onSave={() => saveSection("skills")} onCancel={() => cancelSection("skills")} />
               {flowPopup && flowPopupSection === "skills" && <div className="institutionSectionFlowPopup" role="alert" aria-live="assertive"><IconImage src={images.sad} width={18} height={18} className="institutionInlinePopupIcon" /><span>{flowPopup}</span></div>}
               {editingSection === "skills" ? (
                 <div className="institutionGrid institutionFacultySkillsGrid">

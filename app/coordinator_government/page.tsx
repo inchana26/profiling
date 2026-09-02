@@ -13,29 +13,30 @@ import {
   validatePhoneNumberLength,
 } from "libphonenumber-js/max";
 import examples from "libphonenumber-js/examples.mobile.json";
-import "./fgovernment.css";
+import "./gvt.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
 const images = {
   profile: "/assets/funiversityimages/profile.png",
 
-  camera: "/assets/fgvticons/camera.svg",
-  edit: "/assets/fgvticons/edit.svg",
-  editBig: "/assets/fgvticons/editbig.svg",
-  lock: "/assets/fgvticons/lock.svg",
-  save: "/assets/fgvticons/tick.svg",
-  cancel: "/assets/fgvticons/cancel.svg",
-  arrowDown: "/assets/fgvticons/arrow-down.svg",
-  completed: "/assets/fgvticons/checkmark.svg",
-  upload: "/assets/fgvticons/upload.svg",
-  clap: "/assets/fgvticons/clap.svg",
-  sad: "/assets/fgvticons/sad.svg",
+  camera: "/assets/corporateicons/camera.svg",
+  edit: "/assets/corporateicons/edit.svg",
+  editBig: "/assets/corporateicons/editbig.svg",
+  lock: "/assets/corporateicons/lock.svg",
+  save: "/assets/corporateicons/tick.svg",
+  cancel: "/assets/corporateicons/cancel.svg",
+  arrowDown: "/assets/corporateicons/arrow-down.svg",
+  completed: "/assets/corporateicons/checkmark.svg",
+  upload: "/assets/corporateicons/upload.svg",
+  clap: "/assets/corporateicons/clap.svg",
+  sad: "/assets/corporateicons/sad.svg",
+  calendar: "/assets/corporateicons/calendar.svg",
 
-  registration: "/assets/fgvticons/file-edit.svg",
-  academicProfessional: "/assets/fgvticons/briefcase.svg",
-  skillsDevelopment: "/assets/fgvticons/target.svg",
-  documents: "/assets/fgvticons/file.svg",
-  confirmation: "/assets/fgvticons/checkmark-circlewhite.svg",
+  registration: "/assets/corporateicons/file-edit.svg",
+  academicProfessional: "/assets/corporateicons/bag.svg",
+  skillsDevelopment: "/assets/corporateicons/target.svg",
+  documents: "/assets/corporateicons/file.svg",
+  confirmation: "/assets/corporateicons/checkmark-circlewhite.svg",
 };
 
 type SectionName = "registration" | "professional" | "skills" | "documents";
@@ -264,6 +265,308 @@ function EditField({
             height={18}
           />
         </span>
+      )}
+    </div>
+  );
+}
+
+
+type CalendarDateFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function CalendarDateField({
+  label,
+  value,
+  onChange,
+}: CalendarDateFieldProps) {
+  const inputId = useId();
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const parsedValue =
+    value && /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T00:00:00`)
+      : null;
+
+  const today = new Date();
+  const initialDate = parsedValue ?? today;
+
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"days" | "months" | "years">("days");
+  const [displayMonth, setDisplayMonth] = useState(initialDate.getMonth());
+  const [displayYear, setDisplayYear] = useState(initialDate.getFullYear());
+  const [yearPageStart, setYearPageStart] = useState(
+    Math.floor((initialDate.getFullYear() - 4) / 12) * 12
+  );
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  const shortMonthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+  useEffect(() => {
+    const closeCalendar = (event: MouseEvent) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+        setView("days");
+      }
+    };
+
+    document.addEventListener("mousedown", closeCalendar);
+    return () => document.removeEventListener("mousedown", closeCalendar);
+  }, []);
+
+  useEffect(() => {
+    if (!parsedValue) return;
+    setDisplayMonth(parsedValue.getMonth());
+    setDisplayYear(parsedValue.getFullYear());
+    setYearPageStart(
+      Math.floor((parsedValue.getFullYear() - 4) / 12) * 12
+    );
+  }, [value]);
+
+  const formatDisplayDate = (dateValue: string) => {
+    if (!dateValue || !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+      return "dd/mm/yyyy";
+    }
+
+    const [year, month, day] = dateValue.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  const toValue = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const firstDay = new Date(displayYear, displayMonth, 1);
+  const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+  const visibleDayCount =
+    Math.ceil((firstDay.getDay() + daysInMonth) / 7) * 7;
+  const calendarStart = new Date(
+    displayYear,
+    displayMonth,
+    1 - firstDay.getDay()
+  );
+
+  const days = Array.from({ length: visibleDayCount }, (_, index) => {
+    const date = new Date(calendarStart);
+    date.setDate(calendarStart.getDate() + index);
+    return {
+      date,
+      currentMonth: date.getMonth() === displayMonth,
+    };
+  });
+
+  const selectedValue = parsedValue ? toValue(parsedValue) : "";
+
+  const moveMonth = (amount: number) => {
+    const next = new Date(displayYear, displayMonth + amount, 1);
+    setDisplayMonth(next.getMonth());
+    setDisplayYear(next.getFullYear());
+  };
+
+  const selectDay = (date: Date) => {
+    onChange(toValue(date));
+    setDisplayMonth(date.getMonth());
+    setDisplayYear(date.getFullYear());
+    setOpen(false);
+    setView("days");
+  };
+
+  const selectMonth = (monthIndex: number) => {
+    setDisplayMonth(monthIndex);
+    setView("days");
+  };
+
+  const selectYear = (year: number) => {
+    setDisplayYear(year);
+    setYearPageStart(Math.floor((year - 4) / 12) * 12);
+    setView("days");
+  };
+
+  return (
+    <div
+      ref={calendarRef}
+      className="institutionField institutionEditableField institutionCoordinatorDateField"
+    >
+      <div className="institutionFieldText">
+        <label htmlFor={inputId} className="institutionFieldLabel">
+          {label}
+        </label>
+
+        <button
+          id={inputId}
+          type="button"
+          className={`institutionCalendarInputButton ${
+            value ? "" : "institutionCalendarInputPlaceholder"
+          }`}
+          onClick={() => {
+            setOpen((current) => !current);
+            setView("days");
+          }}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+        >
+          {formatDisplayDate(value)}
+        </button>
+      </div>
+
+      <button
+        type="button"
+        className="institutionFieldAction institutionCoordinatorCalendarIcon"
+        aria-label={`Open ${label} calendar`}
+        onClick={() => {
+          setOpen((current) => !current);
+          setView("days");
+        }}
+      >
+        <IconImage
+          src={images.calendar}
+          width={18}
+          height={18}
+          className="institutionCoordinatorCalendarSvg"
+        />
+      </button>
+
+      {open && (
+        <div className="institutionCalendarPopup" role="dialog" aria-label={label}>
+          <div className="institutionCalendarTop">
+            <button
+              type="button"
+              className="institutionCalendarHeaderButton"
+              onClick={() =>
+                setView((current) => (current === "months" ? "days" : "months"))
+              }
+            >
+              {monthNames[displayMonth]}
+              <span aria-hidden="true">⌄</span>
+            </button>
+
+            <button
+              type="button"
+              className="institutionCalendarHeaderButton"
+              onClick={() => {
+                setYearPageStart(
+                  Math.floor((displayYear - 4) / 12) * 12
+                );
+                setView((current) => (current === "years" ? "days" : "years"));
+              }}
+            >
+              {displayYear}
+              <span aria-hidden="true">⌄</span>
+            </button>
+          </div>
+
+          {view === "days" && (
+            <>
+              <div className="institutionCalendarWeekdays">
+                {weekDays.map((day) => (
+                  <span key={day}>{day}</span>
+                ))}
+              </div>
+
+              <div className="institutionCalendarDaysGrid">
+                {days.map(({ date, currentMonth }) => {
+                  const dateValue = toValue(date);
+                  return (
+                    <button
+                      type="button"
+                      key={dateValue}
+                      className={`institutionCalendarDay ${
+                        currentMonth ? "" : "institutionCalendarDayMuted"
+                      } ${
+                        selectedValue === dateValue
+                          ? "institutionCalendarDaySelected"
+                          : ""
+                      }`}
+                      onClick={() => selectDay(date)}
+                    >
+                      {date.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {view === "months" && (
+            <div className="institutionCalendarMonthsGrid">
+              {shortMonthNames.map((month, index) => (
+                <button
+                  type="button"
+                  key={month}
+                  className={`institutionCalendarChoice ${
+                    displayMonth === index
+                      ? "institutionCalendarChoiceSelected"
+                      : ""
+                  }`}
+                  onClick={() => selectMonth(index)}
+                >
+                  {month}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {view === "years" && (
+            <>
+              <div className="institutionCalendarYearRange">
+                <button
+                  type="button"
+                  className="institutionCalendarRoundNav"
+                  onClick={() => setYearPageStart((current) => current - 12)}
+                  aria-label="Previous years"
+                >
+                  ‹
+                </button>
+
+                <strong>
+                  {yearPageStart} - {yearPageStart + 11}
+                </strong>
+
+                <button
+                  type="button"
+                  className="institutionCalendarRoundNav"
+                  onClick={() => setYearPageStart((current) => current + 12)}
+                  aria-label="Next years"
+                >
+                  ›
+                </button>
+              </div>
+
+              <div className="institutionCalendarYearsGrid">
+                {Array.from({ length: 12 }, (_, index) => yearPageStart + index).map(
+                  (year) => (
+                    <button
+                      type="button"
+                      key={year}
+                      className={`institutionCalendarChoice ${
+                        displayYear === year
+                          ? "institutionCalendarChoiceSelected"
+                          : ""
+                      }`}
+                      onClick={() => selectYear(year)}
+                    >
+                      {year}
+                    </button>
+                  )
+                )}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
@@ -1341,49 +1644,46 @@ export default function FacultyUniversityPage() {
   } | null>(null);
 
   const [registrationInfo, setRegistrationInfo] = useState({
-    trainerId: "TRN-00125",
-    employeeCode: "EMP1234",
+    coordinatorId: "PRGEEQIQC8U006B",
     fullName: "Antony Thomas",
-    email: "",
+    dateOfBirth: "",
+    gender: "",
+    highestQualification: "",
+    employeeCode: "EMP-0042",
+    officialEmail: "",
     mobileNumber: "",
     alternateEmail: "",
     alternatePhone: "",
-    gender: "",
-    designation: "",
-    ministryName: "",
-    department: "",
-    dateOfJoining: "17-05-2004",
-    trainingSpecialization: [] as string[],
-    qualification: "",
     totalExperience: "",
-    trainingCenterName: "",
-    employmentStatus: "",
+    dateOfJoining: "17-05-2004",
+    assignedPrograms: [] as string[],
+    assignedRegion: "",
+    designation: "",
+    tenantId: "LXP-COL-001",
+    reportingAuthority: "",
+    status: "Active",
   });
 
   const [professionalInfo, setProfessionalInfo] = useState({
-    trainerType: "",
-    socialSectorExperience: "",
-    trainingExperience: "",
-    specialization: [] as string[],
-    focusArea: [] as string[],
+    department: "",
+    division: "",
+    grade: "",
+    domain: "",
     expertise: [] as string[],
-    trainingTopics: [] as string[],
-    targetGroups: [] as string[],
-    trainingMethod: [] as string[],
-    communityTraining: "",
-    mentoring: "",
-    contentDevelopment: "",
-    assessment: "",
-    trainingLanguages: [] as string[],
+    programs: [] as string[],
+    responsibilities: [] as string[],
+    coordinationExperience: "",
+    stakeholders: [] as string[],
   });
 
   const [skillsInfo, setSkillsInfo] = useState({
-    keySkills: [] as string[],
-    skillLevel: "",
-    certifications: [] as string[],
+    coreSkills: [] as string[],
+    digitalSkills: [] as string[],
+    leadershipSkills: [] as string[],
+    proficiency: "",
+    trainingAttended: [] as string[],
     developmentAreas: [] as string[],
-    areasOfInterest: [] as string[],
-    careerAspirations: "",
+    careerGoal: "",
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
@@ -1451,30 +1751,28 @@ export default function FacultyUniversityPage() {
     if (section === "registration") {
       setRegistrationDraft({
         ...registrationInfo,
-        trainingSpecialization: [...registrationInfo.trainingSpecialization],
+        assignedPrograms: [...registrationInfo.assignedPrograms],
       });
     }
 
     if (section === "professional") {
       setProfessionalDraft({
         ...professionalInfo,
-        specialization: [...professionalInfo.specialization],
-        focusArea: [...professionalInfo.focusArea],
         expertise: [...professionalInfo.expertise],
-        trainingTopics: [...professionalInfo.trainingTopics],
-        targetGroups: [...professionalInfo.targetGroups],
-        trainingMethod: [...professionalInfo.trainingMethod],
-        trainingLanguages: [...professionalInfo.trainingLanguages],
+        programs: [...professionalInfo.programs],
+        responsibilities: [...professionalInfo.responsibilities],
+        stakeholders: [...professionalInfo.stakeholders],
       });
     }
 
     if (section === "skills") {
       setSkillsDraft({
         ...skillsInfo,
-        keySkills: [...skillsInfo.keySkills],
-        certifications: [...skillsInfo.certifications],
+        coreSkills: [...skillsInfo.coreSkills],
+        digitalSkills: [...skillsInfo.digitalSkills],
+        leadershipSkills: [...skillsInfo.leadershipSkills],
+        trainingAttended: [...skillsInfo.trainingAttended],
         developmentAreas: [...skillsInfo.developmentAreas],
-        areasOfInterest: [...skillsInfo.areasOfInterest],
       });
     }
 
@@ -1546,11 +1844,11 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "registration") {
-      const email = registrationDraft.email.trim();
+      const officialEmail = registrationDraft.officialEmail.trim();
       const alternateEmail = registrationDraft.alternateEmail.trim();
 
-      if (!isValidEmail(email)) {
-        showSectionError("registration", "Enter a valid Email");
+      if (!isValidEmail(officialEmail)) {
+        showSectionError("registration", "Enter a valid Official Email");
         return;
       }
 
@@ -1587,14 +1885,12 @@ export default function FacultyUniversityPage() {
 
       const requiredRegistration =
         registrationDraft.gender &&
-        registrationDraft.designation &&
-        registrationDraft.ministryName &&
-        registrationDraft.department &&
-        registrationDraft.trainingSpecialization.length > 0 &&
-        registrationDraft.qualification &&
+        registrationDraft.highestQualification &&
         registrationDraft.totalExperience &&
-        registrationDraft.trainingCenterName &&
-        registrationDraft.employmentStatus;
+        registrationDraft.assignedPrograms.length > 0 &&
+        registrationDraft.assignedRegion &&
+        registrationDraft.designation &&
+        registrationDraft.reportingAuthority;
 
       if (!requiredRegistration) {
         showSectionError(
@@ -1606,29 +1902,24 @@ export default function FacultyUniversityPage() {
 
       setRegistrationInfo({
         ...registrationDraft,
-        email,
+        officialEmail,
         alternateEmail,
-        trainingSpecialization: [...registrationDraft.trainingSpecialization],
+        assignedPrograms: [...registrationDraft.assignedPrograms],
       });
       setRegistrationCompleted(true);
     }
 
     if (section === "professional") {
       const professionalComplete =
-        professionalDraft.trainerType &&
-        professionalDraft.socialSectorExperience &&
-        professionalDraft.trainingExperience &&
-        professionalDraft.specialization.length > 0 &&
-        professionalDraft.focusArea.length > 0 &&
+        professionalDraft.department &&
+        professionalDraft.division &&
+        professionalDraft.grade &&
+        professionalDraft.domain &&
         professionalDraft.expertise.length > 0 &&
-        professionalDraft.trainingTopics.length > 0 &&
-        professionalDraft.targetGroups.length > 0 &&
-        professionalDraft.trainingMethod.length > 0 &&
-        professionalDraft.communityTraining &&
-        professionalDraft.mentoring &&
-        professionalDraft.contentDevelopment &&
-        professionalDraft.assessment &&
-        professionalDraft.trainingLanguages.length > 0;
+        professionalDraft.programs.length > 0 &&
+        professionalDraft.responsibilities.length > 0 &&
+        professionalDraft.coordinationExperience &&
+        professionalDraft.stakeholders.length > 0;
 
       if (!professionalComplete) {
         showSectionError(
@@ -1640,25 +1931,23 @@ export default function FacultyUniversityPage() {
 
       setProfessionalInfo({
         ...professionalDraft,
-        specialization: [...professionalDraft.specialization],
-        focusArea: [...professionalDraft.focusArea],
         expertise: [...professionalDraft.expertise],
-        trainingTopics: [...professionalDraft.trainingTopics],
-        targetGroups: [...professionalDraft.targetGroups],
-        trainingMethod: [...professionalDraft.trainingMethod],
-        trainingLanguages: [...professionalDraft.trainingLanguages],
+        programs: [...professionalDraft.programs],
+        responsibilities: [...professionalDraft.responsibilities],
+        stakeholders: [...professionalDraft.stakeholders],
       });
       setProfessionalProfileCompleted(true);
     }
 
     if (section === "skills") {
       const skillsComplete =
-        skillsDraft.keySkills.length > 0 &&
-        skillsDraft.skillLevel &&
-        skillsDraft.certifications.length > 0 &&
+        skillsDraft.coreSkills.length > 0 &&
+        skillsDraft.digitalSkills.length > 0 &&
+        skillsDraft.leadershipSkills.length > 0 &&
+        skillsDraft.proficiency &&
+        skillsDraft.trainingAttended.length > 0 &&
         skillsDraft.developmentAreas.length > 0 &&
-        skillsDraft.areasOfInterest.length > 0 &&
-        skillsDraft.careerAspirations;
+        skillsDraft.careerGoal;
 
       if (!skillsComplete) {
         showSectionError(
@@ -1670,10 +1959,11 @@ export default function FacultyUniversityPage() {
 
       setSkillsInfo({
         ...skillsDraft,
-        keySkills: [...skillsDraft.keySkills],
-        certifications: [...skillsDraft.certifications],
+        coreSkills: [...skillsDraft.coreSkills],
+        digitalSkills: [...skillsDraft.digitalSkills],
+        leadershipSkills: [...skillsDraft.leadershipSkills],
+        trainingAttended: [...skillsDraft.trainingAttended],
         developmentAreas: [...skillsDraft.developmentAreas],
-        areasOfInterest: [...skillsDraft.areasOfInterest],
       });
       setSkillsDevelopmentCompleted(true);
     }
@@ -1713,30 +2003,28 @@ export default function FacultyUniversityPage() {
     if (section === "registration") {
       setRegistrationDraft({
         ...registrationInfo,
-        trainingSpecialization: [...registrationInfo.trainingSpecialization],
+        assignedPrograms: [...registrationInfo.assignedPrograms],
       });
     }
 
     if (section === "professional") {
       setProfessionalDraft({
         ...professionalInfo,
-        specialization: [...professionalInfo.specialization],
-        focusArea: [...professionalInfo.focusArea],
         expertise: [...professionalInfo.expertise],
-        trainingTopics: [...professionalInfo.trainingTopics],
-        targetGroups: [...professionalInfo.targetGroups],
-        trainingMethod: [...professionalInfo.trainingMethod],
-        trainingLanguages: [...professionalInfo.trainingLanguages],
+        programs: [...professionalInfo.programs],
+        responsibilities: [...professionalInfo.responsibilities],
+        stakeholders: [...professionalInfo.stakeholders],
       });
     }
 
     if (section === "skills") {
       setSkillsDraft({
         ...skillsInfo,
-        keySkills: [...skillsInfo.keySkills],
-        certifications: [...skillsInfo.certifications],
+        coreSkills: [...skillsInfo.coreSkills],
+        digitalSkills: [...skillsInfo.digitalSkills],
+        leadershipSkills: [...skillsInfo.leadershipSkills],
+        trainingAttended: [...skillsInfo.trainingAttended],
         developmentAreas: [...skillsInfo.developmentAreas],
-        areasOfInterest: [...skillsInfo.areasOfInterest],
       });
     }
 
@@ -1768,7 +2056,8 @@ export default function FacultyUniversityPage() {
     }, 2500);
   };
 
-  const saveProfile = () => {
+
+const saveProfile = () => {
     const nextIncompleteStep =
       !profilePhotoCompleted
         ? "Profile Photo"
@@ -1934,7 +2223,7 @@ export default function FacultyUniversityPage() {
   );
 
   useEffect(() => {
-    document.title = "Government Faculty Profile | Neuro LXP";
+    document.title = "Government Coordinator Profile | Neuro LXP";
   }, []);
 
   return (
@@ -1949,7 +2238,7 @@ export default function FacultyUniversityPage() {
             <div className="pageContent institutionPageContent">
             <div className="institutionHeadingRow">
               <div>
-                <h1>Government Faculty Profile</h1>
+                <h1>Government Coordinator Profile</h1>
                 <p>
                   Manage Your Identity, Access, Preferences, And Activity With Ease.
                 </p>
@@ -2007,7 +2296,7 @@ export default function FacultyUniversityPage() {
 
                 <div className="institutionIdentityText">
                   <h2>Antony Thomas</h2>
-                  <div className="institutionRole">Government Faculty</div>
+                  <div className="institutionRole">Government Coordinator</div>
 
                   <div className="institutionActiveBadge">
                     <span className="institutionActiveDot" />
@@ -2063,7 +2352,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Professional Profile</span>
+                    <span>Trainer Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2085,7 +2374,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Registration</span>
+                    <span>Registration Data</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2096,7 +2385,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Skills and Growth</span>
+                    <span>Skills & Growth</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2153,31 +2442,80 @@ export default function FacultyUniversityPage() {
               {editingSection === "registration" ? (
                 <div className="institutionGrid institutionFacultyRegistrationGrid">
                   <EditField
-                    label="Trainer ID"
-                    value={registrationDraft.trainerId}
+                    label="Coordinator ID"
+                    value={registrationDraft.coordinatorId}
                     locked
                   />
-                  <EditField
-                    label="Employee Code"
-                    value={registrationDraft.employeeCode}
-                    locked
-                  />
+
                   <EditField
                     label="Full Name"
                     value={registrationDraft.fullName}
                     locked
                   />
 
+                  <CalendarDateField
+                    label="Date of Birth"
+                    value={registrationDraft.dateOfBirth}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        dateOfBirth: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Gender"
+                    value={registrationDraft.gender}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Male", "Female", "Other", "Prefer not to say"]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        gender: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Highest Qualification"
+                    value={registrationDraft.highestQualification}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "PhD",
+                      "M.Phil",
+                      "Master's Degree",
+                      "Bachelor's Degree",
+                      "PG Diploma",
+                      "Diploma",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        highestQualification: value,
+                      }))
+                    }
+                  />
+
                   <EditField
-                    label="Email"
+                    label="Employee Code"
+                    value={registrationDraft.employeeCode}
+                    locked
+                  />
+
+                  <EditField
+                    label="Official Email"
                     type="email"
-                    value={registrationDraft.email}
-                    placeholder="Enter Email"
+                    value={registrationDraft.officialEmail}
+                    placeholder="Enter Official Email"
                     visualIcon="edit"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        email: value,
+                        officialEmail: value,
                       }))
                     }
                   />
@@ -2223,133 +2561,6 @@ export default function FacultyUniversityPage() {
                   />
 
                   <SelectField
-                    label="Gender"
-                    value={registrationDraft.gender}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Male", "Female", "Other", "Prefer not to say"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        gender: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Designation"
-                    value={registrationDraft.designation}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Senior Training Officer",
-                      "Training Officer",
-                      "Senior Trainer",
-                      "Master Trainer",
-                      "Training Coordinator",
-                      "Program Officer",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        designation: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Ministry Name"
-                    value={registrationDraft.ministryName}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Ministry of Skill Development & Entrepreneurship",
-                      "Ministry of Education",
-                      "Ministry of Labour & Employment",
-                      "Ministry of Rural Development",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        ministryName: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Department"
-                    value={registrationDraft.department}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Corporate Training",
-                      "Skill Development",
-                      "Training Operations",
-                      "Program Management",
-                      "Administration",
-                      "Assessment & Certification",
-                      "Monitoring & Evaluation",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        department: value,
-                      }))
-                    }
-                  />
-
-                  <EditField
-                    label="Date of Joining"
-                    value={registrationDraft.dateOfJoining}
-                    locked
-                  />
-
-                  <MultiSelectField
-                    label="Training Specialization"
-                    value={registrationDraft.trainingSpecialization}
-                    placeholder="Select"
-                    options={[
-                      "Artificial Intelligence",
-                      "Data Science",
-                      "Digital Skills",
-                      "IT Skills",
-                      "Entrepreneurship",
-                      "Employability Skills",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        trainingSpecialization: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Qualification"
-                    value={registrationDraft.qualification}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Ph.D.",
-                      "M.Phil.",
-                      "Master's Degree",
-                      "Bachelor's Degree",
-                      "Diploma",
-                      "PG Diploma",
-                      "Professional Certification",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        qualification: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
                     label="Total Experience"
                     value={registrationDraft.totalExperience}
                     placeholder="Select"
@@ -2370,59 +2581,123 @@ export default function FacultyUniversityPage() {
                     }
                   />
 
-                  <SelectField
-                    label="Training Center Name"
-                    value={registrationDraft.trainingCenterName}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Registered Training Center list"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        trainingCenterName: value,
-                      }))
-                    }
+                  <EditField
+                    label="Date of Joining"
+                    value={registrationDraft.dateOfJoining}
+                    locked
                   />
 
-                  <SelectField
-                    label="Employment Status"
-                    value={registrationDraft.employmentStatus}
+                  <MultiSelectField
+                    label="Assigned Programs"
+                    value={registrationDraft.assignedPrograms}
                     placeholder="Select"
-                    menuStyle="radio"
                     options={[
-                      "Active",
-                      "Inactive",
-                      "On Leave",
-                      "Suspended",
-                      "Contract Ended",
+                      "Skill Development Scheme",
+                      "Leadership Program",
+                      "Digital Skills Program",
                     ]}
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        employmentStatus: value,
+                        assignedPrograms: value,
                       }))
                     }
+                  />
+
+                  <SelectField
+                    label="Assigned Region"
+                    value={registrationDraft.assignedRegion}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "North",
+                      "South",
+                      "East",
+                      "West",
+                      "Central",
+                      "Northeast",
+                      "Pan India",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        assignedRegion: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Designation"
+                    value={registrationDraft.designation}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Coordinator",
+                      "Senior Coordinator",
+                      "Program Coordinator",
+                      "Training Coordinator",
+                      "Operations Coordinator",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        designation: value,
+                      }))
+                    }
+                  />
+
+                  <EditField
+                    label="Tenant ID"
+                    value={registrationDraft.tenantId}
+                    locked
+                  />
+
+                  <SelectField
+                    label="Reporting Authority"
+                    value={registrationDraft.reportingAuthority}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Institute Admin",
+                      "Principal",
+                      "Director",
+                      "Program Head",
+                      "Department Head",
+                      "Platform Admin",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        reportingAuthority: value,
+                      }))
+                    }
+                  />
+
+                  <EditField
+                    label="Status"
+                    value={registrationDraft.status}
+                    locked
                   />
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultyRegistrationGrid">
+                  <DisplayField label="Coordinator ID" value={registrationInfo.coordinatorId} />
+                  <DisplayField label="Full Name" value={registrationInfo.fullName} />
+                  <DisplayField label="Date of Birth" value={registrationInfo.dateOfBirth} placeholder="dd/mm/yyyy" />
+
+                  <DisplayField label="Gender" value={registrationInfo.gender} placeholder="Select" />
                   <DisplayField
-                    label="Trainer ID"
-                    value={registrationInfo.trainerId}
+                    label="Highest Qualification"
+                    value={registrationInfo.highestQualification}
+                    placeholder="Select"
                   />
-                  <DisplayField
-                    label="Employee Code"
-                    value={registrationInfo.employeeCode}
-                  />
-                  <DisplayField
-                    label="Full Name"
-                    value={registrationInfo.fullName}
-                  />
+                  <DisplayField label="Employee Code" value={registrationInfo.employeeCode} />
 
                   <DisplayField
-                    label="Email"
-                    value={registrationInfo.email}
-                    placeholder="Enter Email"
+                    label="Official Email"
+                    value={registrationInfo.officialEmail}
+                    placeholder="Enter Official Email"
                   />
                   <DisplayField
                     label="Alternate Email"
@@ -2434,9 +2709,9 @@ export default function FacultyUniversityPage() {
                     value={
                       registrationInfo.mobileNumber && mobileCountry
                         ? `+${getCountryCallingCode(mobileCountry)} ${registrationInfo.mobileNumber}`
-                        : ""
+                        : registrationInfo.mobileNumber
                     }
-                    placeholder="Select"
+                    placeholder="Enter Mobile Number"
                   />
 
                   <DisplayField
@@ -2444,62 +2719,40 @@ export default function FacultyUniversityPage() {
                     value={
                       registrationInfo.alternatePhone && alternatePhoneCountry
                         ? `+${getCountryCallingCode(alternatePhoneCountry)} ${registrationInfo.alternatePhone}`
-                        : ""
+                        : registrationInfo.alternatePhone
                     }
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Gender"
-                    value={registrationInfo.gender}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Designation"
-                    value={registrationInfo.designation}
-                    placeholder="eg. Senior Training Officer"
-                  />
-
-                  <DisplayField
-                    label="Ministry Name"
-                    value={registrationInfo.ministryName}
-                    placeholder="eg. Skill Development Ministry"
-                  />
-                  <DisplayField
-                    label="Department"
-                    value={registrationInfo.department}
-                    placeholder="eg. Corporate Training"
-                  />
-                  <DisplayField
-                    label="Date of Joining"
-                    value={registrationInfo.dateOfJoining}
-                  />
-
-                  <DisplayField
-                    label="Training Specialization"
-                    value={registrationInfo.trainingSpecialization.join(", ")}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Qualification"
-                    value={registrationInfo.qualification}
-                    placeholder="Select"
+                    placeholder="Enter Alternate Phone"
                   />
                   <DisplayField
                     label="Total Experience"
                     value={registrationInfo.totalExperience}
                     placeholder="Select"
                   />
+                  <DisplayField label="Date of Joining" value={registrationInfo.dateOfJoining} />
 
                   <DisplayField
-                    label="Training Center Name"
-                    value={registrationInfo.trainingCenterName}
+                    label="Assigned Programs"
+                    value={registrationInfo.assignedPrograms.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Employment Status"
-                    value={registrationInfo.employmentStatus}
+                    label="Assigned Region"
+                    value={registrationInfo.assignedRegion}
                     placeholder="Select"
                   />
+                  <DisplayField
+                    label="Designation"
+                    value={registrationInfo.designation}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField label="Tenant ID" value={registrationInfo.tenantId} />
+                  <DisplayField
+                    label="Reporting Authority"
+                    value={registrationInfo.reportingAuthority}
+                    placeholder="Select"
+                  />
+                  <DisplayField label="Status" value={registrationInfo.status} />
                 </div>
               )}
             </section>
@@ -2543,108 +2796,90 @@ export default function FacultyUniversityPage() {
 
               {editingSection === "professional" ? (
                 <div className="institutionGrid institutionFacultyProfessionalGrid">
-
                   <SelectField
-                    label="Trainer Type"
-                    value={professionalDraft.trainerType}
+                    label="Department"
+                    value={professionalDraft.department}
                     placeholder="Select"
                     menuStyle="radio"
                     options={[
-                      "Community Trainer",
-                      "Technical Trainer",
-                      "Domain Trainer",
-                      "Master Trainer",
-                      "Lead Trainer",
-                      "Industry Trainer",
-                      "Visiting Trainer",
+                      "Training & Development",
+                      "Administration",
+                      "Academic",
+                      "Operations",
+                      "HR",
+                      "IT",
+                      "Finance",
+                      "Research",
+                      "Placement",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        trainerType: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Social Sector Experience"
-                    value={professionalDraft.socialSectorExperience}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "No Experience",
-                      "Less than 1 year",
-                      "1–3 years",
-                      "3–5 years",
-                      "5–10 years",
-                      "10+ years",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        socialSectorExperience: value,
+                        department: value,
                       }))
                     }
                   />
 
                   <SelectField
-                    label="Training Experience"
-                    value={professionalDraft.trainingExperience}
+                    label="Division"
+                    value={professionalDraft.division}
                     placeholder="Select"
                     menuStyle="radio"
                     options={[
-                      "0–1 year",
-                      "2–3 years",
-                      "4–5 years",
-                      "6–10 years",
-                      "10+ years",
+                      "Training Delivery",
+                      "Program Management",
+                      "Operations",
+                      "Quality",
+                      "Administration",
+                      "Digital Learning",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        trainingExperience: value,
+                        division: value,
                       }))
                     }
                   />
 
-
-                  <MultiSelectField
-                    label="Specialization"
-                    value={professionalDraft.specialization}
+                  <SelectField
+                    label="Grade"
+                    value={professionalDraft.grade}
                     placeholder="Select"
+                    menuStyle="radio"
                     options={[
-                      "Artificial Intelligence",
-                      "Digital Skills",
-                      "Data Analytics",
-                      "Entrepreneurship",
-                      "Employability",
-                      "Financial Literacy",
+                      "Grade A",
+                      "Grade B",
+                      "Grade C",
+                      "Grade D",
+                      "Senior Grade",
+                      "Other",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        specialization: value,
+                        grade: value,
                       }))
                     }
                   />
 
-                  <MultiSelectField
-                    label="Focus Area"
-                    value={professionalDraft.focusArea}
+                  <SelectField
+                    label="Domain"
+                    value={professionalDraft.domain}
                     placeholder="Select"
+                    menuStyle="radio"
                     options={[
-                      "Digital Literacy",
-                      "Youth Development",
-                      "Women Empowerment",
-                      "Employability",
-                      "Entrepreneurship",
-                      "Livelihood",
-                      "Rural Development",
+                      "Skill Development",
+                      "Education",
+                      "Training & L&D",
+                      "Administration",
+                      "Technology",
+                      "Operations",
+                      "Program Management",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        focusArea: value,
+                        domain: value,
                       }))
                     }
                   />
@@ -2654,13 +2889,14 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.expertise}
                     placeholder="Select"
                     options={[
-                      "AI",
-                      "Digital Skills",
-                      "Training Delivery",
-                      "Community Mobilization",
-                      "Mentoring",
+                      "Training",
+                      "Administration",
+                      "Program Management",
+                      "Batch Management",
                       "Curriculum Development",
                       "Assessment",
+                      "Reporting",
+                      "Stakeholder Management",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
@@ -2670,164 +2906,84 @@ export default function FacultyUniversityPage() {
                     }
                   />
 
-
                   <MultiSelectField
-                    label="Training Topics"
-                    value={professionalDraft.trainingTopics}
+                    label="Programs"
+                    value={professionalDraft.programs}
                     placeholder="Select"
                     options={[
-                      "AI Basics",
-                      "Digital Literacy",
-                      "Python",
-                      "Data Analytics",
-                      "Communication Skills",
+                      "Skill Development Scheme",
+                      "Leadership Development",
+                      "Digital Skills",
+                      "Employability Skills",
                       "Entrepreneurship",
-                      "Workplace Skills",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        trainingTopics: value,
+                        programs: value,
                       }))
                     }
                   />
 
                   <MultiSelectField
-                    label="Target Groups"
-                    value={professionalDraft.targetGroups}
+                    label="Responsibilities"
+                    value={professionalDraft.responsibilities}
                     placeholder="Select"
                     options={[
-                      "Youth",
-                      "Women",
+                      "Program Planning",
+                      "Training Coordination",
+                      "Reporting",
+                      "Batch Management",
+                      "Stakeholder Coordination",
+                      "Assessment",
+                      "Documentation",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        responsibilities: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Coordination Experience"
+                    value={professionalDraft.coordinationExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Less than 1 year",
+                      "1–3 years",
+                      "3–5 years",
+                      "5–10 years",
+                      "10+ years",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        coordinationExperience: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Stakeholders"
+                    value={professionalDraft.stakeholders}
+                    placeholder="Select"
+                    options={[
+                      "Government",
                       "Students",
-                      "Job Seekers",
-                      "Rural Communities",
-                      "Persons with Disabilities",
-                      "Entrepreneurs",
+                      "Faculty",
                       "Trainers",
+                      "Employers",
+                      "Industry Partners",
+                      "NGOs",
+                      "Academic Institutions",
                     ]}
                     onChange={(value) =>
                       setProfessionalDraft((current) => ({
                         ...current,
-                        targetGroups: value,
-                      }))
-                    }
-                  />
-
-                  <MultiSelectField
-                    label="Training Method"
-                    value={professionalDraft.trainingMethod}
-                    placeholder="Select"
-                    options={[
-                      "Classroom",
-                      "Online",
-                      "Hybrid",
-                      "Blended",
-                      "Workshop",
-                      "Bootcamp",
-                      "Hands-on",
-                      "Field Training",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        trainingMethod: value,
-                      }))
-                    }
-                  />
-
-
-                  <SelectField
-                    label="Community Training"
-                    value={professionalDraft.communityTraining}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Yes",
-                      "No",
-                      "Occasionally",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        communityTraining: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Mentoring"
-                    value={professionalDraft.mentoring}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Yes",
-                      "No",
-                      "Occasionally",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        mentoring: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Content Development"
-                    value={professionalDraft.contentDevelopment}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Yes",
-                      "No",
-                      "Occasionally",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        contentDevelopment: value,
-                      }))
-                    }
-                  />
-
-
-                  <SelectField
-                    label="Assessment"
-                    value={professionalDraft.assessment}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Yes",
-                      "No",
-                      "Occasionally",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        assessment: value,
-                      }))
-                    }
-                  />
-
-                  <MultiSelectField
-                    label="Training Languages"
-                    value={professionalDraft.trainingLanguages}
-                    placeholder="Select"
-                    options={[
-                      "English",
-                      "Hindi",
-                      "Kannada",
-                      "Tamil",
-                      "Telugu",
-                      "Malayalam",
-                      "Marathi",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        trainingLanguages: value,
+                        stakeholders: value,
                       }))
                     }
                   />
@@ -2835,78 +2991,51 @@ export default function FacultyUniversityPage() {
               ) : (
                 <div className="institutionGrid institutionFacultyProfessionalGrid">
                   <DisplayField
-                    label="Trainer Type"
-                    value={professionalInfo.trainerType}
-                    placeholder="eg. Community Trainer"
+                    label="Department"
+                    value={professionalInfo.department}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Social Sector Experience"
-                    value={professionalInfo.socialSectorExperience}
-                    placeholder="eg. 8 Years"
+                    label="Division"
+                    value={professionalInfo.division}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Training Experience"
-                    value={professionalInfo.trainingExperience}
-                    placeholder="eg. 7 Years"
+                    label="Grade"
+                    value={professionalInfo.grade}
+                    placeholder="Select"
                   />
 
                   <DisplayField
-                    label="Specialization"
-                    value={professionalInfo.specialization.join(", ")}
-                    placeholder="Eg. Artificial Intelligence"
-                  />
-                  <DisplayField
-                    label="Focus Area"
-                    value={professionalInfo.focusArea.join(", ")}
-                    placeholder="Eg. Digital Skills"
+                    label="Domain"
+                    value={professionalInfo.domain}
+                    placeholder="Select"
                   />
                   <DisplayField
                     label="Expertise"
                     value={professionalInfo.expertise.join(", ")}
-                    placeholder="Eg. AI, Digital Skills"
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Programs"
+                    value={professionalInfo.programs.join(", ")}
+                    placeholder="Select"
                   />
 
                   <DisplayField
-                    label="Training Topics"
-                    value={professionalInfo.trainingTopics.join(", ")}
-                    placeholder="Eg. AI Basics"
+                    label="Responsibilities"
+                    value={professionalInfo.responsibilities.join(", ")}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Target Groups"
-                    value={professionalInfo.targetGroups.join(", ")}
-                    placeholder="Eg. Youth, Women"
+                    label="Coordination Experience"
+                    value={professionalInfo.coordinationExperience}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Training Method"
-                    value={professionalInfo.trainingMethod.join(", ")}
-                    placeholder="Eg. Classroom"
-                  />
-
-                  <DisplayField
-                    label="Community Training"
-                    value={professionalInfo.communityTraining}
-                    placeholder="Eg. Yes"
-                  />
-                  <DisplayField
-                    label="Mentoring"
-                    value={professionalInfo.mentoring}
-                    placeholder="Eg. Yes"
-                  />
-                  <DisplayField
-                    label="Content Development"
-                    value={professionalInfo.contentDevelopment}
-                    placeholder="Eg. Yes"
-                  />
-
-                  <DisplayField
-                    label="Assessment"
-                    value={professionalInfo.assessment}
-                    placeholder="Eg. Yes"
-                  />
-                  <DisplayField
-                    label="Training Languages"
-                    value={professionalInfo.trainingLanguages.join(", ")}
-                    placeholder="Eg. English"
+                    label="Stakeholders"
+                    value={professionalInfo.stakeholders.join(", ")}
+                    placeholder="Select"
                   />
                 </div>
               )}
@@ -2951,32 +3080,71 @@ export default function FacultyUniversityPage() {
 
               {editingSection === "skills" ? (
                 <div className="institutionGrid institutionFacultySkillsGrid">
-
                   <MultiSelectField
-                    label="Key Skills"
-                    value={skillsDraft.keySkills}
+                    label="Core Skills"
+                    value={skillsDraft.coreSkills}
                     placeholder="Select"
                     options={[
-                      "Teaching",
+                      "Planning",
                       "Communication",
-                      "Facilitation",
-                      "Presentation",
-                      "Community Mobilization",
-                      "Mentoring",
-                      "Leadership",
                       "Problem Solving",
+                      "Reporting",
+                      "Team Management",
+                      "Project Management",
                     ]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        keySkills: value,
+                        coreSkills: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Digital Skills"
+                    value={skillsDraft.digitalSkills}
+                    placeholder="Select"
+                    options={[
+                      "MS Office",
+                      "Excel",
+                      "LMS",
+                      "Power BI",
+                      "Google Workspace",
+                      "CRM",
+                      "Data Analytics",
+                      "AI Tools",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        digitalSkills: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Leadership Skills"
+                    value={skillsDraft.leadershipSkills}
+                    placeholder="Select"
+                    options={[
+                      "Decision Making",
+                      "Team Leadership",
+                      "Delegation",
+                      "Conflict Resolution",
+                      "Strategic Thinking",
+                      "Mentoring",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        leadershipSkills: value,
                       }))
                     }
                   />
 
                   <SelectField
-                    label="Skill Level"
-                    value={skillsDraft.skillLevel}
+                    label="Proficiency"
+                    value={skillsDraft.proficiency}
                     placeholder="Select"
                     menuStyle="radio"
                     options={[
@@ -2988,45 +3156,42 @@ export default function FacultyUniversityPage() {
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        skillLevel: value,
+                        proficiency: value,
                       }))
                     }
                   />
 
                   <MultiSelectField
-                    label="Certifications"
-                    value={skillsDraft.certifications}
+                    label="Training Attended"
+                    value={skillsDraft.trainingAttended}
                     placeholder="Select"
                     options={[
-                      "Google ML Certificate",
-                      "AWS Certified",
-                      "Microsoft Certified",
-                      "TOT Certificate",
-                      "Digital Skills Certification",
-                      "PMP",
-                      "Other",
+                      "Leadership Development",
+                      "Project Management",
+                      "AI",
+                      "Data Analytics",
+                      "Train-the-Trainer",
+                      "Communication Skills",
                     ]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        certifications: value,
+                        trainingAttended: value,
                       }))
                     }
                   />
-
 
                   <MultiSelectField
                     label="Development Areas"
                     value={skillsDraft.developmentAreas}
                     placeholder="Select"
                     options={[
-                      "Generative AI",
-                      "Data Analytics",
                       "Leadership",
-                      "Digital Pedagogy",
-                      "Assessment",
-                      "Program Management",
-                      "Monitoring & Evaluation",
+                      "Data Analytics",
+                      "AI",
+                      "Project Management",
+                      "Communication",
+                      "Strategic Planning",
                     ]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
@@ -3036,46 +3201,24 @@ export default function FacultyUniversityPage() {
                     }
                   />
 
-                  <MultiSelectField
-                    label="Areas of Interest"
-                    value={skillsDraft.areasOfInterest}
-                    placeholder="Select"
-                    options={[
-                      "Generative AI",
-                      "AI & ML",
-                      "Digital Skills",
-                      "Data Analytics",
-                      "EdTech",
-                      "Leadership",
-                      "Social Innovation",
-                    ]}
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        areasOfInterest: value,
-                      }))
-                    }
-                  />
-
                   <SelectField
-                    label="Career Aspirations"
-                    value={skillsDraft.careerAspirations}
+                    label="Career Goal"
+                    value={skillsDraft.careerGoal}
                     placeholder="Select"
                     menuStyle="radio"
                     options={[
-                      "Senior Trainer",
-                      "Master Trainer",
-                      "Training Manager",
+                      "Senior Coordinator",
                       "Program Manager",
-                      "Skill Development Manager",
+                      "Training Manager",
+                      "Operations Manager",
                       "Program Head",
-                      "Training Director",
-                      "Consultant",
+                      "Department Head",
+                      "Other",
                     ]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        careerAspirations: value,
+                        careerGoal: value,
                       }))
                     }
                   />
@@ -3083,34 +3226,41 @@ export default function FacultyUniversityPage() {
               ) : (
                 <div className="institutionGrid institutionFacultySkillsGrid">
                   <DisplayField
-                    label="Key Skills"
-                    value={skillsInfo.keySkills.join(", ")}
-                    placeholder="Teaching"
+                    label="Core Skills"
+                    value={skillsInfo.coreSkills.join(", ")}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Skill Level"
-                    value={skillsInfo.skillLevel}
-                    placeholder="Generative AI"
+                    label="Digital Skills"
+                    value={skillsInfo.digitalSkills.join(", ")}
+                    placeholder="Select"
                   />
                   <DisplayField
-                    label="Certifications"
-                    value={skillsInfo.certifications.join(", ")}
-                    placeholder="eg. Advanced"
+                    label="Leadership Skills"
+                    value={skillsInfo.leadershipSkills.join(", ")}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Proficiency"
+                    value={skillsInfo.proficiency}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Attended"
+                    value={skillsInfo.trainingAttended.join(", ")}
+                    placeholder="Select"
                   />
                   <DisplayField
                     label="Development Areas"
                     value={skillsInfo.developmentAreas.join(", ")}
-                    placeholder="Eg. Generative AI"
+                    placeholder="Select"
                   />
+
                   <DisplayField
-                    label="Areas of Interest"
-                    value={skillsInfo.areasOfInterest.join(", ")}
-                    placeholder="Eg. Generative AI"
-                  />
-                  <DisplayField
-                    label="Career Aspirations"
-                    value={skillsInfo.careerAspirations}
-                    placeholder="Eg. Generative AI"
+                    label="Career Goal"
+                    value={skillsInfo.careerGoal}
+                    placeholder="Select"
                   />
                 </div>
               )}

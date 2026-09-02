@@ -34,7 +34,7 @@ const images = {
 
   registration: "/assets/universityicons/file-edit.svg",
   academicProfessional: "/assets/universityicons/bag.svg",
-  skillsDevelopment: "/assets/universityicons/target.svg",
+  skillsDevelopment: "/assets/fbootcampicons/targets.svg",
   documents: "/assets/universityicons/file.svg",
   confirmation: "/assets/universityicons/checkmark-circlewhite.svg",
 };

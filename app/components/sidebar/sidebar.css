@@ -780,3 +780,32 @@
     display: none !important;
   }
 }
+
+/* =========================================================
+   BUTTON HOVER - IN / OUT EFFECT
+========================================================= */
+
+.sidebarItem,
+.logoutButton {
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+/* Cursor enters: button goes inward */
+.sidebarItem:hover,
+.logoutButton:hover {
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px #C4C4C4 !important;
+}
+
+/* Keyboard focus gets the same inward effect */
+.sidebarItem:focus-visible,
+.logoutButton:focus-visible {
+  box-shadow:
+    inset -4px -4px 8px #FFFFFF,
+    inset 4px 4px 8px #C4C4C4 !important;
+  outline: none;
+}
+
+/* Cursor leaves: existing normal raised shadow automatically returns */
+

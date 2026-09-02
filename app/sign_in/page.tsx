@@ -65,7 +65,35 @@ export default function LoginPage() {
       return;
     }
 
-    // Add navigation for Coordinator, Faculty and Student here.
+    if (tenant === "Coordinator") {
+      if (actor === "University & College") {
+        router.push("/coordinator_university");
+        return;
+      }
+
+      if (actor === "Bootcamp") {
+        router.push("/coordinator_bootcamp");
+        return;
+      }
+
+      if (actor === "Corporate") {
+        router.push("/coordinator_corporate");
+        return;
+      }
+
+      if (actor === "Government") {
+        router.push("/coordinator_government");
+        return;
+      }
+
+      if (actor === "NGO") {
+        router.push("/coordinator_ngo");
+        return;
+      }
+    }
+
+    // Add navigation for remaining Coordinator actors,
+    // Faculty and Student here.
     console.log({
       tenant,
       actor,
