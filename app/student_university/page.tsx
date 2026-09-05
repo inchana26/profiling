@@ -22,16 +22,16 @@ const images = {
   edit: "/assets/studenticons/edit.svg",
   editBig: "/assets/studenticons/editbig.svg",
   lock: "/assets/studenticons/lock.svg",
-  save: "/assets/studenticons/tick.svg",
   cancel: "/assets/studenticons/cancel.svg",
   arrowDown: "/assets/studenticons/arrow-down.svg",
+  calendar: "/assets/studenticons/calendar.svg",
   completed: "/assets/studenticons/checkmark.svg",
   upload: "/assets/studenticons/upload.svg",
   clap: "/assets/studenticons/clap.svg",
   sad: "/assets/studenticons/sad.svg",
   registration: "/assets/studenticons/file-edit.svg",
   academicProfessional: "/assets/studenticons/bag.svg",
-  skillsDevelopment: "/assets/studenticons/targets.svg",
+  skillsDevelopment: "/assets/studenticons/target.svg",
   documents: "/assets/studenticons/file.svg",
   confirmation: "/assets/studenticons/checkmark-circlewhite.svg",
 };
@@ -196,7 +196,7 @@ type EditFieldProps = {
   placeholder?: string;
   onChange?: (value: string) => void;
   className?: string;
-  visualIcon?: "lock" | "edit" | "select";
+  visualIcon?: "lock" | "edit" | "select" | "calendar";
 };
 
 function EditField({
@@ -248,7 +248,9 @@ function EditField({
           className={`institutionFieldAction ${
             (visualIcon ?? (locked ? "lock" : "edit")) === "lock"
               ? "institutionFieldLocked"
-              : "institutionFieldPencil"
+              : (visualIcon ?? (locked ? "lock" : "edit")) === "calendar"
+                ? "institutionFieldCalendar"
+                : "institutionFieldPencil"
           }`}
           aria-hidden="true"
         >
@@ -256,12 +258,404 @@ function EditField({
             src={
               (visualIcon ?? (locked ? "lock" : "edit")) === "lock"
                 ? images.lock
-                : images.edit
+                : (visualIcon ?? (locked ? "lock" : "edit")) === "calendar"
+                  ? images.calendar
+                  : images.edit
             }
             width={18}
             height={18}
           />
         </span>
+      )}
+    </div>
+  );
+}
+
+
+type CalendarDateFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function CalendarDateField({
+  label,
+  value,
+  onChange,
+}: CalendarDateFieldProps) {
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"days" | "months" | "years">("days");
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const calendarId = useId();
+
+  const initialDate = value ? new Date(`${value}T00:00:00`) : new Date();
+
+  const [visibleMonth, setVisibleMonth] = useState(
+    new Date(initialDate.getFullYear(), initialDate.getMonth(), 1)
+  );
+
+  const [yearPageStart, setYearPageStart] = useState(() => {
+    const year = initialDate.getFullYear();
+    return Math.floor(year / 12) * 12;
+  });
+
+  useEffect(() => {
+    if (!value) return;
+
+    const selectedDate = new Date(`${value}T00:00:00`);
+
+    setVisibleMonth(
+      new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        1
+      )
+    );
+
+    setYearPageStart(
+      Math.floor(selectedDate.getFullYear() / 12) * 12
+    );
+  }, [value]);
+
+  useEffect(() => {
+    const closeCalendar = (event: MouseEvent) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+        setMode("days");
+      }
+    };
+
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+
+      if (customEvent.detail !== calendarId) {
+        setOpen(false);
+        setMode("days");
+      }
+    };
+
+    document.addEventListener("mousedown", closeCalendar);
+    window.addEventListener(
+      "faculty-profile-dropdown-open",
+      closeOtherDropdown as EventListener
+    );
+
+    return () => {
+      document.removeEventListener("mousedown", closeCalendar);
+      window.removeEventListener(
+        "faculty-profile-dropdown-open",
+        closeOtherDropdown as EventListener
+      );
+    };
+  }, [calendarId]);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const year = visibleMonth.getFullYear();
+  const monthIndex = visibleMonth.getMonth();
+
+  const firstDay = new Date(year, monthIndex, 1).getDay();
+
+  const calendarDays = Array.from({ length: 42 }, (_, index) => {
+    return new Date(year, monthIndex, 1 - firstDay + index);
+  });
+
+  const yearOptions = Array.from(
+    { length: 12 },
+    (_, index) => yearPageStart + index
+  );
+
+  const formatDate = (date: Date) => {
+    const dateYear = date.getFullYear();
+    const dateMonth = String(date.getMonth() + 1).padStart(2, "0");
+    const dateDay = String(date.getDate()).padStart(2, "0");
+
+    return `${dateYear}-${dateMonth}-${dateDay}`;
+  };
+
+  const displayDate = value
+    ? value.split("-").reverse().join("/")
+    : "dd/mm/yyyy";
+
+  const toggleCalendar = () => {
+    const nextOpen = !open;
+
+    if (nextOpen) {
+      window.dispatchEvent(
+        new CustomEvent("faculty-profile-dropdown-open", {
+          detail: calendarId,
+        })
+      );
+
+      setMode("days");
+      setYearPageStart(Math.floor(year / 12) * 12);
+    }
+
+    setOpen(nextOpen);
+  };
+
+  return (
+    <div
+      ref={calendarRef}
+      className={`institutionField institutionEditableField institutionCalendarDateField ${
+        open ? "institutionCalendarDateFieldOpen" : ""
+      }`}
+    >
+      <div className="institutionFieldText">
+        <div className="institutionFieldLabel">{label}</div>
+
+        <button
+          type="button"
+          className="institutionCalendarDateTrigger"
+          onClick={toggleCalendar}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+        >
+          <span
+            className={
+              value
+                ? "institutionCalendarDateValue"
+                : "institutionCalendarDatePlaceholder"
+            }
+          >
+            {displayDate}
+          </span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        className="institutionFieldAction institutionFieldCalendar institutionCalendarDateAction"
+        onClick={toggleCalendar}
+        aria-label={`Choose ${label}`}
+        aria-expanded={open}
+      >
+        <IconImage src={images.calendar} width={18} height={18} />
+      </button>
+
+      {open && (
+        <div
+          className="institutionDateCalendarPopup"
+          role="dialog"
+          aria-label={`Choose ${label}`}
+        >
+          <div className="institutionDateCalendarTopRow">
+            <button
+              type="button"
+              className="institutionDateCalendarMainArrow"
+              aria-label="Previous month"
+              onClick={() => {
+                setVisibleMonth(
+                  new Date(year, monthIndex - 1, 1)
+                );
+                setMode("days");
+              }}
+            >
+              ‹
+            </button>
+
+            <button
+              type="button"
+              className="institutionDateCalendarHeaderSelect institutionDateCalendarMonthButton"
+              aria-label="Choose month"
+              aria-expanded={mode === "months"}
+              onClick={() =>
+                setMode((current) =>
+                  current === "months" ? "days" : "months"
+                )
+              }
+            >
+              <span>{months[monthIndex]}</span>
+              <span
+                className="institutionDateCalendarChevron"
+                aria-hidden="true"
+              >
+                ⌄
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="institutionDateCalendarHeaderSelect institutionDateCalendarYearButton"
+              aria-label="Choose year"
+              aria-expanded={mode === "years"}
+              onClick={() => {
+                setYearPageStart(Math.floor(year / 12) * 12);
+                setMode((current) =>
+                  current === "years" ? "days" : "years"
+                );
+              }}
+            >
+              <span>{year}</span>
+              <span
+                className="institutionDateCalendarChevron"
+                aria-hidden="true"
+              >
+                ⌄
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="institutionDateCalendarMainArrow"
+              aria-label="Next month"
+              onClick={() => {
+                setVisibleMonth(
+                  new Date(year, monthIndex + 1, 1)
+                );
+                setMode("days");
+              }}
+            >
+              ›
+            </button>
+          </div>
+
+          {mode === "years" ? (
+            <div className="institutionDateCalendarYearPanel">
+              <div className="institutionDateCalendarRangeRow">
+                <button
+                  type="button"
+                  className="institutionDateCalendarRangeArrow"
+                  aria-label="Previous years"
+                  onClick={() =>
+                    setYearPageStart((current) => current - 12)
+                  }
+                >
+                  ‹
+                </button>
+
+                <strong>
+                  {yearPageStart} - {yearPageStart + 11}
+                </strong>
+
+                <button
+                  type="button"
+                  className="institutionDateCalendarRangeArrow"
+                  aria-label="Next years"
+                  onClick={() =>
+                    setYearPageStart((current) => current + 12)
+                  }
+                >
+                  ›
+                </button>
+              </div>
+
+              <div className="institutionDateCalendarYearGrid">
+                {yearOptions.map((yearOption) => (
+                  <button
+                    key={yearOption}
+                    type="button"
+                    className={`institutionDateCalendarYearOption ${
+                      yearOption === year
+                        ? "institutionDateCalendarOptionSelected"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setVisibleMonth(
+                        new Date(yearOption, monthIndex, 1)
+                      );
+                      setMode("days");
+                    }}
+                  >
+                    {yearOption}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : mode === "months" ? (
+            <div className="institutionDateCalendarMonthGrid">
+              {months.map((month, index) => (
+                <button
+                  key={month}
+                  type="button"
+                  className={`institutionDateCalendarMonthOption ${
+                    index === monthIndex
+                      ? "institutionDateCalendarOptionSelected"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setVisibleMonth(new Date(year, index, 1));
+                    setMode("days");
+                  }}
+                >
+                  {month}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <>
+              <div
+                className="institutionDateCalendarWeekdays"
+                aria-hidden="true"
+              >
+                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(
+                  (weekday) => (
+                    <span key={weekday}>{weekday}</span>
+                  )
+                )}
+              </div>
+
+              <div className="institutionDateCalendarGrid">
+                {calendarDays.map((date) => {
+                  const dateValue = formatDate(date);
+                  const isCurrentMonth =
+                    date.getMonth() === monthIndex;
+                  const isSelected = value === dateValue;
+
+                  return (
+                    <button
+                      key={dateValue}
+                      type="button"
+                      className={`institutionDateCalendarDay ${
+                        !isCurrentMonth
+                          ? "institutionDateCalendarDayOutside"
+                          : ""
+                      } ${
+                        isSelected
+                          ? "institutionDateCalendarDaySelected"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        onChange(dateValue);
+
+                        if (!isCurrentMonth) {
+                          setVisibleMonth(
+                            new Date(
+                              date.getFullYear(),
+                              date.getMonth(),
+                              1
+                            )
+                          );
+                        }
+
+                        setOpen(false);
+                        setMode("days");
+                      }}
+                    >
+                      {date.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
@@ -1045,8 +1439,6 @@ type SectionHeaderProps = {
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
 };
 
 function SectionHeader({
@@ -1057,8 +1449,6 @@ function SectionHeader({
   popupType = null,
   popupMessage,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
     <div className={`institutionInformationHeader ${popupType ? "institutionInformationHeaderHasPopup" : ""} ${editing ? "institutionInformationHeaderEditing" : ""}`}>
@@ -1115,27 +1505,22 @@ function SectionHeader({
           </div>
         )}
 
-        {editing ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton institutionSaveButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.save} width={13} height={13} />
-              <span>Save</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionActionButton institutionCancelButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={13} height={13} />
-              <span>Cancel</span>
-            </button>
-          </div>
-        ) : !popupType ? (
+        {editing && title === "Registration Data" ? (
+          <button
+            type="button"
+            className="institutionEditButton"
+            aria-label="Close Registration Data locked view"
+            onClick={() => window.dispatchEvent(new CustomEvent("student-registration-lock-close"))}
+          >
+            <Image
+              src={images.lock}
+              alt=""
+              width={24}
+              height={24}
+              aria-hidden="true"
+            />
+          </button>
+        ) : !editing && !popupType ? (
           <button
             type="button"
             className="institutionEditButton"
@@ -1288,10 +1673,11 @@ export default function FacultyUniversityPage() {
   const [draftSavedTime, setDraftSavedTime] = useState("02:26PM");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [editingSection, setEditingSection] = useState<SectionName | null>(null);
+  const [registrationLockedView, setRegistrationLockedView] = useState(false);
   const [confirmation, setConfirmation] = useState(false);
 
   const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
-  const [registrationCompleted, setRegistrationCompleted] = useState(false);
+  const [registrationCompleted, setRegistrationCompleted] = useState(true);
   const [professionalProfileCompleted, setProfessionalProfileCompleted] = useState(false);
   const [skillsDevelopmentCompleted, setSkillsDevelopmentCompleted] = useState(false);
   const [documentsCompleted, setDocumentsCompleted] = useState(false);
@@ -1347,6 +1733,7 @@ export default function FacultyUniversityPage() {
     dateOfBirth: "2004-05-17",
     academicYear: "",
     passOutYear: "",
+    onboardingDate: "18-08-2026",
     department: "",
     branch: "",
     specialization: "",
@@ -1387,7 +1774,6 @@ export default function FacultyUniversityPage() {
     category: "",
     domain: "",
     selfRatedLevel: "",
-    resume: "",
     portfolioLink: "",
     linkedinUrl: "",
     instagramId: "",
@@ -1419,37 +1805,102 @@ export default function FacultyUniversityPage() {
 
   const startSectionEdit = (section: SectionName) => {
     setSectionPopup(null);
+    setRegistrationLockedView(false);
+
+    let professionalReady = professionalProfileCompleted;
+    let skillsReady = skillsDevelopmentCompleted;
 
     if (editingSection && editingSection !== section) {
-      showFlowPopup(
-        "Please Save or Cancel the current section before continuing.",
-        section
-      );
-      return;
+      if (editingSection === "professional") {
+        const complete =
+          professionalDraft.nationality &&
+          professionalDraft.identityDocumentType &&
+          professionalDraft.issuingCountry &&
+          professionalDraft.educationLevel &&
+          professionalDraft.qualification &&
+          professionalDraft.institutionName &&
+          professionalDraft.fieldOfStudy &&
+          professionalDraft.gradingSystem &&
+          professionalDraft.startYear &&
+          professionalDraft.endYear;
+
+        if (!complete) {
+          showSectionError(
+            "professional",
+            "Please complete the required Personal & Academic Profile fields."
+          );
+          return;
+        }
+
+        setProfessionalInfo({ ...professionalDraft });
+        setProfessionalProfileCompleted(true);
+        professionalReady = true;
+      }
+
+      if (editingSection === "skills") {
+        const complete =
+          skillsDraft.certificationName &&
+          skillsDraft.issuingOrganisation &&
+          skillsDraft.careerGoal &&
+          skillsDraft.preferredRole.length > 0 &&
+          skillsDraft.preferredIndustry.length > 0 &&
+          skillsDraft.learningGoal.length > 0 &&
+          skillsDraft.preferredLearningMode.length > 0 &&
+          skillsDraft.skillName &&
+          skillsDraft.category &&
+          skillsDraft.domain &&
+          skillsDraft.selfRatedLevel &&
+          skillsDraft.portfolioEvidence;
+
+        if (!complete) {
+          showSectionError(
+            "skills",
+            "Please complete the required Credentials, Career & Digital Profile fields."
+          );
+          return;
+        }
+
+        setSkillsInfo({
+          ...skillsDraft,
+          preferredRole: [...skillsDraft.preferredRole],
+          preferredIndustry: [...skillsDraft.preferredIndustry],
+          learningGoal: [...skillsDraft.learningGoal],
+          preferredLearningMode: [...skillsDraft.preferredLearningMode],
+        });
+        setSkillsDevelopmentCompleted(true);
+        skillsReady = true;
+      }
+
+      if (editingSection === "documents") {
+        const hasGovernmentId =
+          governmentIdDocumentType.trim() !== "" &&
+          documentFiles["Government ID Proof"] !== null;
+
+        if (!hasGovernmentId) {
+          showSectionError(
+            "documents",
+            "Please select Document Type and upload Government ID Proof."
+          );
+          return;
+        }
+
+        setDocumentsCompleted(true);
+        documentFilesBeforeEditRef.current = null;
+        governmentIdDocumentTypeBeforeEditRef.current = null;
+      }
     }
 
-    if (section === "registration" && !profilePhotoCompleted) {
-      showFlowPopup("Please Complete Profile Photo", "registration");
-      return;
-    }
-
-    if (section === "professional" && !registrationCompleted) {
-      showFlowPopup("Please Complete Registration Data", "professional");
-      return;
-    }
-
-    if (section === "skills" && !professionalProfileCompleted) {
+    if (section === "skills" && !professionalReady) {
       showFlowPopup("Please Complete Personal & Academic Profile", "skills");
       return;
     }
 
-    if (section === "documents" && !skillsDevelopmentCompleted) {
-      showFlowPopup("Please Complete Credentials, Career & Digital Profile", "documents");
+    if (section === "documents" && !skillsReady) {
+      showFlowPopup(
+        "Please Complete Credentials, Career & Digital Profile",
+        "documents"
+      );
       return;
-    }
-
-    if (section === "registration") {
-      setRegistrationDraft({ ...registrationInfo });
     }
 
     if (section === "professional") {
@@ -1500,111 +1951,100 @@ export default function FacultyUniversityPage() {
     }, 2500);
   };
 
-  const saveSection = (section: SectionName) => {
-    if (section === "registration" && !profilePhotoCompleted) {
-      showFlowPopup("Please complete Profile Photo", "registration");
+  const saveProfile = () => {
+    const professionalSource =
+      editingSection === "professional" ? professionalDraft : professionalInfo;
+
+    const skillsSource =
+      editingSection === "skills" ? skillsDraft : skillsInfo;
+
+    const professionalComplete =
+      professionalSource.nationality &&
+      professionalSource.identityDocumentType &&
+      professionalSource.issuingCountry &&
+      professionalSource.educationLevel &&
+      professionalSource.qualification &&
+      professionalSource.institutionName &&
+      professionalSource.fieldOfStudy &&
+      professionalSource.gradingSystem &&
+      professionalSource.startYear &&
+      professionalSource.endYear;
+
+    const skillsComplete =
+      skillsSource.certificationName &&
+      skillsSource.issuingOrganisation &&
+      skillsSource.careerGoal &&
+      skillsSource.preferredRole.length > 0 &&
+      skillsSource.preferredIndustry.length > 0 &&
+      skillsSource.learningGoal.length > 0 &&
+      skillsSource.preferredLearningMode.length > 0 &&
+      skillsSource.skillName &&
+      skillsSource.category &&
+      skillsSource.domain &&
+      skillsSource.selfRatedLevel &&
+      skillsSource.portfolioEvidence;
+
+    const documentsComplete =
+      governmentIdDocumentType.trim() !== "" &&
+      documentFiles["Government ID Proof"] !== null;
+
+    const hasDocumentError = Object.values(documentUploadErrors).some(
+      (message) => Boolean(message)
+    );
+
+    if (!profilePhotoCompleted) {
+      showFlowPopup(
+        "Please complete Profile Photo before saving the profile.",
+        "confirmation"
+      );
       return;
     }
 
-    if (section === "professional" && !registrationCompleted) {
-      showFlowPopup("Please complete Registration Data", "professional");
+    if (!professionalComplete) {
+      showFlowPopup(
+        "Please complete Personal & Academic Profile before saving the profile.",
+        "confirmation"
+      );
       return;
     }
 
-    if (section === "skills" && !professionalProfileCompleted) {
-      showFlowPopup("Please complete Personal & Academic Profile", "skills");
+    if (!skillsComplete) {
+      showFlowPopup(
+        "Please complete Credentials, Career & Digital Profile before saving the profile.",
+        "confirmation"
+      );
       return;
     }
 
-    if (section === "documents" && !skillsDevelopmentCompleted) {
-      showFlowPopup("Please complete Credentials, Career & Digital Profile", "documents");
+    if (hasDocumentError) {
+      showFlowPopup(
+        "Please correct the document upload error before saving the profile.",
+        "confirmation"
+      );
       return;
     }
 
-    if (section === "registration") {
-      const email = registrationDraft.email.trim();
-
-      if (!isValidEmail(email)) {
-        showSectionError("registration", "Enter a valid Email");
-        return;
-      }
-
-      if (!isValidPhoneNumber(registrationDraft.mobileNumber, mobileCountry)) {
-        showSectionError(
-          "registration",
-          mobileCountry
-            ? `Mobile Number must be ${getCountryMaxDigits(mobileCountry)} digits`
-            : "Please select country code for Mobile Number"
-        );
-        return;
-      }
-
-      const complete =
-        registrationDraft.gender &&
-        registrationDraft.academicYear &&
-        registrationDraft.passOutYear &&
-        registrationDraft.department &&
-        registrationDraft.branch &&
-        registrationDraft.specialization &&
-        registrationDraft.yearOfStudy;
-
-      if (!complete) {
-        showSectionError("registration", "Please complete all required Registration Data fields.");
-        return;
-      }
-
-      setRegistrationInfo({ ...registrationDraft, email });
-      setRegistrationCompleted(true);
+    if (!documentsComplete) {
+      showFlowPopup(
+        "Please complete Documents before saving the profile.",
+        "confirmation"
+      );
+      return;
     }
 
-    if (section === "professional") {
-      const complete =
-        professionalDraft.nationality &&
-        professionalDraft.identityDocumentType &&
-        professionalDraft.issuingCountry &&
-        professionalDraft.educationLevel &&
-        professionalDraft.qualification &&
-        professionalDraft.institutionName &&
-        professionalDraft.fieldOfStudy &&
-        professionalDraft.gradingSystem &&
-        professionalDraft.startYear &&
-        professionalDraft.endYear;
+    if (!confirmation) {
+      showFlowPopup(
+        "Please complete Confirmation before saving the profile.",
+        "confirmation"
+      );
+      return;
+    }
 
-      if (!complete) {
-        showSectionError(
-          "professional",
-          "Please complete the required Personal & Academic Profile fields."
-        );
-        return;
-      }
-
+    if (editingSection === "professional") {
       setProfessionalInfo({ ...professionalDraft });
-      setProfessionalProfileCompleted(true);
     }
 
-    if (section === "skills") {
-      const complete =
-        skillsDraft.certificationName &&
-        skillsDraft.issuingOrganisation &&
-        skillsDraft.careerGoal &&
-        skillsDraft.preferredRole.length > 0 &&
-        skillsDraft.preferredIndustry.length > 0 &&
-        skillsDraft.learningGoal.length > 0 &&
-        skillsDraft.preferredLearningMode.length > 0 &&
-        skillsDraft.skillName &&
-        skillsDraft.category &&
-        skillsDraft.domain &&
-        skillsDraft.selfRatedLevel &&
-        skillsDraft.portfolioEvidence;
-
-      if (!complete) {
-        showSectionError(
-          "skills",
-          "Please complete the required Credentials, Career & Digital Profile fields."
-        );
-        return;
-      }
-
+    if (editingSection === "skills") {
       setSkillsInfo({
         ...skillsDraft,
         preferredRole: [...skillsDraft.preferredRole],
@@ -1612,109 +2052,14 @@ export default function FacultyUniversityPage() {
         learningGoal: [...skillsDraft.learningGoal],
         preferredLearningMode: [...skillsDraft.preferredLearningMode],
       });
-      setSkillsDevelopmentCompleted(true);
     }
 
-    if (section === "documents") {
-      const hasGovernmentId =
-        governmentIdDocumentType.trim() !== "" &&
-        documentFiles["Government ID Proof"] !== null;
-
-      if (!hasGovernmentId) {
-        showSectionError(
-          "documents",
-          "Please select Document Type and upload Government ID Proof before saving."
-        );
-        return;
-      }
-
-      setDocumentsCompleted(true);
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "saved" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "saved" ? null : current
-      );
-    }, 2500);
-  };
-
-  const cancelSection = (section: SectionName) => {
-    if (section === "registration") {
-      setRegistrationDraft({ ...registrationInfo });
-    }
-
-    if (section === "professional") {
-      setProfessionalDraft({ ...professionalInfo });
-    }
-
-    if (section === "skills") {
-      setSkillsDraft({
-        ...skillsInfo,
-        preferredRole: [...skillsInfo.preferredRole],
-        preferredIndustry: [...skillsInfo.preferredIndustry],
-        learningGoal: [...skillsInfo.learningGoal],
-        preferredLearningMode: [...skillsInfo.preferredLearningMode],
-      });
-    }
-
-    if (section === "documents") {
-      if (documentFilesBeforeEditRef.current) {
-        setDocumentFiles({ ...documentFilesBeforeEditRef.current });
-      }
-
-      if (governmentIdDocumentTypeBeforeEditRef.current !== null) {
-        setGovernmentIdDocumentType(
-          governmentIdDocumentTypeBeforeEditRef.current
-        );
-      }
-
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "discarded" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "discarded" ? null : current
-      );
-    }, 2500);
-  };
-
-  const saveProfile = () => {
-    const nextIncompleteStep =
-      !profilePhotoCompleted
-        ? "Profile Photo"
-        : !registrationCompleted
-          ? "Registration Data"
-          : !professionalProfileCompleted
-            ? "Personal & Academic Profile"
-            : !skillsDevelopmentCompleted
-              ? "Credentials, Career & Digital Profile"
-              : !documentsCompleted
-                ? "Documents"
-                : !confirmation
-                  ? "Confirmation"
-                  : null;
-
-    if (nextIncompleteStep) {
-      showFlowPopup(
-        `Please complete ${nextIncompleteStep} before saving the profile.`,
-        "confirmation"
-      );
-      return;
-    }
-
+    setProfessionalProfileCompleted(true);
+    setSkillsDevelopmentCompleted(true);
+    setDocumentsCompleted(true);
     setEditingSection(null);
     setShowDraftSaved(true);
+
     setDraftSavedTime(
       new Date()
         .toLocaleTimeString("en-IN", {
@@ -1724,6 +2069,96 @@ export default function FacultyUniversityPage() {
         })
         .replace(" ", "")
     );
+
+    window.location.assign("/sign_in");
+  };
+
+  const cancelProfile = () => {
+    const emptyProfessionalInfo = {
+      preferredName: "",
+      nationality: "",
+      identityDocumentType: "",
+      identityDocumentNumber: "",
+      issuingCountry: "",
+      alternateContact: "",
+      alternateEmail: "",
+      educationLevel: "",
+      qualification: "",
+      institutionName: "",
+      fieldOfStudy: "",
+      gradingSystem: "",
+      gradeScore: "",
+      startYear: "",
+      endYear: "",
+    };
+
+    const emptySkillsInfo = {
+      certificationName: "",
+      issuingOrganisation: "",
+      issueDate: "",
+      expiryDate: "",
+      credentialId: "",
+      credentialUrl: "",
+      careerGoal: "",
+      preferredRole: [] as string[],
+      preferredIndustry: [] as string[],
+      learningGoal: [] as string[],
+      preferredLearningMode: [] as string[],
+      skillName: "",
+      category: "",
+      domain: "",
+      selfRatedLevel: "",
+      portfolioLink: "",
+      linkedinUrl: "",
+      instagramId: "",
+      facebookUrl: "",
+      githubUrl: "",
+      twitterX: "",
+      portfolioEvidence: "",
+      personalWebsite: "",
+    };
+
+    setProfileImage(null);
+    setProfilePhotoCompleted(false);
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+
+    setProfessionalInfo(emptyProfessionalInfo);
+    setProfessionalDraft(emptyProfessionalInfo);
+
+    setSkillsInfo(emptySkillsInfo);
+    setSkillsDraft(emptySkillsInfo);
+
+    setGovernmentIdDocumentType("");
+    setDocumentFiles({
+      "Profile Photo": null,
+      "Government ID Proof": null,
+      "Supporting Documents": null,
+    });
+    setDocumentUploadErrors({});
+
+    documentFilesBeforeEditRef.current = null;
+    governmentIdDocumentTypeBeforeEditRef.current = null;
+
+    document
+      .querySelectorAll<HTMLInputElement>(".institutionNativeFileInput")
+      .forEach((input) => {
+        input.value = "";
+      });
+
+    setProfessionalProfileCompleted(false);
+    setSkillsDevelopmentCompleted(false);
+    setDocumentsCompleted(false);
+    setConfirmation(false);
+
+    setEditingSection(null);
+    setRegistrationLockedView(false);
+    setSectionPopup(null);
+    setFlowPopup(null);
+    setFlowPopupSection(null);
+    setShowDraftSaved(false);
   };
 
   const handleProfileImageSelect = (
@@ -1839,6 +2274,56 @@ export default function FacultyUniversityPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const source =
+      editingSection === "professional" ? professionalDraft : professionalInfo;
+
+    const complete = Boolean(
+      source.nationality &&
+        source.identityDocumentType &&
+        source.issuingCountry &&
+        source.educationLevel &&
+        source.qualification &&
+        source.institutionName &&
+        source.fieldOfStudy &&
+        source.gradingSystem &&
+        source.startYear &&
+        source.endYear
+    );
+
+    setProfessionalProfileCompleted(complete);
+  }, [editingSection, professionalDraft, professionalInfo]);
+
+  useEffect(() => {
+    const source = editingSection === "skills" ? skillsDraft : skillsInfo;
+
+    const complete = Boolean(
+      source.certificationName &&
+        source.issuingOrganisation &&
+        source.careerGoal &&
+        source.preferredRole.length > 0 &&
+        source.preferredIndustry.length > 0 &&
+        source.learningGoal.length > 0 &&
+        source.preferredLearningMode.length > 0 &&
+        source.skillName &&
+        source.category &&
+        source.domain &&
+        source.selfRatedLevel &&
+        source.portfolioEvidence
+    );
+
+    setSkillsDevelopmentCompleted(complete);
+  }, [editingSection, skillsDraft, skillsInfo]);
+
+  useEffect(() => {
+    const complete =
+      governmentIdDocumentType.trim() !== "" &&
+      documentFiles["Government ID Proof"] !== null &&
+      !Object.values(documentUploadErrors).some((message) => Boolean(message));
+
+    setDocumentsCompleted(complete);
+  }, [governmentIdDocumentType, documentFiles, documentUploadErrors]);
+
   const completionItems = [
     profilePhotoCompleted,
     registrationCompleted,
@@ -1857,6 +2342,25 @@ export default function FacultyUniversityPage() {
   useEffect(() => {
     document.title = "University Student Profile | Neuro LXP";
   }, []);
+
+  useEffect(() => {
+    const closeRegistrationLockedView = () => {
+      setRegistrationLockedView(false);
+    };
+
+    window.addEventListener(
+      "student-registration-lock-close",
+      closeRegistrationLockedView
+    );
+
+    return () => {
+      window.removeEventListener(
+        "student-registration-lock-close",
+        closeRegistrationLockedView
+      );
+    };
+  }, []);
+
 
   return (
     <main className="superAdminPage institutionAdminPage">
@@ -2039,129 +2543,84 @@ export default function FacultyUniversityPage() {
                 title="Registration Data"
                 iconSrc={images.registration}
                 iconTone="pink"
-                editing={editingSection === "registration"}
+                editing={registrationLockedView}
                 popupType={sectionPopup?.section === "registration" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "registration" ? sectionPopup.message : undefined}
-                onEdit={() => startSectionEdit("registration")}
-                onSave={() => saveSection("registration")}
-                onCancel={() => cancelSection("registration")}
+                onEdit={() => setRegistrationLockedView(true)}
               />
 
-              {flowPopup && flowPopupSection === "registration" && (
-                <div className="institutionSectionFlowPopup" role="alert" aria-live="assertive">
-                  <IconImage src={images.sad} width={18} height={18} className="institutionInlinePopupIcon" />
-                  <span>{flowPopup}</span>
-                </div>
-              )}
-
-              {editingSection === "registration" ? (
+              {registrationLockedView ? (
                 <div className="institutionGrid institutionFacultyRegistrationGrid">
-                  <EditField label="User ID" value={registrationDraft.userId} locked />
-                  <EditField label="Full Name" value={registrationDraft.fullName} locked />
+                  <EditField label="User ID" value={registrationInfo.userId} locked />
+                  <EditField label="Full Name" value={registrationInfo.fullName} locked />
                   <EditField
                     label="Email"
-                    type="email"
-                    value={registrationDraft.email}
-                    placeholder="Enter Email"
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, email: value }))
-                    }
+                    value={registrationInfo.email || "Student@college.edu"}
+                    locked
                   />
 
-                  <PhoneCountrySelect
+                  <EditField
                     label="Mobile Number"
-                    country={mobileCountry}
-                    value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, mobileNumber: value }))
+                    value={
+                      registrationInfo.mobileNumber && mobileCountry
+                        ? `+${getCountryCallingCode(mobileCountry)} ${registrationInfo.mobileNumber}`
+                        : registrationInfo.mobileNumber || "9521221322"
                     }
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Gender"
-                    value={registrationDraft.gender}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Male", "Female", "Other", "Prefer not to say"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, gender: value }))
-                    }
+                    value={registrationInfo.gender || "Male"}
+                    locked
                   />
 
                   <EditField
                     label="Date of Birth"
-                    type="date"
-                    value={registrationDraft.dateOfBirth}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, dateOfBirth: value }))
-                    }
+                    value={registrationInfo.dateOfBirth}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Academic Year"
-                    value={registrationDraft.academicYear}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["2024–25", "2025–26", "2026–27", "2027–28", "2028–29"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, academicYear: value }))
-                    }
+                    value={registrationInfo.academicYear || "2026–27"}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Pass-out Year"
-                    value={registrationDraft.passOutYear}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["2026", "2027", "2028", "2029", "2030"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, passOutYear: value }))
-                    }
+                    value={registrationInfo.passOutYear || "2027"}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
+                    label="Onboarding Date"
+                    value={registrationInfo.onboardingDate}
+                    locked
+                  />
+
+                  <EditField
                     label="Department"
-                    value={registrationDraft.department}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Computer Science", "Information Technology", "Electronics", "Mechanical", "Civil", "Other"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, department: value }))
-                    }
+                    value={registrationInfo.department || "Computer Science"}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Branch"
-                    value={registrationDraft.branch}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Computer Science", "Information Technology", "Electronics", "Mechanical", "Civil", "Other"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, branch: value }))
-                    }
+                    value={registrationInfo.branch || "Computer Science"}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Specialization"
-                    value={registrationDraft.specialization}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Artificial Intelligence", "Data Science", "Cybersecurity", "Cloud Computing", "Software Engineering", "Other"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, specialization: value }))
-                    }
+                    value={registrationInfo.specialization || "Artificial Intelligence"}
+                    locked
                   />
 
-                  <SelectField
+                  <EditField
                     label="Year of Study"
-                    value={registrationDraft.yearOfStudy}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year"]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({ ...current, yearOfStudy: value }))
-                    }
+                    value={registrationInfo.yearOfStudy || "3rd Year"}
+                    locked
                   />
                 </div>
               ) : (
@@ -2182,6 +2641,7 @@ export default function FacultyUniversityPage() {
                   <DisplayField label="Date of Birth" value={registrationInfo.dateOfBirth} />
                   <DisplayField label="Academic Year" value={registrationInfo.academicYear} placeholder="2026–27" />
                   <DisplayField label="Pass-out Year" value={registrationInfo.passOutYear} placeholder="2027" />
+                  <DisplayField label="Onboarding Date" value={registrationInfo.onboardingDate} placeholder="18-08-2026" />
                   <DisplayField label="Department" value={registrationInfo.department} placeholder="Computer Science" />
                   <DisplayField label="Branch" value={registrationInfo.branch} placeholder="Computer Science" />
                   <DisplayField label="Specialization" value={registrationInfo.specialization} placeholder="Artificial Intelligence" />
@@ -2199,8 +2659,6 @@ export default function FacultyUniversityPage() {
                 popupType={sectionPopup?.section === "professional" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "professional" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("professional")}
-                onSave={() => saveSection("professional")}
-                onCancel={() => cancelSection("professional")}
               />
 
               {flowPopup && flowPopupSection === "professional" && (
@@ -2217,6 +2675,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.preferredName}
                     placeholder="Enter Preferred Name"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, preferredName: value }))}
+                    visualIcon="edit"
                   />
 
                   <SelectField
@@ -2242,6 +2701,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.identityDocumentNumber}
                     placeholder="Enter Document Number"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, identityDocumentNumber: value }))}
+                    visualIcon="edit"
                   />
 
                   <SelectField
@@ -2258,6 +2718,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.alternateContact}
                     placeholder="Enter Alternate Contact"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateContact: value }))}
+                    visualIcon="edit"
                   />
 
                   <EditField
@@ -2266,6 +2727,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateEmail: value }))}
+                    visualIcon="edit"
                   />
 
                   <SelectField
@@ -2318,6 +2780,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.gradeScore}
                     placeholder="Enter Grade / Score"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, gradeScore: value }))}
+                    visualIcon="edit"
                   />
 
                   <SelectField
@@ -2340,21 +2803,21 @@ export default function FacultyUniversityPage() {
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultyProfessionalGrid">
-                  <DisplayField label="Preferred Name" value={professionalInfo.preferredName} placeholder="Antony" />
-                  <DisplayField label="Nationality" value={professionalInfo.nationality} placeholder="eg.Indian" />
-                  <DisplayField label="Identity Document Type" value={professionalInfo.identityDocumentType} placeholder="eg.Passport" />
-                  <DisplayField label="Identity Document Number" value={professionalInfo.identityDocumentNumber} placeholder="Eg. P1234567" />
-                  <DisplayField label="Issuing Country" value={professionalInfo.issuingCountry} placeholder="Eg.India" />
-                  <DisplayField label="Alternate Contact" value={professionalInfo.alternateContact} placeholder="Eg. +91 91234 56789" />
-                  <DisplayField label="Alternate Email" value={professionalInfo.alternateEmail} placeholder="Eg. Antony alt@example.com" />
-                  <DisplayField label="Education Level" value={professionalInfo.educationLevel} placeholder="Eg.Undergraduate" />
-                  <DisplayField label="Qualification" value={professionalInfo.qualification} placeholder="Eg. B.Tech- CS" />
-                  <DisplayField label="Institution Name" value={professionalInfo.institutionName} placeholder="Eg. ABC IT" />
-                  <DisplayField label="Field of Study" value={professionalInfo.fieldOfStudy} placeholder="Eg. CS" />
-                  <DisplayField label="Grading System" value={professionalInfo.gradingSystem} placeholder="Eg. CGPA – 10 Point Scale" />
-                  <DisplayField label="Grade / Score" value={professionalInfo.gradeScore} placeholder="Eg. 8.6 CGPA" />
-                  <DisplayField label="Start Year" value={professionalInfo.startYear} placeholder="Eg. 2023" />
-                  <DisplayField label="End Year" value={professionalInfo.endYear} placeholder="Eg. 2027" />
+                  <DisplayField label="Preferred Name" value={professionalInfo.preferredName} placeholder="Enter Preferred Name" />
+                  <DisplayField label="Nationality" value={professionalInfo.nationality} placeholder="Select" />
+                  <DisplayField label="Identity Document Type" value={professionalInfo.identityDocumentType} placeholder="Select" />
+                  <DisplayField label="Identity Document Number" value={professionalInfo.identityDocumentNumber} placeholder="Enter Document Number" />
+                  <DisplayField label="Issuing Country" value={professionalInfo.issuingCountry} placeholder="Select" />
+                  <DisplayField label="Alternate Contact" value={professionalInfo.alternateContact} placeholder="Enter Alternate Contact" />
+                  <DisplayField label="Alternate Email" value={professionalInfo.alternateEmail} placeholder="Enter Alternate Email" />
+                  <DisplayField label="Education Level" value={professionalInfo.educationLevel} placeholder="Select" />
+                  <DisplayField label="Qualification" value={professionalInfo.qualification} placeholder="Select" />
+                  <DisplayField label="Institution Name" value={professionalInfo.institutionName} placeholder="Select" />
+                  <DisplayField label="Field of Study" value={professionalInfo.fieldOfStudy} placeholder="Select" />
+                  <DisplayField label="Grading System" value={professionalInfo.gradingSystem} placeholder="Select" />
+                  <DisplayField label="Grade / Score" value={professionalInfo.gradeScore} placeholder="Enter Grade / Score" />
+                  <DisplayField label="Start Year" value={professionalInfo.startYear} placeholder="Select" />
+                  <DisplayField label="End Year" value={professionalInfo.endYear} placeholder="Select" />
                 </div>
               )}
             </section>
@@ -2368,8 +2831,6 @@ export default function FacultyUniversityPage() {
                 popupType={sectionPopup?.section === "skills" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "skills" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("skills")}
-                onSave={() => saveSection("skills")}
-                onCancel={() => cancelSection("skills")}
               />
 
               {flowPopup && flowPopupSection === "skills" && (
@@ -2399,8 +2860,21 @@ export default function FacultyUniversityPage() {
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, issuingOrganisation: value }))}
                   />
 
-                  <EditField label="Issue Date" type="date" value={skillsDraft.issueDate} onChange={(value) => setSkillsDraft((c) => ({ ...c, issueDate: value }))} />
-                  <EditField label="Expiry Date" type="date" value={skillsDraft.expiryDate} onChange={(value) => setSkillsDraft((c) => ({ ...c, expiryDate: value }))} />
+                  <CalendarDateField
+                    label="Issue Date"
+                    value={skillsDraft.issueDate}
+                    onChange={(value) =>
+                      setSkillsDraft((c) => ({ ...c, issueDate: value }))
+                    }
+                  />
+
+                  <CalendarDateField
+                    label="Expiry Date"
+                    value={skillsDraft.expiryDate}
+                    onChange={(value) =>
+                      setSkillsDraft((c) => ({ ...c, expiryDate: value }))
+                    }
+                  />
                   <EditField label="Credential ID" value={skillsDraft.credentialId} placeholder="Enter Credential ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialId: value }))} />
                   <EditField label="Credential URL" value={skillsDraft.credentialUrl} placeholder="Enter Verification Link" onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialUrl: value }))} />
 
@@ -2480,8 +2954,6 @@ export default function FacultyUniversityPage() {
                     options={["Beginner", "Intermediate", "Advanced", "Expert"]}
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, selfRatedLevel: value }))}
                   />
-
-                  <EditField label="Resume" value={skillsDraft.resume} placeholder="Enter Resume PDF" onChange={(value) => setSkillsDraft((c) => ({ ...c, resume: value }))} />
                   <EditField label="Portfolio Link" value={skillsDraft.portfolioLink} placeholder="Enter Portfolio Link" onChange={(value) => setSkillsDraft((c) => ({ ...c, portfolioLink: value }))} />
                   <EditField label="LinkedIn URL" value={skillsDraft.linkedinUrl} placeholder="Enter LinkedIn URL" onChange={(value) => setSkillsDraft((c) => ({ ...c, linkedinUrl: value }))} />
                   <EditField label="Instagram ID" value={skillsDraft.instagramId} placeholder="Enter Instagram ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, instagramId: value }))} />
@@ -2513,30 +2985,29 @@ export default function FacultyUniversityPage() {
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultySkillsGrid">
-                  <DisplayField label="Certification Name" value={skillsInfo.certificationName} placeholder="Python for Data Science" />
-                  <DisplayField label="Issuing Organisation" value={skillsInfo.issuingOrganisation} placeholder="NPTEL" />
-                  <DisplayField label="Issue Date" value={skillsInfo.issueDate} placeholder="eg. 15 July 2026" />
-                  <DisplayField label="Expiry Date" value={skillsInfo.expiryDate} placeholder="Eg. No Expiry" />
-                  <DisplayField label="Credential ID" value={skillsInfo.credentialId} placeholder="Eg. NPTEL-PY-2026-45821" />
-                  <DisplayField label="Credential URL" value={skillsInfo.credentialUrl} placeholder="Eg. Verification Link" />
-                  <DisplayField label="Career Goal" value={skillsInfo.careerGoal} placeholder="Eg. Become a Data Scientist" />
-                  <DisplayField label="Preferred Role" value={skillsInfo.preferredRole.join(", ")} placeholder="Eg. Data Analyst" />
-                  <DisplayField label="Preferred Industry" value={skillsInfo.preferredIndustry.join(", ")} placeholder="Eg. Information Technology" />
-                  <DisplayField label="Learning Goal" value={skillsInfo.learningGoal.join(", ")} placeholder="Eg. Develop AI" />
-                  <DisplayField label="Preferred Learning Mode" value={skillsInfo.preferredLearningMode.join(", ")} placeholder="Eg. Blended" />
-                  <DisplayField label="Skill Name" value={skillsInfo.skillName} placeholder="Eg.Python" />
-                  <DisplayField label="Category" value={skillsInfo.category} placeholder="Eg. Technical Skill" />
-                  <DisplayField label="Domain" value={skillsInfo.domain} placeholder="Eg.Data Science" />
-                  <DisplayField label="Self-Rated Level" value={skillsInfo.selfRatedLevel} placeholder="Eg. Intermediate" />
-                  <DisplayField label="Resume" value={skillsInfo.resume} placeholder="Eg. Antony-Resume PDF" />
-                  <DisplayField label="Portfolio Link" value={skillsInfo.portfolioLink} placeholder="Eg. antony.thomas/portfolio" />
-                  <DisplayField label="LinkedIn URL" value={skillsInfo.linkedinUrl} placeholder="Eg.linkedin.com/in/antony.thomas" />
-                  <DisplayField label="Instagram ID" value={skillsInfo.instagramId} placeholder="Eg. @antony.thomas" />
-                  <DisplayField label="Facebook ID / URL" value={skillsInfo.facebookUrl} placeholder="Eg.facebook.com/aanaya.thomas" />
-                  <DisplayField label="GitHub URL" value={skillsInfo.githubUrl} placeholder="Eg. github.com/antony_thomas" />
-                  <DisplayField label="Twitter / X" value={skillsInfo.twitterX} placeholder="Eg. @antony thomas" />
-                  <DisplayField label="Portfolio Evidence" value={skillsInfo.portfolioEvidence} placeholder="Eg. Data Analytics Project" />
-                  <DisplayField label="Personal Website" value={skillsInfo.personalWebsite} placeholder="Eg. www.antony thomas.dev" />
+                  <DisplayField label="Certification Name" value={skillsInfo.certificationName} placeholder="Select" />
+                  <DisplayField label="Issuing Organisation" value={skillsInfo.issuingOrganisation} placeholder="Select" />
+                  <DisplayField label="Issue Date" value={skillsInfo.issueDate} placeholder="dd/mm/yyyy" />
+                  <DisplayField label="Expiry Date" value={skillsInfo.expiryDate} placeholder="dd/mm/yyyy" />
+                  <DisplayField label="Credential ID" value={skillsInfo.credentialId} placeholder="Enter Credential ID" />
+                  <DisplayField label="Credential URL" value={skillsInfo.credentialUrl} placeholder="Enter Verification Link" />
+                  <DisplayField label="Career Goal" value={skillsInfo.careerGoal} placeholder="Select" />
+                  <DisplayField label="Preferred Role" value={skillsInfo.preferredRole.join(", ")} placeholder="Select" />
+                  <DisplayField label="Preferred Industry" value={skillsInfo.preferredIndustry.join(", ")} placeholder="Select" />
+                  <DisplayField label="Learning Goal" value={skillsInfo.learningGoal.join(", ")} placeholder="Select" />
+                  <DisplayField label="Preferred Learning Mode" value={skillsInfo.preferredLearningMode.join(", ")} placeholder="Select" />
+                  <DisplayField label="Skill Name" value={skillsInfo.skillName} placeholder="Select" />
+                  <DisplayField label="Category" value={skillsInfo.category} placeholder="Select" />
+                  <DisplayField label="Domain" value={skillsInfo.domain} placeholder="Select" />
+                  <DisplayField label="Self-Rated Level" value={skillsInfo.selfRatedLevel} placeholder="Select" />
+                  <DisplayField label="Portfolio Link" value={skillsInfo.portfolioLink} placeholder="Enter Portfolio Link" />
+                  <DisplayField label="LinkedIn URL" value={skillsInfo.linkedinUrl} placeholder="Enter LinkedIn URL" />
+                  <DisplayField label="Instagram ID" value={skillsInfo.instagramId} placeholder="Enter Instagram ID" />
+                  <DisplayField label="Facebook ID / URL" value={skillsInfo.facebookUrl} placeholder="Enter Facebook URL" />
+                  <DisplayField label="GitHub URL" value={skillsInfo.githubUrl} placeholder="Enter GitHub URL" />
+                  <DisplayField label="Twitter / X" value={skillsInfo.twitterX} placeholder="Enter Twitter / X" />
+                  <DisplayField label="Portfolio Evidence" value={skillsInfo.portfolioEvidence} placeholder="Select" />
+                  <DisplayField label="Personal Website" value={skillsInfo.personalWebsite} placeholder="Enter Personal Website" />
                 </div>
               )}
             </section>
@@ -2549,8 +3020,6 @@ export default function FacultyUniversityPage() {
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
                 onEdit={() => startSectionEdit("documents")}
-                onSave={() => saveSection("documents")}
-                onCancel={() => cancelSection("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
                 <div
@@ -2650,12 +3119,23 @@ export default function FacultyUniversityPage() {
                                   : ""
                               }`}
                             >
-                              <IconImage
-                                src={images.upload}
-                                width={14}
-                                height={14}
+                              <svg
                                 className="institutionChooseFileIcon"
-                              />
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path
+                                  d="M12 15V4M12 4L7.5 8.5M12 4L16.5 8.5M5 14.5V19H19V14.5"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
                               <span>Choose File</span>
                             </span>
                           </label>
@@ -2705,12 +3185,23 @@ export default function FacultyUniversityPage() {
                             }`}
                             aria-label={`Choose ${label}`}
                           >
-                            <IconImage
-                              src={images.upload}
-                              width={14}
-                              height={14}
+                            <svg
                               className="institutionChooseFileIcon"
-                            />
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              aria-hidden="true"
+                              focusable="false"
+                              >
+                              <path
+                                d="M12 15V4M12 4L7.5 8.5M12 4L16.5 8.5M5 14.5V19H19V14.5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              </svg>
                             <span>Choose File</span>
                           </button>
                           <span className="institutionFileName">
@@ -2756,14 +3247,6 @@ export default function FacultyUniversityPage() {
                       if (event.target.checked && !profilePhotoCompleted) {
                         showFlowPopup(
                           "Please complete Profile Photo",
-                          "confirmation"
-                        );
-                        return;
-                      }
-
-                      if (event.target.checked && !registrationCompleted) {
-                        showFlowPopup(
-                          "Please complete Registration Data",
                           "confirmation"
                         );
                         return;
@@ -2816,10 +3299,18 @@ export default function FacultyUniversityPage() {
             <div className="institutionBottomActions">
               <button
                 type="button"
-                className="institutionBottomButton institutionReviewButton"
+                className="institutionBottomButton institutionCancelProfileButton"
+                onClick={cancelProfile}
               >
-                Review Profile
+                <IconImage
+                  src={images.cancel}
+                  width={14}
+                  height={14}
+                  className="institutionCancelProfileIcon"
+                />
+                <span>Cancel</span>
               </button>
+
               <button
                 type="button"
                 className="institutionBottomButton institutionFinalSaveButton"

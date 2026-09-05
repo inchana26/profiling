@@ -249,6 +249,10 @@ button {
   background: #2d4cc8;
   border-radius: 20px;
 }
+
+.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
 .institutionCompletionSteps {
   display: grid;
   grid-template-columns: minmax(145px, 1fr) minmax(250px, 1.6fr) minmax(125px, 0.9fr);
@@ -364,12 +368,6 @@ button {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-}
-.institutionSaveButton {
-  color: #2a7308;
-}
-.institutionCancelButton {
-  color: #d65a00;
 }
 .institutionGrid {
   display: grid;
@@ -522,9 +520,13 @@ button {
   padding: 10px 8px 16px;
 }
 .institutionBottomButton {
-  min-width: 150px;
+  min-width: 0;
   height: 48px;
   padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: #dfe6e9;
   border-radius: 24px;
   box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
@@ -532,11 +534,26 @@ button {
   font-weight: 700;
   cursor: pointer;
 }
-.institutionReviewButton {
-  color: #2d4cc8;
+.institutionCancelProfileButton {
+  width: 122px;
+  min-width: 122px;
+  max-width: 122px;
+  flex: 0 0 122px;
+  height: 48px;
+  color: #C94F05;
 }
 .institutionFinalSaveButton {
+  width: 138px;
+  min-width: 138px;
+  max-width: 138px;
+  flex: 0 0 138px;
+  height: 48px;
   color: #2a7308;
+}
+.institutionCancelProfileIcon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
 }
 .institutionCompletedCircle {
   overflow: hidden;
@@ -579,8 +596,8 @@ button {
   padding-bottom: 24px;
 }
 .institutionBottomButton {
-  min-width: 137px;
-  height: 44px;
+  min-width: 0;
+  height: 48px;
 }
 .institutionInformationCard {
   overflow: visible;
@@ -691,8 +708,8 @@ button {
   width: 14px !important;
   height: 14px !important;
   flex: 0 0 14px;
-  object-fit: contain;
-  filter: brightness(0) saturate(100%);
+  display: block;
+  color: #111111;
 }
 .institutionDocumentsCard .institutionChooseFileButton > span {
   display: flex;
@@ -723,16 +740,80 @@ button {
 .institutionDocumentsCard
   .institutionChooseFileButton.institutionChooseFileButtonUploaded
   .institutionChooseFileIcon {
-  filter: none;
+  color: #2A7308;
 }
+.institutionDocumentsCard .institutionUploadField {
+  position: relative;
+}
+
 .institutionDocumentsCard .institutionFilePreview,
 .institutionDocumentsCard .institutionFilePicker {
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 12px;
   min-width: 0;
-  transform: translatey(4);
+  transform: translateY(4px);
+}
+
+/* Profile Photo + Supporting Documents:
+   keep Choose File fixed in the first 124px column before and after upload. */
+.institutionDocumentsCard
+  .institutionUploadField:not(.institutionGovernmentIdField)
+  .institutionFilePicker,
+.institutionDocumentsCard
+  .institutionUploadField:not(.institutionGovernmentIdField)
+  .institutionFilePreview {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr);
+  grid-template-rows: 36px 18px;
+  grid-template-areas:
+    "choose filename"
+    "error error";
+  column-gap: 12px;
+  row-gap: 3px;
+  align-items: center;
+}
+
+.institutionDocumentsCard
+  .institutionUploadField:not(.institutionGovernmentIdField)
+  .institutionFilePickerControl,
+.institutionDocumentsCard
+  .institutionUploadField:not(.institutionGovernmentIdField)
+  .institutionChooseFileButton {
+  grid-area: choose;
+  width: 124px;
+  min-width: 124px;
+  max-width: 124px;
+  margin: 0;
+}
+
+.institutionDocumentsCard
+  .institutionUploadField:not(.institutionGovernmentIdField)
+  .institutionFileName {
+  grid-area: filename;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionDocumentsCard .institutionDocumentUploadError {
+  grid-area: error;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  color: #C94F05;
+  font-size: 12px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .institutionDocumentsCard .institutionFileName,
 .institutionDocumentsCard .institutionFilePreview > .institutionFileName {
@@ -1242,11 +1323,14 @@ button {
     flex-direction: column;
   }
   .institutionBottomActions {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
   }
   .institutionBottomButton {
-    width: 60%;
+    width: auto;
   }
 .institutionBottomActions {
     padding-right: 0;
@@ -1707,9 +1791,13 @@ body {
   background: #DFE6E9 !important;
 }
 .superAdminPage.institutionAdminPage .institutionBottomButton {
-  min-width: 137px !important;
-  height: 44px !important;
+  min-width: 0 !important;
+  height: 48px !important;
   padding: 0 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
   background: #DFE6E9 !important;
   border-radius: 24px !important;
   box-shadow:
@@ -1718,10 +1806,20 @@ body {
   font-size: 14px !important;
   font-weight: 700 !important;
 }
-.superAdminPage.institutionAdminPage .institutionReviewButton {
-  color: #2D4CC8 !important;
+.superAdminPage.institutionAdminPage .institutionCancelProfileButton {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  flex: 0 0 122px !important;
+  height: 48px !important;
+  color: #C94F05 !important;
 }
 .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+  width: 138px !important;
+  min-width: 138px !important;
+  max-width: 138px !important;
+  flex: 0 0 138px !important;
+  height: 48px !important;
   color: #235F07 !important;
 }
 .superAdminPage.institutionAdminPage,
@@ -1763,9 +1861,27 @@ body {
     z-index: 2000 !important;
   }
   .superAdminPage.institutionAdminPage .institutionBottomActions {
+    flex-direction: row !important;
     justify-content: center !important;
-    gap: 20px !important;
-    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 16px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionCancelProfileButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+    flex: 0 0 122px !important;
+    height: 48px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+    flex: 0 0 138px !important;
+    height: 48px !important;
   }
 }
 .institutionFilePickerControl {
@@ -3403,7 +3519,7 @@ body {
   grid-template-rows: 36px 20px !important;
   grid-template-areas:
     "doctype choose"
-    ". filename" !important;
+    "error filename" !important;
   column-gap: 10px !important;
   row-gap: 4px !important;
   align-items: center !important;
@@ -3449,6 +3565,24 @@ body {
   text-overflow: ellipsis !important;
   transform: none !important;
 }
+
+.institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionDocumentUploadError {
+  position: static !important;
+  grid-area: error !important;
+  width: 160px !important;
+  min-width: 0 !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #C94F05 !important;
+  font-size: 11px !important;
+  line-height: 18px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
 .institutionDocumentsCard
   .institutionGovernmentIdField.governmentIdProofField
   .raisedSelectCompact
@@ -3468,12 +3602,13 @@ body {
     .institutionGovernmentIdField.governmentIdProofField
     .institutionGovernmentIdPicker {
     grid-template-columns: max-content !important;
-    grid-template-rows: auto auto auto !important;
+    grid-template-rows: auto auto auto auto !important;
     grid-template-areas:
       "doctype"
       "choose"
-      "filename" !important;
-    row-gap: 11px !important;
+      "filename"
+      "error" !important;
+    row-gap: 8px !important;
   }
   .institutionDocumentsCard
     .institutionGovernmentIdField.governmentIdProofField
@@ -3481,6 +3616,13 @@ body {
     .raisedSelectMenu {
     top: 84px !important;
     transform: none !important;
+  }
+
+  .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .institutionDocumentUploadError {
+    width: 244px !important;
+    max-width: min(244px, calc(100vw - 56px)) !important;
   }
 }
 .institutionDocumentsCard
@@ -3607,7 +3749,21 @@ body {
     justify-content: flex-end;
     gap: 7px;
   }
-  .institutionInformationHeaderEditing,
+  .institutionInformationHeaderEditing {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title actions";
+    row-gap: 0;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .institutionInformationHeaderEditing .institutionHeaderActions {
+    width: auto;
+    min-height: 0;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
   .institutionInformationHeaderHasPopup {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -3616,7 +3772,7 @@ body {
     row-gap: 14px;
     align-items: start;
   }
-  .institutionInformationHeaderEditing .institutionHeaderActions,
+
   .institutionInformationHeaderHasPopup .institutionHeaderActions {
     width: 100%;
     min-height: 36px;
@@ -4683,3 +4839,378 @@ body {
     overflow-wrap: anywhere;
   }
 }
+
+
+/* University Student - Registration section is locked as shown in the reference */
+.institutionEditButton:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* ==========================================================================
+   PERSONAL & ACADEMIC PROFILE — KEEP TITLE / LONG LABELS IN ONE LINE
+   ========================================================================== */
+
+/* Keep "Personal & Academic Profile" on one line before and during edit mode. */
+.institutionInformationCard:has(.institutionFacultyProfessionalGrid)
+  .institutionInformationTitle,
+.institutionInformationCard:has(.institutionFacultyProfessionalGrid)
+  .institutionInformationTitle h2 {
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+/* Keep field titles such as "Identity Document Number" on one line. */
+.institutionFacultyProfessionalGrid .institutionFieldLabel {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+/* ==========================================================================
+   ISSUE DATE / EXPIRY DATE CALENDAR
+   Popup width stays exactly the same as the top field.
+   ========================================================================== */
+
+.institutionCalendarDateField {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.institutionCalendarDateFieldOpen {
+  z-index: 900 !important;
+}
+
+.institutionCalendarDateTrigger {
+  width: 100%;
+  min-height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #2F3547;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-family: "Segoe UI";
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.institutionCalendarDatePlaceholder {
+  color: #59616d;
+}
+
+.institutionCalendarDateValue {
+  color: #2F3547;
+}
+
+.institutionCalendarDateAction {
+  cursor: pointer;
+}
+
+.institutionDateCalendarPopup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  background: #DFE6E9;
+  border-radius: 12px;
+  box-shadow:
+    -6px -6px 12px rgba(255, 255, 255, 0.96),
+    6px 6px 12px rgba(196, 196, 196, 0.92);
+  box-sizing: border-box;
+  z-index: 901;
+}
+
+.institutionDateCalendarTopRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1.25fr) minmax(76px, 0.9fr) 44px;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.institutionDateCalendarMainArrow,
+.institutionDateCalendarHeaderSelect,
+.institutionDateCalendarMonthOption,
+.institutionDateCalendarYearOption,
+.institutionDateCalendarDay,
+.institutionDateCalendarRangeArrow {
+  color: #2F3547;
+  background: #DFE6E9;
+  border: 0;
+  box-shadow:
+    -4px -4px 7px rgba(255, 255, 255, 0.96),
+    4px 4px 7px rgba(196, 196, 196, 0.86);
+  cursor: pointer;
+}
+
+.institutionDateCalendarMainArrow {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.institutionDateCalendarHeaderSelect {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.institutionDateCalendarHeaderSelect > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionDateCalendarChevron {
+  flex: 0 0 auto;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.institutionDateCalendarWeekdays,
+.institutionDateCalendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.institutionDateCalendarWeekdays {
+  margin-bottom: 6px;
+}
+
+.institutionDateCalendarWeekdays span {
+  min-width: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5B6473;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.institutionDateCalendarDay {
+  min-width: 0;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.institutionDateCalendarDayOutside {
+  color: #A8AFB8;
+  opacity: 0.72;
+}
+
+.institutionDateCalendarDaySelected,
+.institutionDateCalendarOptionSelected {
+  color: #2D4CC8 !important;
+  font-weight: 700 !important;
+  box-shadow:
+    inset -4px -4px 7px rgba(255, 255, 255, 0.95),
+    inset 4px 4px 7px rgba(196, 196, 196, 0.8) !important;
+}
+
+.institutionDateCalendarMonthGrid,
+.institutionDateCalendarYearGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.institutionDateCalendarMonthOption,
+.institutionDateCalendarYearOption {
+  min-width: 0;
+  height: 44px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institutionDateCalendarYearPanel {
+  width: 100%;
+}
+
+.institutionDateCalendarRangeRow {
+  width: 100%;
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.institutionDateCalendarRangeRow strong {
+  color: #2F3547;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.institutionDateCalendarRangeArrow {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #2D4CC8;
+  font-size: 21px;
+  line-height: 1;
+}
+
+/* Tablet: calendar still stays exactly as wide as its field. */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .institutionDateCalendarPopup {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .institutionDateCalendarTopRow {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(70px, 0.85fr) 40px;
+    gap: 6px;
+  }
+
+  .institutionDateCalendarMainArrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .institutionDateCalendarHeaderSelect {
+    height: 40px;
+    padding: 0 9px;
+  }
+
+  .institutionDateCalendarDay {
+    height: 38px;
+  }
+}
+
+/* Mobile: same field width, compact calendar, no horizontal overflow. */
+@media (max-width: 767px) {
+  .institutionCalendarDateField {
+    overflow: visible !important;
+  }
+
+  .institutionDateCalendarPopup {
+    top: calc(100% + 7px);
+    left: 0;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    padding: 8px;
+  }
+
+  .institutionDateCalendarTopRow {
+    grid-template-columns: 36px minmax(0, 1fr) minmax(68px, 0.82fr) 36px;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .institutionDateCalendarMainArrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  .institutionDateCalendarHeaderSelect {
+    height: 36px;
+    padding: 0 7px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .institutionDateCalendarWeekdays,
+  .institutionDateCalendarGrid {
+    gap: 4px;
+  }
+
+  .institutionDateCalendarWeekdays {
+    margin-bottom: 4px;
+  }
+
+  .institutionDateCalendarWeekdays span {
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .institutionDateCalendarDay {
+    height: 31px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+
+  .institutionDateCalendarMonthGrid,
+  .institutionDateCalendarYearGrid {
+    gap: 6px;
+  }
+
+  .institutionDateCalendarMonthOption,
+  .institutionDateCalendarYearOption {
+    height: 38px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .institutionDateCalendarRangeRow {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+
+  .institutionDateCalendarRangeArrow {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+
+  .institutionDateCalendarRangeRow strong {
+    font-size: 13px;
+  }
+}
+

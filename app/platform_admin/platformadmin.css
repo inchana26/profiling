@@ -29,7 +29,7 @@ button {
   padding: 0;
   background: #DFE6E9;
   color: #374151;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .dashboardLayout {
@@ -333,25 +333,66 @@ button {
   font-weight: 400;
 }
 
-.completedCircle {
-  width: 17px;
-  height: 17px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #487533;
-  color: #FFFFFF;
+.completedCircle,
+.emptyCircle {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: block;
+  background: transparent;
+  border: 0;
   border-radius: 50%;
-  font-size: 11px;
-  flex: 0 0 17px;
+  color: transparent;
+  font-size: 0;
 }
 
-.emptyCircle {
-  width: 17px;
-  height: 17px;
-  border: 1px solid #BABABA;
+/* Before completion — checkmark-circle-01 */
+.emptyCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
   border-radius: 50%;
-  flex: 0 0 17px;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
+}
+
+/* After completion — checkmark-circle-02 */
+.completedCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
+}
+
+/* Vector — correctly positioned tick mark */
+.completedCircle::after {
+  content: "";
+  position: absolute;
+  left: 34%;
+  top: 29%;
+  width: 5px;
+  height: 8px;
+
+  border-left: 0;
+  border-top: 0;
+  border-right: 1.5px solid #2A7308;
+  border-bottom: 1.5px solid #2A7308;
+  transform: rotate(45deg);
+  transform-origin: center;
+  box-sizing: border-box;
 }
 
 .informationCard {
@@ -641,8 +682,7 @@ button {
 
 .reviewProfileButton,
 .saveProfileButton {
-  min-width: 145px;
-  height: 45px;
+  height: 48px;
   padding: 0 22px;
   background: #DFE6E9;
   border-radius: 24px;
@@ -655,10 +695,30 @@ button {
 }
 
 .reviewProfileButton {
-  color: #2D4CC8;
+  width: 122px;
+  min-width: 122px;
+  max-width: 122px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #D65A00;
+}
+
+.cancelProfileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: 0 0 14px;
 }
 
 .saveProfileButton {
+  width: 138px;
+  min-width: 138px;
+  max-width: 138px;
   color: #235F07;
 }
 
@@ -1167,7 +1227,7 @@ select:focus-visible,
   justify-content: space-between;
   gap: 10px;
   border-radius: 10px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 18px;
   font-weight: 500;
   text-align: left;
@@ -1460,7 +1520,7 @@ select:focus-visible,
 }
 
 .chooseFileButton {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .roundFieldAction {
@@ -1474,7 +1534,7 @@ select:focus-visible,
   align-items: stretch;
 }
 
-.infoField,
+/* .infoField,
 .editableField,
 .genderDropdownField,
 .joiningDateField,
@@ -1484,7 +1544,7 @@ select:focus-visible,
   height: 78px;
   min-height: 78px;
   max-height: 78px;
-}
+} */
 
 /* Editable rows must fit inside the same 68px field */
 .editableField {
@@ -1573,7 +1633,7 @@ select:focus-visible,
 
 /* Mobile: preserve the same field height without enlarging icons */
 @media (max-width: 700px) {
-  .infoField,
+  /* .infoField,
   .editableField,
   .genderDropdownField,
   .joiningDateField,
@@ -1583,7 +1643,7 @@ select:focus-visible,
     height: 78px;
     min-height: 78px;
     max-height: 78px;
-  }
+  } */
 
   .roundFieldAction,
   .joiningDateCalendarCircle {
@@ -1608,12 +1668,12 @@ select:focus-visible,
   justify-content: space-between;
 }
 
-.infoField {
+/* .infoField {
   width: 336px;
   max-width: 100%;
   height: 78px;
   min-height: 78px;
-}
+} */
 
 .editableField,
 .selectInfoField,
@@ -2904,7 +2964,7 @@ select:focus-visible,
   background: transparent;
   border: 0;
   outline: 0;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 16px;
   font-weight: 400;
   text-align: left;
@@ -3154,41 +3214,6 @@ select:focus-visible,
   border-color: #2D4CC8;
 }
 
-.officeLocationActions {
-  margin-top: 28px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 18px;
-}
-
-.officeLocationCancelButton,
-.officeLocationApplyButton {
-  min-width: 84px;
-  height: 35px;
-  padding: 0 18px;
-  background: #DFE6E9;
-  border: 0;
-  border-radius: 10px;
-  box-shadow:
-    -4px -4px 8px #FFFFFF,
-    4px 4px 8px #C4C4C4;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.officeLocationCancelButton {
-  color: #374151;
-}
-
-.officeLocationApplyButton {
-  color: #2D4CC8;
-}
-
-.officeLocationApplyButton:disabled {
-  opacity: .45;
-  cursor: default;
-}
 
 @media (max-width: 700px) {
   .officeLocationPanel {
@@ -5028,3 +5053,767 @@ select:focus-visible,
 .chooseFileButton.chooseFileButtonUploaded img {
   filter: brightness(0) saturate(100%) invert(31%) sepia(43%) saturate(1090%) hue-rotate(57deg) brightness(89%) contrast(96%) !important;
 }
+
+/* ==========================================================================
+   OFFICE LOCATION — AUTO APPLY + ONE SEARCH FIELD + IN-FRAME DROPDOWNS
+   ========================================================================== */
+
+/*
+  Country / State / City use ONE field only.
+  When opened, the normal selected-value button is replaced by the search field.
+*/
+.officeLocationFieldOpen
+.officeLocationSelectorGroupOpen
+> .officeLocationSelector {
+  display: none !important;
+}
+
+/*
+  Keep the active search + options inside the Office Location frame and in
+  normal flow. This prevents the dropdown from sitting on top of another field.
+*/
+.officeLocationFieldOpen
+.officeLocationSelectorGroupOpen
+> .officeLocationOptionsPanel {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 0 8px !important;
+  z-index: 330 !important;
+}
+
+/* Make typed Country / State / City search text and caret clearly visible. */
+.officeLocationFieldOpen
+.officeLocationSelectorGroupOpen
+.officeLocationSearchRow input {
+  color: #2F3547 !important;
+  caret-color: #2F3547 !important;
+  -webkit-text-fill-color: #2F3547 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Search prompt is restored every time the selector is opened again. */
+.officeLocationFieldOpen
+.officeLocationSelectorGroupOpen
+.officeLocationSearchRow input::placeholder {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+
+/*
+  The whole Office Location panel grows with the opened Country / State / City
+  dropdown, keeping everything in the same frame rather than overlaying it.
+*/
+.officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Keep the option list compact inside the same frame. */
+.officeLocationFieldOpen
+.officeLocationSelectorGroupOpen
+.officeLocationOptionsList {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+
+/* ==========================================================================
+   FINAL BASIC INFORMATION DROPDOWN FIX
+   Keeps the ORIGINAL 3-column / mobile layout.
+   Dropdowns stay as overlays, but fields behind an opened dropdown are hidden
+   so another field/section is not visible through/behind the dropdown.
+   ========================================================================== */
+
+/* Keep the original absolute dropdown behavior. */
+.basicEditGrid > .raisedSelectFieldOpen {
+  height: inherit !important;
+  min-height: 68px !important;
+  max-height: inherit !important;
+  margin-bottom: 0 !important;
+}
+
+.basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+  position: absolute !important;
+  top: calc(100% + 12px) !important;
+  left: -13px !important;
+  right: auto !important;
+  width: calc(100% + 26px) !important;
+  max-width: calc(100% + 26px) !important;
+  margin: 0 !important;
+
+  background: #DFE6E9 !important;
+  opacity: 1 !important;
+  z-index: 500 !important;
+}
+
+/* --------------------------------------------------------------------------
+   DESKTOP / TABLET
+   Hide only the cards directly behind the opened dropdown.
+   Their grid positions stay exactly where they were.
+   -------------------------------------------------------------------------- */
+@media (min-width: 701px) {
+  /* Gender = child 2, hide Office Location + Government ID behind it. */
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(5),
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(8) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Designation = child 3, hide Date of Joining + Supporting Documents. */
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(6),
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(9) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Department = child 4, hide Employee ID Card behind its list. */
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(7) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Office Location = child 5, hide Government ID while its panel is open. */
+  .basicEditGrid:has(> :nth-child(5).officeLocationFieldOpen)
+    > :nth-child(8) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   MOBILE
+   One-column layout stays unchanged.
+   Hide the following cards that sit underneath an open dropdown.
+   -------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    left: -13px !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 0 !important;
+    max-height: 228px !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+    z-index: 500 !important;
+  }
+
+  /* Gender dropdown: hide the next three cards behind it. */
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(3),
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(4),
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(5) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Designation dropdown: hide the next three cards behind it. */
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(4),
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(5),
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(6) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Department dropdown: hide the next three cards behind it. */
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(5),
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(6),
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(7) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Office Location can be taller, so hide all following Basic Information
+     cards while it is open. Layout space remains reserved. */
+  .basicEditGrid:has(> :nth-child(5).officeLocationFieldOpen)
+    > :nth-child(n + 6) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   OFFICE LOCATION LONG TEXT
+   Let the field become taller naturally. Words are not split in the middle.
+   -------------------------------------------------------------------------- */
+.officeLocationField {
+  height: auto !important;
+  min-height: 68px !important;
+  max-height: none !important;
+}
+
+.officeLocationMainButton {
+  height: auto !important;
+  min-height: 24px !important;
+  padding-right: 34px !important;
+  align-items: flex-start !important;
+}
+
+.officeLocationMainButton > span:first-child {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+
+  line-height: 1.3 !important;
+}
+
+/* Saved / normal view Office Location is child 5 in basicViewGrid. */
+.basicViewGrid > :nth-child(5) {
+  height: auto !important;
+  min-height: 68px !important;
+  max-height: none !important;
+}
+
+.basicViewGrid > :nth-child(5) .infoValue {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  line-height: 1.3 !important;
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DROPDOWN SPACING FIX
+   Mobile only:
+   - removes the large empty reserved space
+   - keeps dropdown in normal flow
+   - pushes the next field below the open dropdown
+   - desktop/tablet remain unchanged
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Do not reserve hidden-card space on mobile */
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(3),
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(4),
+  .basicEditGrid:has(> :nth-child(2).raisedSelectFieldOpen)
+    > :nth-child(5),
+
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(4),
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(5),
+  .basicEditGrid:has(> :nth-child(3).raisedSelectFieldOpen)
+    > :nth-child(6),
+
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(5),
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(6),
+  .basicEditGrid:has(> :nth-child(4).raisedSelectFieldOpen)
+    > :nth-child(7),
+
+  .basicEditGrid:has(> :nth-child(5).officeLocationFieldOpen)
+    > :nth-child(n + 6) {
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Open Gender / Designation / Department dropdown:
+     keep menu in document flow so the next field starts immediately below it. */
+  .basicEditGrid > .raisedSelectFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    margin-bottom: 0 !important;
+    overflow: visible !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelect {
+    position: relative !important;
+    height: auto !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 10px -13px 0 !important;
+
+    max-height: 228px !important;
+    overflow-y: auto !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+  }
+
+  /* Office Location on mobile also stays in flow */
+  .basicEditGrid > .officeLocationFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    margin-bottom: 0 !important;
+    overflow: visible !important;
+  }
+
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 10px -13px 0 !important;
+
+    height: auto !important;
+    max-height: none !important;
+
+    background: #DFE6E9 !important;
+    z-index: 1 !important;
+  }
+
+  /* Small, consistent gap before the next card */
+  .basicEditGrid {
+    row-gap: 14px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DROPDOWN BACKGROUND COVER FIX
+   Mobile only:
+   - keeps the current compact spacing
+   - does NOT create a large blank gap
+   - covers the small part of the next card visible under an open dropdown
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    position: relative !important;
+    z-index: 600 !important;
+    overflow: visible !important;
+  }
+
+  /* Small solid extension under the dropdown.
+     It visually covers the next card without reserving extra layout space. */
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -18px;
+    height: 18px;
+    background: #DFE6E9;
+    pointer-events: none;
+    z-index: 601;
+  }
+
+  /* Same behavior for Office Location on mobile. */
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    position: relative !important;
+    z-index: 600 !important;
+    overflow: visible !important;
+  }
+
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -18px;
+    height: 18px;
+    background: #DFE6E9;
+    pointer-events: none;
+    z-index: 601;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE BACKEND HIDE FIX
+   Mobile only:
+   - dropdown height stays the same
+   - no extra bottom extension
+   - no next section is visible below the open dropdown
+   - no TSX changes needed
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Remove the previous artificial 18px extension. */
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu::after,
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Keep the open dropdown/card above the fields that follow. */
+  .basicEditGrid > .raisedSelectFieldOpen,
+  .basicEditGrid > .officeLocationFieldOpen {
+    position: relative !important;
+    z-index: 700 !important;
+  }
+
+  /* Opaque curtain starts AFTER the dropdown ends.
+     It hides the sections below without increasing dropdown size
+     or adding layout space. */
+  .basicEditGrid > .raisedSelectFieldOpen::after,
+  .basicEditGrid > .officeLocationFieldOpen::after {
+    content: "";
+    position: absolute;
+    left: -13px;
+    right: -13px;
+    top: 100%;
+    height: 100vh;
+    background: #DFE6E9;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Keep actual dropdown content above the curtain. */
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelect,
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu,
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationMainButton,
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DROPDOWN — HIDE FOLLOWING SECTIONS, NO EXTRA SPACE
+   Mobile only:
+   - no large background curtain
+   - no extra blank height
+   - no following section/card is visible while a dropdown is open
+   - dropdown stays responsive and in normal flow
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Remove previous background-cover extensions completely. */
+  .basicEditGrid > .raisedSelectFieldOpen::after,
+  .basicEditGrid > .officeLocationFieldOpen::after,
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu::after,
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Keep normal mobile dropdown flow — no overlap and no extra reserved gap. */
+  .basicEditGrid > .raisedSelectFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 10px -13px 0 !important;
+
+    max-height: 228px !important;
+    overflow-y: auto !important;
+
+    background: #DFE6E9 !important;
+    z-index: 2 !important;
+  }
+
+  /* Office Location follows the same mobile behavior. */
+  .basicEditGrid > .officeLocationFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+  }
+
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 10px -13px 0 !important;
+
+    height: auto !important;
+    max-height: none !important;
+
+    background: #DFE6E9 !important;
+    z-index: 2 !important;
+  }
+
+  /* IMPORTANT:
+     While any Basic Information dropdown is open, remove every following
+     Basic Information card from view. Because display:none is used,
+     no empty space is reserved. */
+  .basicEditGrid:has(> .raisedSelectFieldOpen)
+    > .raisedSelectFieldOpen ~ *,
+  .basicEditGrid:has(> .officeLocationFieldOpen)
+    > .officeLocationFieldOpen ~ * {
+    display: none !important;
+  }
+
+  /* Keep the normal compact gap only. */
+  .basicEditGrid {
+    row-gap: 14px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DROPDOWN FIX
+   Only mobile dropdown behavior is corrected.
+   - No extra bottom space
+   - Do not hide all following sections
+   - Dropdown stays as an overlay like the original design
+   - The opaque dropdown covers the field directly behind it
+   - Desktop/tablet remain unchanged
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Remove every previous artificial cover/extension. */
+  .basicEditGrid > .raisedSelectFieldOpen::after,
+  .basicEditGrid > .officeLocationFieldOpen::after,
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu::after,
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Do NOT hide the other cards. Restore them normally. */
+  .basicEditGrid:has(> .raisedSelectFieldOpen)
+    > .raisedSelectFieldOpen ~ *,
+  .basicEditGrid:has(> .officeLocationFieldOpen)
+    > .officeLocationFieldOpen ~ * {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Keep only the opened field at its normal card height.
+     This removes the rectangular extra space below the dropdown. */
+  .basicEditGrid > .raisedSelectFieldOpen {
+    position: relative !important;
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+    z-index: 700 !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelect {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Restore the original overlay dropdown behavior. */
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    left: -13px !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 0 !important;
+    padding: 8px 10px !important;
+
+    max-height: 224px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+    border-radius: 0 0 12px 12px !important;
+
+    z-index: 800 !important;
+  }
+
+  /* Office Location: same overlay behavior on mobile. */
+  .basicEditGrid > .officeLocationFieldOpen {
+    position: relative !important;
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+    z-index: 700 !important;
+  }
+
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    left: -13px !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 0 !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    z-index: 800 !important;
+  }
+
+  /* Keep the original normal spacing between mobile cards. */
+  .basicEditGrid {
+    row-gap: 14px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DROPDOWN — NO GAP + NO BACK SECTION SHOWING
+   Mobile only. Desktop/tablet unchanged.
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Remove the gap between the top field and the dropdown. */
+  .basicEditGrid > .raisedSelectFieldOpen {
+    margin-bottom: 0 !important;
+    z-index: 900 !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen .raisedSelectMenu {
+    top: 100% !important;
+    margin: 0 !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    border-radius: 0 0 12px 12px !important;
+
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+
+    z-index: 950 !important;
+  }
+
+  /* Government ID dropdown uses the same no-gap mobile behavior. */
+  .governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen) {
+    margin-bottom: 0 !important;
+    z-index: 900 !important;
+  }
+
+  .governmentIdProofField .raisedSelectCompact.raisedSelectOpen .raisedSelectMenu,
+  .governmentIdProofField .raisedSelectCompact .raisedSelectMenu {
+    top: 100% !important;
+    margin: 0 !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    border-radius: 0 0 12px 12px !important;
+
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+
+    z-index: 950 !important;
+  }
+
+  /* Office Location — dropdown starts directly from the field. */
+  .basicEditGrid > .officeLocationFieldOpen {
+    margin-bottom: 0 !important;
+    z-index: 900 !important;
+  }
+
+  .basicEditGrid > .officeLocationFieldOpen > .officeLocationPanel {
+    top: 100% !important;
+    margin: 0 !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    border-radius: 0 0 12px 12px !important;
+
+    z-index: 950 !important;
+  }
+
+  /* Phone dropdowns — same attached/no-gap behavior. */
+  .phoneNumberField.phoneNumberFieldOpen {
+    margin-bottom: 0 !important;
+    z-index: 900 !important;
+  }
+
+  .phoneNumberField.phoneNumberFieldOpen > .phoneNumberPanel {
+    top: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    border-radius: 0 0 12px 12px !important;
+
+    z-index: 950 !important;
+  }
+
+  .phoneCountryMenu {
+    top: 100% !important;
+    margin: 0 !important;
+
+    background: #DFE6E9 !important;
+    opacity: 1 !important;
+
+    z-index: 960 !important;
+  }
+
+  /* Keep the dropdown layer above the card that is physically behind it. */
+  .basicEditGrid,
+  .informationGrid {
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  .basicEditGrid > .raisedSelectFieldOpen,
+  .basicEditGrid > .officeLocationFieldOpen,
+  .governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen),
+  .phoneNumberField.phoneNumberFieldOpen {
+    position: relative !important;
+  }
+}
+

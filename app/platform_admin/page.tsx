@@ -376,21 +376,6 @@ const OfficeLocationField = ({
     setActiveList((current) => (current === list ? null : list));
   };
 
-  const cancelLocation = () => {
-    setIsOpen(false);
-    setActiveList(null);
-    setSearch("");
-  };
-
-  const applyLocation = () => {
-    if (!countryName || !stateName || !cityName) return;
-
-    onChange(`${cityName}, ${stateName}, ${countryName}`);
-    setIsOpen(false);
-    setActiveList(null);
-    setSearch("");
-  };
-
   return (
     <div
       ref={locationRef}
@@ -668,8 +653,10 @@ const OfficeLocationField = ({
                         role="option"
                         onClick={() => {
                           setCityName(city.name);
+                          onChange(`${city.name}, ${stateName}, ${countryName}`);
                           setActiveList(null);
                           setSearch("");
+                          setIsOpen(false);
                         }}
                       >
                         <span className="officeLocationOptionName">
@@ -691,23 +678,6 @@ const OfficeLocationField = ({
             )}
           </div>
 
-          <div className="officeLocationActions">
-            <button
-              type="button"
-              className="officeLocationCancelButton"
-              onClick={cancelLocation}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="officeLocationApplyButton"
-              disabled={!countryName || !stateName || !cityName}
-              onClick={applyLocation}
-            >
-              Apply
-            </button>
-          </div>
         </div>
       )}
     </div>
@@ -1098,34 +1068,51 @@ export default function PlatformAdminProfilePage() {
     useState(false);
   const [basicSectionSaved, setBasicSectionSaved] = useState(false);
 
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  const activeRegistrationInfo = isRegistrationEditing
+    ? registrationDraft
+    : registrationInfo;
+
+  const activeBasicInfo = isBasicEditing
+    ? basicDraft
+    : basicInfo;
+
+  const registrationEmailError =
+    (activeRegistrationInfo.officialEmail.trim() !== "" &&
+      !emailPattern.test(activeRegistrationInfo.officialEmail.trim())) ||
+    (activeRegistrationInfo.alternateEmail.trim() !== "" &&
+      !emailPattern.test(activeRegistrationInfo.alternateEmail.trim()))
+      ? "Please enter a valid email address."
+      : null;
+
   const registrationInformationCompleted =
-    registrationInfo.platformAdminId.trim() !== "" &&
-    registrationInfo.fullName.trim() !== "" &&
-    registrationInfo.dateOfBirth.trim() !== "" &&
-    registrationInfo.officialEmail.trim() !== "" &&
-    registrationInfo.mobileNumber.trim() !== "" &&
-    registrationInfo.alternateEmail.trim() !== "" &&
-    registrationInfo.alternatePhone.trim() !== "";
+    activeRegistrationInfo.platformAdminId.trim() !== "" &&
+    activeRegistrationInfo.fullName.trim() !== "" &&
+    activeRegistrationInfo.dateOfBirth.trim() !== "" &&
+    activeRegistrationInfo.officialEmail.trim() !== "" &&
+    emailPattern.test(activeRegistrationInfo.officialEmail.trim()) &&
+    activeRegistrationInfo.mobileNumber.trim() !== "" &&
+    activeRegistrationInfo.alternateEmail.trim() !== "" &&
+    emailPattern.test(activeRegistrationInfo.alternateEmail.trim()) &&
+    activeRegistrationInfo.alternatePhone.trim() !== "";
 
   const basicInformationCompleted =
-    basicInfo.employeeCode.trim() !== "" &&
-    basicInfo.gender !== "" &&
-    basicInfo.designation.trim() !== "" &&
-    basicInfo.department.trim() !== "" &&
-    basicInfo.officeLocation.trim() !== "" &&
-    basicInfo.dateOfJoining.trim() !== "" &&
+    activeBasicInfo.employeeCode.trim() !== "" &&
+    activeBasicInfo.gender !== "" &&
+    activeBasicInfo.designation.trim() !== "" &&
+    activeBasicInfo.department.trim() !== "" &&
+    activeBasicInfo.officeLocation.trim() !== "" &&
+    activeBasicInfo.dateOfJoining.trim() !== "" &&
     employeeIdCard !== null &&
-    governmentIdProof !== null &&
-    basicInfo.reportingSuperAdmin.trim() !== "";
+    governmentIdProof !== null;
 
   const profilePhotoCompleted =
     profileImage !== null && profileImage !== "";
 
-  const registrationCompleted =
-    registrationSectionSaved && registrationInformationCompleted;
+  const registrationCompleted = registrationInformationCompleted;
 
-  const basicCompleted =
-    basicSectionSaved && basicInformationCompleted;
+  const basicCompleted = basicInformationCompleted;
 
   const profileCompletionPercentage =
     (profilePhotoCompleted ? 20 : 0) +
@@ -1210,83 +1197,13 @@ export default function PlatformAdminProfilePage() {
     setRegistrationDraft(registrationInfo);
     setMobileCountry(savedMobileCountry);
     setAlternateCountry(savedAlternateCountry);
-    setRegistrationStatus(null);
     setRegistrationValidationError(null);
     setBirthCalendarOpen(false);
     setBirthCalendarMode("days");
     setIsRegistrationEditing(true);
   };
 
-  const handleRegistrationSave = () => {
-    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-    if (
-      !emailPattern.test(registrationDraft.officialEmail.trim()) ||
-      !emailPattern.test(registrationDraft.alternateEmail.trim())
-    ) {
-      setRegistrationValidationError(
-        "Please enter a valid email address."
-      );
-      window.setTimeout(() => setRegistrationValidationError(null), 2500);
-      return;
-    }
-
-    const isValidPhone = (value: string, country: PhoneCountry | null) => {
-      if (!value || !country) return false;
-      return value.replace(/\D/g, "").length === getPhoneCountryDigits(country);
-    };
-
-    if (!isValidPhone(registrationDraft.mobileNumber, mobileCountry)) {
-      setRegistrationValidationError("Please enter a valid mobile number.");
-      window.setTimeout(() => setRegistrationValidationError(null), 2500);
-      return;
-    }
-
-    if (!isValidPhone(registrationDraft.alternatePhone, alternateCountry)) {
-      setRegistrationValidationError("Please enter a valid alternate phone number.");
-      window.setTimeout(() => setRegistrationValidationError(null), 2500);
-      return;
-    }
-
-    setRegistrationValidationError(null);
-
-    const registrationDraftCompleted =
-      registrationDraft.platformAdminId.trim() !== "" &&
-      registrationDraft.fullName.trim() !== "" &&
-      registrationDraft.dateOfBirth.trim() !== "" &&
-      registrationDraft.officialEmail.trim() !== "" &&
-      registrationDraft.mobileNumber.trim() !== "" &&
-      registrationDraft.alternateEmail.trim() !== "" &&
-      registrationDraft.alternatePhone.trim() !== "";
-
-    setRegistrationInfo(registrationDraft);
-    setSavedMobileCountry(mobileCountry);
-    setSavedAlternateCountry(alternateCountry);
-    setRegistrationSectionSaved(registrationDraftCompleted);
-    setBirthCalendarOpen(false);
-    setBirthCalendarMode("days");
-    setIsRegistrationEditing(false);
-    showSectionStatus(setRegistrationStatus, "saved");
-
-    if (registrationDraftCompleted) {
-      window.setTimeout(() => {
-        basicInformationCardRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 100);
-    }
-  };
-
-  const handleRegistrationCancel = () => {
-    setRegistrationDraft(registrationInfo);
-    setMobileCountry(savedMobileCountry);
-    setAlternateCountry(savedAlternateCountry);
-    setBirthCalendarOpen(false);
-    setBirthCalendarMode("days");
-    setIsRegistrationEditing(false);
-    showSectionStatus(setRegistrationStatus, "discarded");
-  };
 
   const joiningCalendarYear = joiningCalendarMonth.getFullYear();
   const joiningCalendarMonthIndex = joiningCalendarMonth.getMonth();
@@ -1405,49 +1322,99 @@ export default function PlatformAdminProfilePage() {
 
     setBasicStepMessage(null);
     setBasicDraft(basicInfo);
-    setBasicStatus(null);
     setIsGenderDropdownOpen(false);
     setIsJoiningCalendarOpen(false);
     setJoiningCalendarMode("days");
     setIsBasicEditing(true);
   };
 
-  const handleBasicSave = () => {
-    const basicDraftCompleted =
-      basicDraft.employeeCode.trim() !== "" &&
-      basicDraft.gender !== "" &&
-      basicDraft.designation.trim() !== "" &&
-      basicDraft.department.trim() !== "" &&
-      basicDraft.officeLocation.trim() !== "" &&
-      basicDraft.dateOfJoining.trim() !== "" &&
-      employeeIdCard !== null &&
-      governmentIdProof !== null &&
-      basicDraft.reportingSuperAdmin.trim() !== "";
 
-    setBasicInfo(basicDraft);
-    setBasicSectionSaved(basicDraftCompleted);
-    setIsGenderDropdownOpen(false);
-    setIsJoiningCalendarOpen(false);
-    setJoiningCalendarMode("days");
-    setIsBasicEditing(false);
-    showSectionStatus(setBasicStatus, "saved");
-  };
-
-  const handleBasicCancel = () => {
-    setBasicDraft(basicInfo);
-    setIsGenderDropdownOpen(false);
-    setIsJoiningCalendarOpen(false);
-    setJoiningCalendarMode("days");
-    setIsBasicEditing(false);
-    showSectionStatus(setBasicStatus, "discarded");
-  };
 
   const handleReviewProfile = () => {
+    const resetRegistrationInfo = {
+      platformAdminId: "PRGEEQPR7U4U7KW",
+      fullName: "Suresh Kumar",
+      dateOfBirth: "",
+      officialEmail: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+    };
+
+    const resetBasicInfo = {
+      employeeCode: "Eg:PA-00124",
+      gender: "",
+      designation: "",
+      department: "",
+      officeLocation: "",
+      dateOfJoining: "2008-06-19",
+      reportingSuperAdmin: "",
+    };
+
+    setProfileImage(null);
+    setProfilePhotoFile(null);
+    localStorage.removeItem("platformAdminProfileImage");
+    window.dispatchEvent(new Event("profileImageUpdated"));
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+
+    document
+      .querySelectorAll<HTMLInputElement>('input[type="file"]')
+      .forEach((input) => {
+        input.value = "";
+      });
+
+    setRegistrationInfo(resetRegistrationInfo);
+    setRegistrationDraft(resetRegistrationInfo);
+    setMobileCountry(null);
+    setAlternateCountry(null);
+    setSavedMobileCountry(null);
+    setSavedAlternateCountry(null);
+
+    setBasicInfo(resetBasicInfo);
+    setBasicDraft(resetBasicInfo);
+
+    setEmployeeIdCard(null);
+    setGovernmentIdProof(null);
+    setGovernmentIdDocumentType("");
+    setSupportingDocuments(null);
+
+    setRegistrationSectionSaved(false);
+    setBasicSectionSaved(false);
+
+    setRegistrationStatus(null);
+    setBasicStatus(null);
+    setRegistrationValidationError(null);
+    setRegistrationStepMessage(null);
+    setBasicUploadError("");
+    setBasicStepMessage(null);
+
+    setShowDraftSaved(false);
+    setDraftSavedTime("");
+
     setIsRegistrationEditing(false);
     setIsBasicEditing(false);
     setIsGenderDropdownOpen(false);
     setIsJoiningCalendarOpen(false);
     setBirthCalendarOpen(false);
+    setJoiningCalendarMode("days");
+    setBirthCalendarMode("days");
+
+    const today = new Date();
+    setJoiningCalendarMonth(
+      new Date(today.getFullYear(), today.getMonth(), 1)
+    );
+    setJoiningYearPageStart(
+      Math.floor(today.getFullYear() / 12) * 12
+    );
+    setBirthCalendarMonth(
+      new Date(today.getFullYear(), today.getMonth(), 1)
+    );
+    setBirthYearPageStart(
+      Math.floor(today.getFullYear() / 12) * 12
+    );
 
     document
       .getElementById("platform-admin-main-content")
@@ -1456,80 +1423,55 @@ export default function PlatformAdminProfilePage() {
 
   const handleSaveProfile = () => {
     if (profileCompletionPercentage !== 100) {
+      if (!profilePhotoCompleted) {
+        showRegistrationStepMessage("Please upload Profile Photo first");
+        return;
+      }
+
+      if (!registrationCompleted) {
+        if (registrationEmailError) {
+          setRegistrationValidationError(registrationEmailError);
+          window.setTimeout(() => setRegistrationValidationError(null), 2500);
+        } else {
+          showRegistrationStepMessage(
+            "Please complete Registration Data before saving the profile"
+          );
+        }
+        return;
+      }
+
+      if (!basicCompleted) {
+        showBasicStepMessage(
+          "Please complete Basic Information before saving the profile"
+        );
+        return;
+      }
+
       return;
     }
 
+    setRegistrationValidationError(null);
+    setRegistrationStepMessage(null);
+    setBasicStepMessage(null);
+    setBasicUploadError("");
+
     if (isRegistrationEditing) {
-      const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      const indianMobilePattern = /^[6-9]\d{9}$/;
-
-      if (
-        !emailPattern.test(registrationDraft.officialEmail.trim()) ||
-        !emailPattern.test(registrationDraft.alternateEmail.trim())
-      ) {
-        setRegistrationValidationError(
-          "Please enter a valid email address."
-        );
-        window.setTimeout(() => setRegistrationValidationError(null), 2500);
-        return;
-      }
-
-      if (
-        !indianMobilePattern.test(registrationDraft.mobileNumber.trim()) ||
-        !indianMobilePattern.test(registrationDraft.alternatePhone.trim())
-      ) {
-        setRegistrationValidationError(
-          "Please enter a valid Indian mobile number."
-        );
-        window.setTimeout(() => setRegistrationValidationError(null), 2500);
-        return;
-      }
-
-      setRegistrationValidationError(null);
-
-      const registrationDraftCompleted =
-        registrationDraft.platformAdminId.trim() !== "" &&
-        registrationDraft.fullName.trim() !== "" &&
-        registrationDraft.dateOfBirth.trim() !== "" &&
-        registrationDraft.officialEmail.trim() !== "" &&
-        registrationDraft.mobileNumber.trim() !== "" &&
-        registrationDraft.alternateEmail.trim() !== "" &&
-        registrationDraft.alternatePhone.trim() !== "";
-
       setRegistrationInfo(registrationDraft);
-      setRegistrationSectionSaved(registrationDraftCompleted);
-      setIsRegistrationEditing(false);
+      setRegistrationSectionSaved(true);
     }
 
     if (isBasicEditing) {
-      const basicDraftCompleted =
-        basicDraft.employeeCode.trim() !== "" &&
-        basicDraft.gender !== "" &&
-        basicDraft.designation.trim() !== "" &&
-        basicDraft.department.trim() !== "" &&
-        basicDraft.officeLocation.trim() !== "" &&
-        basicDraft.dateOfJoining.trim() !== "" &&
-        employeeIdCard !== null &&
-        governmentIdProof !== null &&
-        basicDraft.reportingSuperAdmin.trim() !== "";
-
       setBasicInfo(basicDraft);
-      setBasicSectionSaved(basicDraftCompleted);
-      setIsBasicEditing(false);
+      setBasicSectionSaved(true);
     }
 
-    const now = new Date();
-    const formattedTime = now
-      .toLocaleTimeString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-      .replace(" ", "");
+    setIsRegistrationEditing(false);
+    setIsBasicEditing(false);
+    setIsGenderDropdownOpen(false);
+    setIsJoiningCalendarOpen(false);
+    setBirthCalendarOpen(false);
 
-    setDraftSavedTime(formattedTime);
-    setShowDraftSaved(true);
-    window.setTimeout(() => setShowDraftSaved(false), 2000);
+    window.location.assign("/sign_in");
   };
 
   useEffect(() => {
@@ -1756,37 +1698,7 @@ export default function PlatformAdminProfilePage() {
                   <h2>Registration Data</h2>
                 </div>
 
-                {isRegistrationEditing ? (
-                  <div className="editHeaderActions">
-                    <button
-                      type="button"
-                      className="actionButton saveActionButton"
-                      onClick={handleRegistrationSave}
-                    >
-                      <IconImage
-                        src="/assets/platformadmin.imagesandicons/tick.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                      />
-                      <span>Save</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="actionButton cancelActionButton"
-                      onClick={handleRegistrationCancel}
-                    >
-                      <IconImage
-                        src="/assets/platformadmin.imagesandicons/cancel.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                      />
-                      <span>Cancel</span>
-                    </button>
-                  </div>
-                ) : (
+                {!isRegistrationEditing && (
                   <button
                     type="button"
                     className="editButton"
@@ -1802,39 +1714,21 @@ export default function PlatformAdminProfilePage() {
                   </button>
                 )}
 
-                {registrationStatus === "saved" && (
-                  <div className="statusPopup statusSaved">
-                    <IconImage
-                      src="/assets/platformadmin.imagesandicons/clapping.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                    />
-                    <span>Changes Saved</span>
-                  </div>
-                )}
-
-                {registrationStatus === "discarded" && (
-                  <div className="statusPopup statusDiscarded">
+                {(registrationValidationError || registrationEmailError) && (
+                  <div
+                    className="statusPopup statusDiscarded"
+                    role="alert"
+                    aria-live="polite"
+                  >
                     <IconImage
                       src="/assets/platformadmin.imagesandicons/sad.svg"
                       alt=""
                       width={24}
                       height={24}
                     />
-                    <span>Changes Discarded</span>
-                  </div>
-                )}
-
-                {registrationValidationError && (
-                  <div className="statusPopup statusDiscarded">
-                    <IconImage
-                      src="/assets/platformadmin.imagesandicons/sad.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                    />
-                    <span>{registrationValidationError}</span>
+                    <span>
+                      {registrationValidationError || registrationEmailError}
+                    </span>
                   </div>
                 )}
 
@@ -2170,28 +2064,30 @@ export default function PlatformAdminProfilePage() {
                     }
                   />
 
-                  <PhoneNumberField
+                  <EditableField
+                    id="registration-mobile-number"
                     label="Mobile Number"
-                    country={mobileCountry}
+                    type="tel"
                     value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
+                    placeholder="Enter Mobile Number"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value,
+                        mobileNumber: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
 
-                  <PhoneNumberField
+                  <EditableField
+                    id="registration-alternate-phone"
                     label="Alternate Phone"
-                    country={alternateCountry}
+                    type="tel"
                     value={registrationDraft.alternatePhone}
-                    onCountryChange={setAlternateCountry}
+                    placeholder="Enter Alternate Phone"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value,
+                        alternatePhone: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
@@ -2221,19 +2117,11 @@ export default function PlatformAdminProfilePage() {
                   />
                   <InfoField
                     label="Mobile Number"
-                    value={
-                      registrationInfo.mobileNumber && savedMobileCountry
-                        ? `+${getCountryCallingCode(savedMobileCountry)} ${registrationInfo.mobileNumber}`
-                        : registrationInfo.mobileNumber || "Enter mobile number"
-                    }
+                    value={registrationInfo.mobileNumber || "Enter mobile number"}
                   />
                   <InfoField
                     label="Alternate Phone"
-                    value={
-                      registrationInfo.alternatePhone && savedAlternateCountry
-                        ? `+${getCountryCallingCode(savedAlternateCountry)} ${registrationInfo.alternatePhone}`
-                        : registrationInfo.alternatePhone || "Enter alternate phone number"
-                    }
+                    value={registrationInfo.alternatePhone || "Enter alternate phone number"}
                   />
                 </div>
               )}
@@ -2262,37 +2150,7 @@ export default function PlatformAdminProfilePage() {
                   <h2>Basic Information</h2>
                 </div>
 
-                {isBasicEditing ? (
-                  <div className="editHeaderActions">
-                    <button
-                      type="button"
-                      className="actionButton saveActionButton"
-                      onClick={handleBasicSave}
-                    >
-                      <IconImage
-                        src="/assets/platformadmin.imagesandicons/tick.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                      />
-                      <span>Save</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="actionButton cancelActionButton"
-                      onClick={handleBasicCancel}
-                    >
-                      <IconImage
-                        src="/assets/platformadmin.imagesandicons/cancel.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                      />
-                      <span>Cancel</span>
-                    </button>
-                  </div>
-                ) : (
+                {!isBasicEditing && (
                   <button
                     type="button"
                     className="editButton"
@@ -2306,30 +2164,6 @@ export default function PlatformAdminProfilePage() {
                       height={24}
                     />
                   </button>
-                )}
-
-                {basicStatus === "saved" && (
-                  <div className="statusPopup statusSaved">
-                    <IconImage
-                      src="/assets/platformadmin.imagesandicons/clapping.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                    />
-                    <span>Changes Saved</span>
-                  </div>
-                )}
-
-                {basicStatus === "discarded" && (
-                  <div className="statusPopup statusDiscarded">
-                    <IconImage
-                      src="/assets/platformadmin.imagesandicons/sad.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                    />
-                    <span>Changes Discarded</span>
-                  </div>
                 )}
 
                 {basicUploadError && (
@@ -2664,15 +2498,20 @@ export default function PlatformAdminProfilePage() {
                 className="reviewProfileButton"
                 onClick={handleReviewProfile}
               >
-                Review Profile
+                <IconImage
+                  src="/assets/platformadmin.imagesandicons/cancel.svg"
+                  alt=""
+                  width={14}
+                  height={14}
+                  className="cancelProfileIcon"
+                />
+                <span>Cancel</span>
               </button>
 
               <button
                 type="button"
                 className="saveProfileButton"
                 onClick={handleSaveProfile}
-                disabled={profileCompletionPercentage !== 100}
-                aria-disabled={profileCompletionPercentage !== 100}
               >
                 Save Profile
               </button>

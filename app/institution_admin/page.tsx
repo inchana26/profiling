@@ -1,15 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import {
-  getCountries,
-  getCountryCallingCode,
-  type Country,
-} from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
-import { getExampleNumber } from "libphonenumber-js/max";
-import examples from "libphonenumber-js/examples.mobile.json";
 import "./institutionadmin.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
@@ -20,7 +13,6 @@ const images = {
   edit: "/assets/institutionicons/edit.svg",
   editBig: "/assets/institutionicons/editbig.svg",
   lock: "/assets/institutionicons/lock.svg",
-  save: "/assets/institutionicons/tick.svg",
   cancel: "/assets/institutionicons/cancel.svg",
   arrowDown: "/assets/institutionicons/arrow-down.svg",
   completed: "/assets/institutionicons/checkmark.svg",
@@ -214,6 +206,7 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -225,6 +218,7 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onBlur,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -254,6 +248,7 @@ function EditField({
             value={value}
             placeholder={placeholder}
             onChange={(event) => onChange?.(event.target.value)}
+            onBlur={onBlur}
           />
         )}
       </div>
@@ -282,6 +277,7 @@ function EditField({
           />
         </span>
       )}
+
     </div>
   );
 }
@@ -770,416 +766,6 @@ function DateField({ label, value, onChange }: DateFieldProps) {
   );
 }
 
-type PhoneCountrySelectProps = {
-  label: string;
-  country: Country | null;
-  value: string;
-  onCountryChange: (country: Country) => void;
-  onChange: (value: string) => void;
-};
-
-const PHONE_COUNTRIES = getCountries();
-const countryNames =
-  typeof Intl !== "undefined" && "DisplayNames" in Intl
-    ? new Intl.DisplayNames(["en"], { type: "region" })
-    : null;
-
-const getCountryName = (country: Country) =>
-  countryNames?.of(country) || country;
-
-const getCountryMaxDigits = (country: Country) => {
-  const example = getExampleNumber(country, examples);
-
-  if (example?.nationalNumber) {
-    return example.nationalNumber.length;
-  }
-
-  // Safe fallback only when the library has no mobile example.
-  return 15 - getCountryCallingCode(country).length;
-};
-
-function PhoneCountrySelect({
-  label,
-  country,
-  value,
-  onCountryChange,
-  onChange,
-}: PhoneCountrySelectProps) {
-  const [open, setOpen] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [search, setSearch] = useState("");
-
-  /* Keep edits local until Apply is clicked. */
-  const [pendingCountry, setPendingCountry] = useState<Country | null>(country);
-  const [pendingValue, setPendingValue] = useState(value);
-
-  const rootRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const selectId = useId();
-
-  /* Value shown in the CLOSED top field = last applied value only. */
-  const callingCode = country
-    ? `+${getCountryCallingCode(country)}`
-    : "";
-
-  /* Values used inside the OPEN editor. */
-  const pendingCallingCode = pendingCountry
-    ? `+${getCountryCallingCode(pendingCountry)}`
-    : "";
-
-  const pendingMaxDigits = pendingCountry
-    ? getCountryMaxDigits(pendingCountry)
-    : 15;
-
-  const filteredCountries = PHONE_COUNTRIES.filter((item) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-
-    const name = getCountryName(item).toLowerCase();
-    const code = `+${getCountryCallingCode(item)}`;
-
-    return (
-      name.includes(q) ||
-      item.toLowerCase().includes(q) ||
-      code.includes(q)
-    );
-  });
-
-  /* If the saved parent value changes while closed, keep draft in sync. */
-  useEffect(() => {
-    if (!open) {
-      setPendingCountry(country);
-      setPendingValue(value);
-    }
-  }, [country, value, open]);
-
-  const discardPendingChanges = () => {
-    setPendingCountry(country);
-    setPendingValue(value);
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        rootRef.current &&
-        !rootRef.current.contains(event.target as Node)
-      ) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    const closeOtherDropdown = (event: Event) => {
-      const customEvent = event as CustomEvent<string>;
-
-      if (customEvent.detail !== selectId) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    window.addEventListener(
-      "faculty-profile-dropdown-open",
-      closeOtherDropdown as EventListener
-    );
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      window.removeEventListener(
-        "faculty-profile-dropdown-open",
-        closeOtherDropdown as EventListener
-      );
-    };
-  }, [selectId, country, value]);
-
-  useEffect(() => {
-    if (countryOpen) {
-      window.setTimeout(() => searchRef.current?.focus(), 0);
-    }
-  }, [countryOpen]);
-
-  const openMainField = () => {
-    const nextOpen = !open;
-
-    if (nextOpen) {
-      /* Every new open starts from the last applied values. */
-      setPendingCountry(country);
-      setPendingValue(value);
-
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    } else {
-      /* Closing with the top arrow works like Cancel. */
-      setPendingCountry(country);
-      setPendingValue(value);
-      setCountryOpen(false);
-      setSearch("");
-    }
-
-    setOpen(nextOpen);
-  };
-
-  const openCountryList = () => {
-    if (!countryOpen) {
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    }
-
-    setCountryOpen(true);
-  };
-
-  const handleNumberChange = (rawValue: string) => {
-    const digits = rawValue.replace(/\D/g, "");
-
-    if (!pendingCountry) {
-      setPendingValue("");
-      return;
-    }
-
-    setPendingValue(digits.slice(0, pendingMaxDigits));
-  };
-
-  const selectCountry = (nextCountry: Country) => {
-    setPendingCountry(nextCountry);
-
-    const nextMaxDigits = getCountryMaxDigits(nextCountry);
-    setPendingValue((current) =>
-      current.replace(/\D/g, "").slice(0, nextMaxDigits)
-    );
-
-    setCountryOpen(false);
-    setSearch("");
-  };
-
-  const applyPhoneChanges = () => {
-    if (pendingCountry) {
-      onCountryChange(pendingCountry);
-    }
-
-    onChange(pendingValue);
-
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  return (
-    <div
-      ref={rootRef}
-      className={`institutionPhoneAccordion ${
-        open ? "institutionPhoneAccordionOpen" : ""
-      }`}
-    >
-      <button
-        type="button"
-        className="institutionField institutionPhoneMainTrigger"
-        aria-expanded={open}
-        onClick={openMainField}
-      >
-        <span className="institutionPhoneMainText">
-          <span className="institutionFieldLabel">{label}</span>
-
-          <span
-            className={
-              country && value
-                ? "institutionPhoneMainSavedValue"
-                : "institutionSelectPlaceholderValue"
-            }
-          >
-            {country && value ? `${callingCode} ${value}` : "Select"}
-          </span>
-        </span>
-
-        <IconImage
-          src={images.arrowDown}
-          width={30}
-          height={30}
-          className={`institutionSelectArrow institutionPhoneMainArrow ${
-            open ? "institutionSelectArrowOpen" : ""
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="institutionPhonePanel">
-          <div className="institutionPhonePanelLabel">Country Code</div>
-
-          <div className="institutionPhoneCountryBox">
-            <div
-              className={`institutionPhoneCountryTrigger ${
-                countryOpen ? "institutionPhoneCountryTriggerOpen" : ""
-              }`}
-              onClick={openCountryList}
-            >
-              <span
-                className="institutionPhoneSearchMini"
-                aria-hidden="true"
-              />
-
-              <input
-                ref={searchRef}
-                type="text"
-                value={
-                  countryOpen
-                    ? search
-                    : pendingCountry
-                      ? `${getCountryName(pendingCountry)}`
-                      : ""
-                }
-                onFocus={openCountryList}
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setCountryOpen(true);
-                }}
-                className="institutionPhoneCountrySearchInput"
-                placeholder="Search Country"
-                aria-label="Search Country"
-                autoComplete="off"
-              />
-
-              {pendingCountry && !countryOpen && (
-                <span className="institutionPhoneSelectedCountryCode">
-                  {pendingCountry} ({pendingCallingCode})
-                </span>
-              )}
-
-              <IconImage
-                src={images.arrowDown}
-                width={24}
-                height={24}
-                className={`institutionPhoneArrow ${
-                  countryOpen ? "institutionPhoneArrowOpen" : ""
-                }`}
-              />
-            </div>
-
-            {countryOpen && (
-              <div className="institutionPhoneCountryMenu">
-                <div
-                  className="institutionPhoneCountryList institutionRadioSelectListScrollable"
-                  role="listbox"
-                >
-                  {filteredCountries.map((item) => {
-                    const selected = pendingCountry === item;
-                    const ItemFlag = flags[item];
-                    const itemCallingCode =
-                      `+${getCountryCallingCode(item)}`;
-
-                    return (
-                      <button
-                        type="button"
-                        key={item}
-                        className={`institutionCustomSelectOption institutionRadioSelectOption institutionPhoneCountryOption ${
-                          selected
-                            ? "institutionCustomSelectOptionActive institutionPhoneCountryOptionSelected"
-                            : ""
-                        }`}
-                        role="option"
-                        aria-selected={selected}
-                        onClick={() => selectCountry(item)}
-                      >
-                        <span className="institutionPhoneCountryName">
-                          <span className="institutionPhoneFlag">
-                            {ItemFlag ? (
-                              <ItemFlag
-                                title={getCountryName(item)}
-                              />
-                            ) : null}
-                          </span>
-
-                          <span className="institutionPhoneCountryText">
-                            {item} ({itemCallingCode}) - {getCountryName(item)}
-                          </span>
-                        </span>
-
-                        <span
-                          className={`institutionRadioSelectCircle ${
-                            selected
-                              ? "institutionRadioSelectCircleActive"
-                              : ""
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {selected && (
-                            <span className="institutionRadioSelectCheck">
-                              ✓
-                            </span>
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="institutionPhonePanelLabel institutionPhoneNumberTitle">
-            {label}
-          </div>
-
-          <div
-            className={`institutionPhoneNumberInputWrap ${
-              !pendingCountry ? "institutionPhoneNumberInputDisabled" : ""
-            }`}
-          >
-            <input
-              type="tel"
-              inputMode="numeric"
-              className="institutionPhoneNumberInput"
-              value={pendingValue}
-              disabled={!pendingCountry}
-              maxLength={pendingMaxDigits}
-              placeholder={
-                pendingCountry
-                  ? `Enter ${pendingMaxDigits} Digit Mobile number`
-                  : "Select Country First"
-              }
-              onChange={(event) =>
-                handleNumberChange(event.target.value)
-              }
-            />
-          </div>
-
-          <div className="institutionPhonePanelActions">
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelCancel"
-              onClick={discardPendingChanges}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelApply"
-              onClick={applyPhoneChanges}
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 type SectionHeaderProps = {
   title: string;
   iconSrc: string;
@@ -1188,8 +774,6 @@ type SectionHeaderProps = {
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
 };
 
 function SectionHeader({
@@ -1200,8 +784,6 @@ function SectionHeader({
   popupType = null,
   popupMessage,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
     <div className="institutionInformationHeader">
@@ -1251,27 +833,7 @@ function SectionHeader({
           </div>
         )}
 
-        {editing ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton institutionSaveButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.save} width={13} height={13} />
-              <span>Save</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionActionButton institutionCancelButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={13} height={13} />
-              <span>Cancel</span>
-            </button>
-          </div>
-        ) : (
+        {!editing && (
           <button
             type="button"
             className="institutionEditButton"
@@ -1293,6 +855,7 @@ function SectionHeader({
 }
 
 export default function InstitutionAdminProfilePage() {
+  const router = useRouter();
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   const [showDraftSaved, setShowDraftSaved] = useState(false);
@@ -1340,12 +903,6 @@ export default function InstitutionAdminProfilePage() {
     Record<string, string>
   >({});
 
-  // Snapshots used only while editing Documents.
-  // Save keeps the new values; Cancel restores these previous saved values.
-  const documentFilesBeforeEditRef = useRef<Record<string, File | null> | null>(
-    null
-  );
-  const governmentIdDocumentTypeBeforeEditRef = useRef<string | null>(null);
 
   const [sectionPopup, setSectionPopup] = useState<{
     section: SectionName;
@@ -1353,12 +910,13 @@ export default function InstitutionAdminProfilePage() {
     message?: string;
   } | null>(null);
 
+
   const [registrationInfo, setRegistrationInfo] = useState({
     institutionAdminId: "PRGEEQJQCBU006B",
     fullName: "Antony Thomas",
 
     // User-editable output fields are empty on the first page.
-    // They will show only after the user edits and saves.
+    // They will show after the user edits the section.
     dateOfBirth: "",
     officialEmail: "",
     mobileNumber: "",
@@ -1393,29 +951,15 @@ export default function InstitutionAdminProfilePage() {
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
-  const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
-  const [alternatePhoneCountry, setAlternatePhoneCountry] =
-    useState<Country | null>(null);
   const [identityDraft, setIdentityDraft] = useState(identityInfo);
   const [professionalDraft, setProfessionalDraft] =
     useState(professionalInfo);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
-  const registrationDraftRef = useRef(registrationDraft);
-  const identityDraftRef = useRef(identityDraft);
-  const professionalDraftRef = useRef(professionalDraft);
 
   useEffect(() => {
     editingSectionRef.current = editingSection;
-    registrationDraftRef.current = registrationDraft;
-    identityDraftRef.current = identityDraft;
-    professionalDraftRef.current = professionalDraft;
-  }, [
-    editingSection,
-    registrationDraft,
-    identityDraft,
-    professionalDraft,
-  ]);
+  }, [editingSection]);
 
   const startSectionEdit = (section: SectionName) => {
     setSectionPopup(null);
@@ -1429,28 +973,21 @@ export default function InstitutionAdminProfilePage() {
     }
 
     if (section === "basic" && !registrationCompleted) {
-      showFlowPopup("Please Save Registration Data", "basic");
+      showFlowPopup("Please complete Registration Data", "basic");
       return;
     }
 
-    if (section === "documents" && !professionalProfileCompleted) {
-      showFlowPopup("Please Complete and Save Basic Information", "documents");
+    if (
+      section === "documents" &&
+      (!identityCompleted || !professionalProfileCompleted)
+    ) {
+      showFlowPopup("Please complete Basic Information", "documents");
       return;
     }
 
 
     if (section === "registration") {
-      setRegistrationDraft({
-        ...registrationInfo,
-
-        // Editable fields must start empty.
-        // Locked fields keep their existing values.
-        dateOfBirth: "",
-        officialEmail: "",
-        mobileNumber: "",
-        alternateEmail: "",
-        alternatePhone: "",
-      });
+      setRegistrationDraft({ ...registrationInfo });
     }
 
     if (section === "basic") {
@@ -1462,30 +999,22 @@ export default function InstitutionAdminProfilePage() {
     }
 
     if (section === "documents") {
-      documentFilesBeforeEditRef.current = { ...documentFiles };
-      governmentIdDocumentTypeBeforeEditRef.current =
-        governmentIdDocumentType;
-
       setDocumentUploadErrors({});
     }
 
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string, country: Country | null) => {
-    if (!value || !country) return false;
-
+  const isValidPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, "");
-    const requiredDigits = getCountryMaxDigits(country);
-
-    return digits.length === requiredDigits;
+    return digits.length >= 10 && digits.length <= 15;
   };
 
   const isValidEmail = (value: string) => {
     return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
   };
 
-  const showRegistrationError = (message: string) => {
+  const showRegistrationEmailPopup = (message: string) => {
     setSectionPopup({
       section: "registration",
       type: "error",
@@ -1494,172 +1023,192 @@ export default function InstitutionAdminProfilePage() {
 
     window.setTimeout(() => {
       setSectionPopup((current) =>
-        current?.section === "registration" && current.type === "error"
+        current?.section === "registration" &&
+        current.type === "error" &&
+        current.message === message
           ? null
           : current
       );
     }, 2500);
   };
 
-  const saveSection = (section: SectionName) => {
-    if (section === "registration") {
-      const officialEmail = registrationDraft.officialEmail.trim();
-      const alternateEmail = registrationDraft.alternateEmail.trim();
+  const clearRegistrationEmailPopup = () => {
+    setSectionPopup((current) =>
+      current?.section === "registration" && current.type === "error"
+        ? null
+        : current
+    );
+  };
 
-      if (!isValidEmail(officialEmail)) {
-        showRegistrationError("Enter a valid Official Email");
-        return;
-      }
+  const validateOfficialEmail = () => {
+    const value = registrationDraft.officialEmail.trim();
 
-      if (alternateEmail && !isValidEmail(alternateEmail)) {
-        showRegistrationError("Enter a valid Alternate Email");
-        return;
-      }
+    if (!value) {
+      showRegistrationEmailPopup("Please enter Official Email");
+      return;
+    }
 
-      if (!isValidPhoneNumber(registrationDraft.mobileNumber, mobileCountry)) {
-        showRegistrationError(
-          mobileCountry
-            ? `Mobile Number must be ${getCountryMaxDigits(mobileCountry)} digits`
-            : "Please select country code for Mobile Number"
-        );
-        return;
-      }
+    if (!isValidEmail(value)) {
+      showRegistrationEmailPopup("Please enter a valid Official Email");
+      return;
+    }
 
-      if (
-        registrationDraft.alternatePhone &&
-        !isValidPhoneNumber(
-          registrationDraft.alternatePhone,
-          alternatePhoneCountry
-        )
-      ) {
-        showRegistrationError(
-          alternatePhoneCountry
-            ? `Alternate Phone must be ${getCountryMaxDigits(alternatePhoneCountry)} digits`
-            : "Please select country code for Alternate Phone"
-        );
-        return;
-      }
+    clearRegistrationEmailPopup();
+  };
 
-      setRegistrationInfo({
-        ...registrationDraft,
-        officialEmail,
-        alternateEmail,
+  const validateAlternateEmail = () => {
+    const value = registrationDraft.alternateEmail.trim();
+
+    if (value && !isValidEmail(value)) {
+      showRegistrationEmailPopup("Please enter a valid Alternate Email");
+      return;
+    }
+
+    clearRegistrationEmailPopup();
+  };
+
+  /* ---------------------------------------------------------------
+     Sections now save automatically while the user is editing.
+     There are no section-level Save / Cancel buttons.
+     Completion checks and the loader update as soon as required
+     values become valid.
+     --------------------------------------------------------------- */
+
+  useEffect(() => {
+    if (editingSection !== "registration") return;
+
+    const officialEmail = registrationDraft.officialEmail.trim();
+    const alternateEmail = registrationDraft.alternateEmail.trim();
+    const alternatePhone = registrationDraft.alternatePhone.trim();
+
+    const registrationIsComplete =
+      registrationDraft.dateOfBirth.trim() !== "" &&
+      isValidEmail(officialEmail) &&
+      isValidPhoneNumber(registrationDraft.mobileNumber) &&
+      (alternateEmail === "" || isValidEmail(alternateEmail)) &&
+      (alternatePhone === "" ||
+        isValidPhoneNumber(alternatePhone));
+
+    setRegistrationInfo({
+      ...registrationDraft,
+      officialEmail,
+      alternateEmail,
+    });
+    setRegistrationCompleted(registrationIsComplete);
+  }, [
+    editingSection,
+    registrationDraft,
+  ]);
+
+  useEffect(() => {
+    if (editingSection !== "basic") return;
+
+    const identityIsComplete =
+      identityDraft.gender.trim() !== "" &&
+      identityDraft.reportingAuthority.trim() !== "";
+
+    const professionalIsComplete =
+      professionalDraft.highestQualification.trim() !== "" &&
+      professionalDraft.leadershipExperience.trim() !== "" &&
+      professionalDraft.totalExperience.trim() !== "" &&
+      professionalDraft.designation.trim() !== "" &&
+      professionalDraft.adminRole.trim() !== "";
+
+    setIdentityInfo({ ...identityDraft });
+    setProfessionalInfo({ ...professionalDraft });
+
+    setIdentityCompleted(identityIsComplete);
+    setProfessionalProfileCompleted(professionalIsComplete);
+  }, [editingSection, identityDraft, professionalDraft]);
+
+  useEffect(() => {
+    const hasGovernmentId =
+      governmentIdDocumentType.trim() !== "" &&
+      documentFiles["Govt Id Proof"] !== null;
+
+    setDocumentsCompleted(hasGovernmentId);
+  }, [governmentIdDocumentType, documentFiles]);
+
+  const cancelProfile = () => {
+    const resetRegistrationInfo = {
+      institutionAdminId: "PRGEEQJQCBU006B",
+      fullName: "Antony Thomas",
+      dateOfBirth: "",
+      officialEmail: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+      tenantId: "LXP-COL-001",
+    };
+
+    const resetIdentityInfo = {
+      employeeCode: "eg.EMP-0042",
+      gender: "",
+      reportingAuthority: "",
+    };
+
+    const resetProfessionalInfo = {
+      highestQualification: "",
+      leadershipExperience: "",
+      totalExperience: "",
+      designation: "",
+      adminRole: "",
+      dateOfJoining: "2004-05-17",
+      institutionName: "eg.enter name",
+      campusName: "",
+      departmentsManaged: "",
+    };
+
+    setProfileImage(null);
+    setProfilePhotoCompleted(false);
+    localStorage.removeItem("institutionAdminProfileImage");
+    window.dispatchEvent(new Event("profileImageUpdated"));
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+
+    document
+      .querySelectorAll<HTMLInputElement>(".institutionNativeFileInput")
+      .forEach((input) => {
+        input.value = "";
       });
-      setRegistrationCompleted(true);
-    }
 
-    if (section === "basic") {
-      // Save ALL Basic Information changes in one click.
-      // Identity and Professional Profile are committed together.
+    setRegistrationInfo(resetRegistrationInfo);
+    setRegistrationDraft(resetRegistrationInfo);
 
-      if (!identityDraft.gender || !identityDraft.reportingAuthority) {
-        setSectionPopup({
-          section: "basic",
-          type: "error",
-          message: "Please complete the required Identity fields before saving.",
-        });
-        return;
-      }
+    setIdentityInfo(resetIdentityInfo);
+    setIdentityDraft(resetIdentityInfo);
 
-      const professionalComplete =
-        professionalDraft.highestQualification.trim() &&
-        professionalDraft.leadershipExperience.trim() &&
-        professionalDraft.totalExperience.trim() &&
-        professionalDraft.designation.trim() &&
-        professionalDraft.adminRole.trim();
+    setProfessionalInfo(resetProfessionalInfo);
+    setProfessionalDraft(resetProfessionalInfo);
 
-      if (!professionalComplete) {
-        setSectionPopup({
-          section: "basic",
-          type: "error",
-          message:
-            "Please complete the required Professional Profile fields before saving.",
-        });
-        return;
-      }
+    setDocumentFiles({
+      "Profile Photo": null,
+      "Govt Id Proof": null,
+      "Supporting Documents": null,
+    });
+    setDocumentUploadErrors({});
+    setGovernmentIdDocumentType("");
+    setGovernmentIdMenuOpen(false);
 
-      // Commit both groups during this same Save click.
-      setIdentityInfo({ ...identityDraft });
-      setProfessionalInfo({ ...professionalDraft });
-
-      setIdentityCompleted(true);
-      setProfessionalProfileCompleted(true);
-    }
-
-    if (section === "documents") {
-      const hasGovernmentId =
-        governmentIdDocumentType.trim() !== "" &&
-        documentFiles["Govt Id Proof"] !== null;
-
-      if (!hasGovernmentId) {
-        setSectionPopup({
-          section: "documents",
-          type: "error",
-          message: "Please select Document Type and upload Government ID Proof before saving.",
-        });
-        return;
-      }
-
-      setDocumentsCompleted(true);
-
-      // Current document changes are now the saved values.
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
+    setRegistrationCompleted(false);
+    setIdentityCompleted(false);
+    setProfessionalProfileCompleted(false);
+    setDocumentsCompleted(false);
+    setConfirmation(false);
 
     setEditingSection(null);
-    setSectionPopup({ section, type: "saved" });
+    setSectionPopup(null);
+    setFlowPopup(null);
+    setFlowPopupSection(null);
+    setShowDraftSaved(false);
+    setDraftSavedTime("02:26PM");
 
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "saved"
-          ? null
-          : current
-      );
-    }, 2500);
-  };
-
-  const cancelSection = (section: SectionName) => {
-    if (section === "registration") {
-      // Discard everything typed during this edit session.
-      setRegistrationDraft(registrationInfo);
+    if (flowPopupTimerRef.current) {
+      window.clearTimeout(flowPopupTimerRef.current);
+      flowPopupTimerRef.current = null;
     }
-
-    if (section === "basic") {
-      // Discard every dropdown/text change made during this edit session.
-      setIdentityDraft(identityInfo);
-      setProfessionalDraft(professionalInfo);
-    }
-
-    if (section === "documents") {
-      // Restore the files and Govt ID document type that existed
-      // before the user clicked Edit.
-      if (documentFilesBeforeEditRef.current) {
-        setDocumentFiles({ ...documentFilesBeforeEditRef.current });
-      }
-
-      if (governmentIdDocumentTypeBeforeEditRef.current !== null) {
-        setGovernmentIdDocumentType(
-          governmentIdDocumentTypeBeforeEditRef.current
-        );
-      }
-
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "discarded" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "discarded"
-          ? null
-          : current
-      );
-    }, 2500);
   };
 
   const saveProfile = () => {
@@ -1697,6 +1246,10 @@ export default function InstitutionAdminProfilePage() {
         })
         .replace(" ", "")
     );
+
+    // All required profile steps are valid and complete.
+    // Continue to the sign-in page only after the save validation passes.
+    router.push("/sign_in");
   };
 
   const handleProfileImageSelect = (
@@ -1785,10 +1338,8 @@ export default function InstitutionAdminProfilePage() {
     const autoSaveDraft = () => {
       const currentSection = editingSectionRef.current;
 
-      // IMPORTANT:
-      // Auto-save must never commit edit drafts into the saved/output data.
-      // Only the section Save button (or explicit profile Save) may commit.
-      // This keeps Cancel working correctly even after 10+ seconds.
+      // Draft values are already committed live while editing.
+      // This timer only controls the small "Draft Saved" status badge.
       if (!currentSection) {
         return;
       }
@@ -2027,8 +1578,6 @@ export default function InstitutionAdminProfilePage() {
                     : undefined
                 }
                 onEdit={() => startSectionEdit("registration")}
-                onSave={() => saveSection("registration")}
-                onCancel={() => cancelSection("registration")}
               />
               {flowPopup && flowPopupSection === "registration" && (
                 <div
@@ -2073,46 +1622,56 @@ export default function InstitutionAdminProfilePage() {
                     type="email"
                     value={registrationDraft.officialEmail}
                     placeholder="Enter Official Email"
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRegistrationDraft((current) => ({
                         ...current,
                         officialEmail: value,
-                      }))
-                    }
+                      }));
+
+                      if (isValidEmail(value.trim())) {
+                        clearRegistrationEmailPopup();
+                      }
+                    }}
+                    onBlur={validateOfficialEmail}
                   />
                   <EditField
                     label="Alternate Email"
                     type="email"
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRegistrationDraft((current) => ({
                         ...current,
                         alternateEmail: value,
-                      }))
-                    }
+                      }));
+
+                      if (!value.trim() || isValidEmail(value.trim())) {
+                        clearRegistrationEmailPopup();
+                      }
+                    }}
+                    onBlur={validateAlternateEmail}
                   />
-                  <PhoneCountrySelect
+                  <EditField
                     label="Mobile Number"
-                    country={mobileCountry}
+                    type="tel"
                     value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
+                    placeholder="Enter Mobile Number"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value,
+                        mobileNumber: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
-                  <PhoneCountrySelect
+                  <EditField
                     label="Alternate Phone"
-                    country={alternatePhoneCountry}
+                    type="tel"
                     value={registrationDraft.alternatePhone}
-                    onCountryChange={setAlternatePhoneCountry}
+                    placeholder="Enter Alternate Phone"
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value,
+                        alternatePhone: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
@@ -2146,21 +1705,13 @@ export default function InstitutionAdminProfilePage() {
                   />
                   <DisplayField
                     label="Mobile Number"
-                    value={
-                      registrationInfo.mobileNumber && mobileCountry
-                        ? `+${getCountryCallingCode(mobileCountry)} ${registrationInfo.mobileNumber}`
-                        : ""
-                    }
-                    placeholder="Select"
+                    value={registrationInfo.mobileNumber}
+                    placeholder="Enter Mobile Number"
                   />
                   <DisplayField
                     label="Alternate Phone"
-                    value={
-                      registrationInfo.alternatePhone && alternatePhoneCountry
-                        ? `+${getCountryCallingCode(alternatePhoneCountry)} ${registrationInfo.alternatePhone}`
-                        : ""
-                    }
-                    placeholder="Select"
+                    value={registrationInfo.alternatePhone}
+                    placeholder="Enter Alternate Phone"
                   />
                   <DisplayField label="Tenant ID" value={registrationInfo.tenantId} />
                 </div>
@@ -2179,8 +1730,6 @@ export default function InstitutionAdminProfilePage() {
                     : null
                 }
                 onEdit={() => startSectionEdit("basic")}
-                onSave={() => saveSection("basic")}
-                onCancel={() => cancelSection("basic")}
               />
               {flowPopup && flowPopupSection === "basic" && (
                 <div
@@ -2537,8 +2086,6 @@ export default function InstitutionAdminProfilePage() {
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
                 onEdit={() => startSectionEdit("documents")}
-                onSave={() => saveSection("documents")}
-                onCancel={() => cancelSection("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
                 <div
@@ -2790,7 +2337,7 @@ export default function InstitutionAdminProfilePage() {
                     onChange={(event) => {
                       if (event.target.checked && !documentsCompleted) {
                         showFlowPopup(
-                          "Please complete and save Documents before Confirmation.",
+                          "Please complete Documents before Confirmation.",
                           "confirmation"
                         );
                         return;
@@ -2819,9 +2366,16 @@ export default function InstitutionAdminProfilePage() {
             <div className="institutionBottomActions">
               <button
                 type="button"
-                className="institutionBottomButton institutionReviewButton"
+                className="institutionBottomButton institutionCancelProfileButton"
+                onClick={cancelProfile}
               >
-                Review Profile
+                <IconImage
+                  src={images.cancel}
+                  width={14}
+                  height={14}
+                  className="institutionCancelProfileIcon"
+                />
+                <span>Cancel</span>
               </button>
               <button
                 type="button"
