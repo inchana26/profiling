@@ -4,15 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Country, State as CountryState, City } from "country-state-city";
 import ReactCountryFlag from "react-country-flag";
-import {
-  getCountries,
-  getCountryCallingCode,
-  getExampleNumber,
-} from "libphonenumber-js/max";
-
-type PhoneCountry = ReturnType<typeof getCountries>[number];
-import phoneExamples from "libphonenumber-js/examples.mobile.json";
-import flags from "react-phone-number-input/flags";
 import "./superadmin.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
@@ -468,180 +459,6 @@ const DateField = ({ id, label, value, onChange }: DateFieldProps) => {
 };
 
 
-const PHONE_COUNTRIES = getCountries();
-const phoneCountryNames =
-  typeof Intl !== "undefined" && "DisplayNames" in Intl
-    ? new Intl.DisplayNames(["en"], { type: "region" })
-    : null;
-
-const getPhoneCountryName = (country: PhoneCountry) =>
-  phoneCountryNames?.of(country) || country;
-
-const getPhoneCountryDigits = (country: PhoneCountry) => {
-  const example = getExampleNumber(country, phoneExamples);
-  return example?.nationalNumber?.length ??
-    15 - getCountryCallingCode(country).length;
-};
-
-type PhoneNumberFieldProps = {
-  label: string;
-  country: PhoneCountry | null;
-  value: string;
-  onCountryChange: (country: PhoneCountry) => void;
-  onChange: (value: string) => void;
-};
-
-const PhoneNumberField = ({
-  label, country, value, onCountryChange, onChange,
-}: PhoneNumberFieldProps) => {
-  const [open, setOpen] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const rootRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  const callingCode = country ? `+${getCountryCallingCode(country)}` : "";
-  const maxDigits = country ? getPhoneCountryDigits(country) : 15;
-
-  const filteredCountries = PHONE_COUNTRIES.filter((item) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      getPhoneCountryName(item).toLowerCase().includes(q) ||
-      item.toLowerCase().includes(q) ||
-      `+${getCountryCallingCode(item)}`.includes(q)
-    );
-  });
-
-  useEffect(() => {
-    const outside = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-    document.addEventListener("mousedown", outside);
-    return () => document.removeEventListener("mousedown", outside);
-  }, []);
-
-  useEffect(() => {
-    if (countryOpen) window.setTimeout(() => searchRef.current?.focus(), 0);
-  }, [countryOpen]);
-
-  const chooseCountry = (next: PhoneCountry) => {
-    onCountryChange(next);
-    onChange(value.replace(/\D/g, "").slice(0, getPhoneCountryDigits(next)));
-    setCountryOpen(false);
-    setSearch("");
-  };
-
-  return (
-    <div ref={rootRef} className={`infoField phoneNumberField ${open ? "phoneNumberFieldOpen" : ""}`}>
-      <button
-        type="button"
-        className="phoneNumberMainButton"
-        aria-expanded={open}
-        onClick={() => {
-          const next = !open;
-          setOpen(next);
-          if (!next) {
-            setCountryOpen(false);
-            setSearch("");
-          }
-        }}
-      >
-        <span className="phoneNumberMainText">
-          <span className="infoLabel">{label}</span>
-          <span className={country && value ? "phoneNumberSavedValue" : "raisedDropdownPlaceholder"}>
-            {country && value ? `${callingCode} ${value}` : "Select"}
-          </span>
-        </span>
-        <span className={`genderChevron ${open ? "genderChevronOpen" : ""}`} aria-hidden="true" />
-      </button>
-
-      {open && (
-        <div className="phoneNumberPanel">
-          <div className="phoneNumberPanelLabel">Country Code</div>
-          <div className="phoneCountryBox">
-            <div className={`phoneCountrySearch ${countryOpen ? "phoneCountrySearchOpen" : ""}`}>
-              <span className="phoneCountrySearchIcon" aria-hidden="true" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={countryOpen ? search : country ? getPhoneCountryName(country) : ""}
-                placeholder="Search Country"
-                onFocus={() => setCountryOpen(true)}
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setCountryOpen(true);
-                }}
-              />
-              {country && !countryOpen && (
-                <span className="phoneCountrySelectedCode">{country} ({callingCode})</span>
-              )}
-              <span
-                className={`genderChevron phoneCountryChevron ${countryOpen ? "genderChevronOpen" : ""}`}
-                aria-hidden="true"
-                onClick={() => setCountryOpen((current) => !current)}
-              />
-            </div>
-
-            {countryOpen && (
-              <div className="phoneCountryMenu">
-                <div className="phoneCountryList" role="listbox">
-                  {filteredCountries.map((item) => {
-                    const selected = country === item;
-                    const Flag = flags[item];
-                    return (
-                      <button
-                        key={item}
-                        type="button"
-                        role="option"
-                        aria-selected={selected}
-                        className={`phoneCountryOption ${selected ? "phoneCountryOptionSelected" : ""}`}
-                        onClick={() => chooseCountry(item)}
-                      >
-                        <span className="phoneCountryOptionContent">
-                          <span className="phoneCountryFlag">
-                            {Flag ? <Flag title={getPhoneCountryName(item)} /> : null}
-                          </span>
-                          <span className="phoneCountryOptionText">
-                            {item} (+{getCountryCallingCode(item)}) - {getPhoneCountryName(item)}
-                          </span>
-                        </span>
-                        <span
-                          className={`raisedDropdownRadio ${selected ? "raisedDropdownRadioSelected" : ""}`}
-                          aria-hidden="true"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="phoneNumberPanelLabel phoneNumberInputLabel">{label}</div>
-          <div className="phoneNumberInputFrame">
-            <input
-              type="tel"
-              inputMode="numeric"
-              disabled={!country}
-              maxLength={maxDigits}
-              value={value}
-              placeholder={country ? `Enter ${maxDigits} Digit Mobile number` : "Select Country First"}
-              onChange={(event) =>
-                onChange(event.target.value.replace(/\D/g, "").slice(0, maxDigits))
-              }
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 type RaisedDropdownProps = {
   label: string;
   value: string;
@@ -761,6 +578,7 @@ const OfficeLocationField = ({
   onChange,
 }: OfficeLocationFieldProps) => {
   const locationRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeList, setActiveList] = useState<OfficeLocationListType>(null);
   const [search, setSearch] = useState("");
@@ -786,6 +604,12 @@ const OfficeLocationField = ({
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  useEffect(() => {
+    if (!activeList) return;
+    const timer = window.setTimeout(() => searchInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timer);
+  }, [activeList]);
 
   const countries = Country.getAllCountries();
   const states = countryCode ? CountryState.getStatesOfCountry(countryCode) : [];
@@ -816,22 +640,71 @@ const OfficeLocationField = ({
 
   const openList = (list: Exclude<OfficeLocationListType, null>) => {
     setSearch("");
-    setActiveList((current) => (current === list ? null : list));
+    setActiveList(list);
   };
 
-  const cancelLocation = () => {
-    setIsOpen(false);
+  const closeList = () => {
     setActiveList(null);
     setSearch("");
   };
 
-  const applyLocation = () => {
-    if (!countryName || !stateName || !cityName) return;
+  const SearchSelector = ({
+    type,
+    placeholder,
+    disabled = false,
+    selectedContent,
+  }: {
+    type: Exclude<OfficeLocationListType, null>;
+    placeholder: string;
+    disabled?: boolean;
+    selectedContent?: React.ReactNode;
+  }) => {
+    const active = activeList === type;
 
-    onChange(`${cityName}, ${stateName}, ${countryName}`);
-    setIsOpen(false);
-    setActiveList(null);
-    setSearch("");
+    if (active) {
+      return (
+        <div className="officeLocationSelector officeLocationSelectorOpen officeLocationSingleSearch">
+          <span className="officeLocationSearchIcon" aria-hidden="true" />
+          <input
+            ref={searchInputRef}
+            autoFocus
+            type="text"
+            value={search}
+            placeholder={placeholder}
+            onChange={(event) => setSearch(event.target.value)}
+            aria-label={placeholder}
+          />
+          <button
+            type="button"
+            className="officeLocationSingleSearchClose"
+            onClick={closeList}
+            aria-label={`Close ${type} dropdown`}
+          >
+            <span
+              className="officeLocationInnerChevron officeLocationInnerChevronOpen"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        className="officeLocationSelector"
+        disabled={disabled}
+        onClick={() => openList(type)}
+      >
+        <span className="officeLocationSearchIcon" aria-hidden="true" />
+        <span className="officeLocationSelectorValue">
+          {selectedContent || (
+            <span className="officeLocationSelectorPlaceholder">{placeholder}</span>
+          )}
+        </span>
+        <span className="officeLocationInnerChevron" aria-hidden="true" />
+      </button>
+    );
   };
 
   return (
@@ -866,30 +739,16 @@ const OfficeLocationField = ({
       </button>
 
       {isOpen && (
-        <div
-          className="officeLocationPanel"
-          role="dialog"
-          aria-label="Office Location"
-        >
+        <div className="officeLocationPanel" role="dialog" aria-label="Office Location">
           <div className="officeLocationSelectorGroup">
             <div className="officeLocationSelectorLabel">Country/ Region</div>
-            <button
-              type="button"
-              className={`officeLocationSelector ${
-                activeList === "country" ? "officeLocationSelectorOpen" : ""
-              }`}
-              onClick={() => openList("country")}
-            >
-              <span className="officeLocationSearchIcon" aria-hidden="true" />
-              <span
-                className={
-                  countryName
-                    ? "officeLocationSelectorValue officeLocationSelectedCountry"
-                    : "officeLocationSelectorPlaceholder"
-                }
-              >
-                {countryName ? (
-                  <>
+
+            <SearchSelector
+              type="country"
+              placeholder="Search Country"
+              selectedContent={
+                countryName ? (
+                  <span className="officeLocationSelectedCountry">
                     <ReactCountryFlag
                       countryCode={countryCode}
                       svg
@@ -897,37 +756,16 @@ const OfficeLocationField = ({
                       aria-label={`${countryName} flag`}
                     />
                     <span>{countryName}</span>
-                  </>
-                ) : (
-                  "Search Country...."
-                )}
-              </span>
-              <span
-                className={`officeLocationInnerChevron ${
-                  activeList === "country" ? "officeLocationInnerChevronOpen" : ""
-                }`}
-                aria-hidden="true"
-              />
-            </button>
+                  </span>
+                ) : undefined
+              }
+            />
 
             {activeList === "country" && (
-              <div className="officeLocationOptionsPanel">
-                <div className="officeLocationSearchRow">
-                  <span className="officeLocationSearchIcon" aria-hidden="true" />
-                  <input
-                    autoFocus
-                    type="text"
-                    value={search}
-                    placeholder="Search Country...."
-                    onChange={(event) => setSearch(event.target.value)}
-                  />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
-                </div>
-
+              <div className="officeLocationOptionsPanel officeLocationSingleOptionsPanel">
                 <div className="officeLocationOptionsList" role="listbox">
                   {filteredCountries.map((country) => {
                     const selected = country.isoCode === countryCode;
-
                     return (
                       <button
                         key={country.isoCode}
@@ -943,8 +781,7 @@ const OfficeLocationField = ({
                           setStateCode("");
                           setStateName("");
                           setCityName("");
-                          setActiveList(null);
-                          setSearch("");
+                          closeList();
                         }}
                       >
                         <ReactCountryFlag
@@ -953,9 +790,7 @@ const OfficeLocationField = ({
                           className="officeLocationFlag"
                           aria-label={`${country.name} flag`}
                         />
-                        <span className="officeLocationOptionName">
-                          {country.name}
-                        </span>
+                        <span className="officeLocationOptionName">{country.name}</span>
                         <span
                           className={`officeLocationRadio ${
                             selected ? "officeLocationRadioSelected" : ""
@@ -974,50 +809,19 @@ const OfficeLocationField = ({
 
           <div className="officeLocationSelectorGroup">
             <div className="officeLocationSelectorLabel">State/Province</div>
-            <button
-              type="button"
-              className={`officeLocationSelector ${
-                activeList === "state" ? "officeLocationSelectorOpen" : ""
-              }`}
+
+            <SearchSelector
+              type="state"
+              placeholder="Search State/Province"
               disabled={!countryCode}
-              onClick={() => openList("state")}
-            >
-              <span className="officeLocationSearchIcon" aria-hidden="true" />
-              <span
-                className={
-                  stateName
-                    ? "officeLocationSelectorValue"
-                    : "officeLocationSelectorPlaceholder"
-                }
-              >
-                {stateName || "Select State/province"}
-              </span>
-              <span
-                className={`officeLocationInnerChevron ${
-                  activeList === "state" ? "officeLocationInnerChevronOpen" : ""
-                }`}
-                aria-hidden="true"
-              />
-            </button>
+              selectedContent={stateName || undefined}
+            />
 
             {activeList === "state" && (
-              <div className="officeLocationOptionsPanel">
-                <div className="officeLocationSearchRow">
-                  <span className="officeLocationSearchIcon" aria-hidden="true" />
-                  <input
-                    autoFocus
-                    type="text"
-                    value={search}
-                    placeholder="Search State/Province"
-                    onChange={(event) => setSearch(event.target.value)}
-                  />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
-                </div>
-
+              <div className="officeLocationOptionsPanel officeLocationSingleOptionsPanel">
                 <div className="officeLocationOptionsList" role="listbox">
                   {filteredStates.map((state) => {
                     const selected = state.isoCode === stateCode;
-
                     return (
                       <button
                         key={`${state.countryCode}-${state.isoCode}`}
@@ -1031,13 +835,10 @@ const OfficeLocationField = ({
                           setStateCode(state.isoCode);
                           setStateName(state.name);
                           setCityName("");
-                          setActiveList(null);
-                          setSearch("");
+                          closeList();
                         }}
                       >
-                        <span className="officeLocationOptionName">
-                          {state.name}
-                        </span>
+                        <span className="officeLocationOptionName">{state.name}</span>
                         <span
                           className={`officeLocationRadio ${
                             selected ? "officeLocationRadioSelected" : ""
@@ -1056,50 +857,19 @@ const OfficeLocationField = ({
 
           <div className="officeLocationSelectorGroup">
             <div className="officeLocationSelectorLabel">City</div>
-            <button
-              type="button"
-              className={`officeLocationSelector ${
-                activeList === "city" ? "officeLocationSelectorOpen" : ""
-              }`}
+
+            <SearchSelector
+              type="city"
+              placeholder="Search City.."
               disabled={!stateCode}
-              onClick={() => openList("city")}
-            >
-              <span className="officeLocationSearchIcon" aria-hidden="true" />
-              <span
-                className={
-                  cityName
-                    ? "officeLocationSelectorValue"
-                    : "officeLocationSelectorPlaceholder"
-                }
-              >
-                {cityName || "Search City.."}
-              </span>
-              <span
-                className={`officeLocationInnerChevron ${
-                  activeList === "city" ? "officeLocationInnerChevronOpen" : ""
-                }`}
-                aria-hidden="true"
-              />
-            </button>
+              selectedContent={cityName || undefined}
+            />
 
             {activeList === "city" && (
-              <div className="officeLocationOptionsPanel">
-                <div className="officeLocationSearchRow">
-                  <span className="officeLocationSearchIcon" aria-hidden="true" />
-                  <input
-                    autoFocus
-                    type="text"
-                    value={search}
-                    placeholder="Search City.."
-                    onChange={(event) => setSearch(event.target.value)}
-                  />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
-                </div>
-
+              <div className="officeLocationOptionsPanel officeLocationSingleOptionsPanel">
                 <div className="officeLocationOptionsList" role="listbox">
                   {filteredCities.map((city, index) => {
                     const selected = city.name === cityName;
-
                     return (
                       <button
                         key={`${city.name}-${city.latitude}-${city.longitude}-${index}`}
@@ -1111,13 +881,12 @@ const OfficeLocationField = ({
                         role="option"
                         onClick={() => {
                           setCityName(city.name);
-                          setActiveList(null);
-                          setSearch("");
+                          onChange(`${city.name}, ${stateName}, ${countryName}`);
+                          closeList();
+                          setIsOpen(false);
                         }}
                       >
-                        <span className="officeLocationOptionName">
-                          {city.name}
-                        </span>
+                        <span className="officeLocationOptionName">{city.name}</span>
                         <span
                           className={`officeLocationRadio ${
                             selected ? "officeLocationRadioSelected" : ""
@@ -1132,24 +901,6 @@ const OfficeLocationField = ({
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="officeLocationActions">
-            <button
-              type="button"
-              className="officeLocationCancelButton"
-              onClick={cancelLocation}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="officeLocationApplyButton"
-              disabled={!countryName || !stateName || !cityName}
-              onClick={applyLocation}
-            >
-              Apply
-            </button>
           </div>
         </div>
       )}
@@ -1199,6 +950,12 @@ const GovernmentIdField = ({
       setIsTypeOpen(false);
     }
   }, [editing]);
+
+  useEffect(() => {
+    if (!fileName && inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [fileName]);
 
   return (
     <div className={`infoField governmentIdField ${isTypeOpen ? "governmentIdFieldOpen" : ""}`}>
@@ -1382,13 +1139,8 @@ export default function SuperAdminPage() {
 
   const [isBasicEditing, setIsBasicEditing] = useState(false);
   const [isContactEditing, setIsContactEditing] = useState(false);
-  const [basicStatus, setBasicStatus] = useState<"saved" | "discarded" | null>(null);
-  const [contactStatus, setContactStatus] = useState<"saved" | "discarded" | null>(null);
-  const [contactValidationError, setContactValidationError] = useState<string | null>(null);
   const [basicStepMessage, setBasicStepMessage] = useState<string | null>(null);
   const [contactStepMessage, setContactStepMessage] = useState<string | null>(null);
-  const [basicSectionCompleted, setBasicSectionCompleted] = useState(false);
-  const [contactSectionCompleted, setContactSectionCompleted] = useState(false);
 
   const [basicInfo, setBasicInfo] = useState({
     fullName: "Rajesh Mehta",
@@ -1407,10 +1159,6 @@ export default function SuperAdminPage() {
     alternateEmail: "",
   });
   const [contactDraft, setContactDraft] = useState(contactInfo);
-  const [mobileCountry, setMobileCountry] = useState<PhoneCountry | null>(null);
-  const [alternateCountry, setAlternateCountry] = useState<PhoneCountry | null>(null);
-  const [savedMobileCountry, setSavedMobileCountry] = useState<PhoneCountry | null>(null);
-  const [savedAlternateCountry, setSavedAlternateCountry] = useState<PhoneCountry | null>(null);
 
   const [governmentIdProof, setGovernmentIdProof] = useState<File | null>(null);
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
@@ -1428,9 +1176,19 @@ export default function SuperAdminPage() {
     governmentIdDocumentType.trim() !== "" &&
     Boolean(governmentIdProof);
 
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+
   const contactInformationComplete =
     contactDraft.officialEmail.trim() !== "" &&
-    contactDraft.mobileNumber.trim() !== "";
+    contactDraft.alternateEmail.trim() !== "" &&
+    contactDraft.mobileNumber.trim() !== "" &&
+    contactDraft.alternateNumber.trim() !== "" &&
+    isValidEmail(contactDraft.officialEmail) &&
+    isValidEmail(contactDraft.alternateEmail);
+
+  const basicSectionCompleted = basicInformationComplete;
+  const contactSectionCompleted = contactInformationComplete;
 
   const profilePhotoCompleted =
     Boolean(profileImage && profileImage.trim() !== "");
@@ -1491,13 +1249,6 @@ export default function SuperAdminPage() {
     };
   }, []);
 
-  const showStatus = (
-    setter: React.Dispatch<React.SetStateAction<"saved" | "discarded" | null>>,
-    status: "saved" | "discarded"
-  ) => {
-    setter(status);
-    window.setTimeout(() => setter(null), 2500);
-  };
 
   const handleProfileImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1533,17 +1284,20 @@ export default function SuperAdminPage() {
   };
 
   const openBasicEditMode = () => {
+    if (isBasicEditing) return;
+
     if (!profilePhotoCompleted) {
       showBasicStepMessage("Please upload Profile Photo");
       return;
     }
 
     setBasicDraft(basicInfo);
-    setBasicStatus(null);
     setIsBasicEditing(true);
   };
 
   const openContactEditMode = () => {
+    if (isContactEditing) return;
+
     if (!profilePhotoCompleted) {
       showContactStepMessage("Please upload Profile Photo");
       return;
@@ -1555,14 +1309,10 @@ export default function SuperAdminPage() {
     }
 
     setContactDraft(contactInfo);
-    setMobileCountry(savedMobileCountry);
-    setAlternateCountry(savedAlternateCountry);
-    setContactStatus(null);
-    setContactValidationError(null);
     setIsContactEditing(true);
   };
 
-  const handleBasicSave = () => {
+  const handleSaveProfile = () => {
     if (!profilePhotoCompleted) {
       showBasicStepMessage("Please upload Profile Photo");
       return;
@@ -1573,108 +1323,75 @@ export default function SuperAdminPage() {
       return;
     }
 
-    setBasicInfo(basicDraft);
-    setBasicSectionCompleted(true);
-    setIsBasicEditing(false);
-    showStatus(setBasicStatus, "saved");
-  };
-
-  const handleBasicCancel = () => {
-    setBasicDraft(basicInfo);
-    setIsBasicEditing(false);
-    showStatus(setBasicStatus, "discarded");
-  };
-
-  const showContactValidationError = (message: string) => {
-    setContactValidationError(message);
-
-    window.setTimeout(() => {
-      setContactValidationError(null);
-    }, 2500);
-  };
-
-  const isValidEmail = (value: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
-
-  const isValidPhone = (value: string, country: PhoneCountry | null) => {
-    if (!value || !country) return false;
-    return value.replace(/\D/g, "").length === getPhoneCountryDigits(country);
-  };
-
-  const handleContactSave = () => {
-    if (!profilePhotoCompleted) {
-      showContactStepMessage("Please upload Profile Photo");
-      return;
-    }
-
-    if (!basicSectionCompleted) {
-      showContactStepMessage("Please complete Basic Information");
-      return;
-    }
-
-    if (!contactInformationComplete) {
-      showContactStepMessage("Please fill required Contact Information");
+    if (
+      contactDraft.officialEmail.trim() === "" ||
+      contactDraft.alternateEmail.trim() === "" ||
+      contactDraft.mobileNumber.trim() === "" ||
+      contactDraft.alternateNumber.trim() === ""
+    ) {
+      showContactStepMessage("Please fill all Contact Information fields");
       return;
     }
 
     if (!isValidEmail(contactDraft.officialEmail)) {
-      showContactValidationError("Enter a valid Official Email ID");
+      showContactStepMessage("Enter a valid Official Email ID");
       return;
     }
 
-    if (!isValidPhone(contactDraft.mobileNumber, mobileCountry)) {
-      showContactValidationError(
-        "Enter a valid mobile number"
-      );
+    if (!isValidEmail(contactDraft.alternateEmail)) {
+      showContactStepMessage("Enter a valid Alternate Email");
       return;
     }
 
-    if (
-      contactDraft.alternateNumber &&
-      !isValidPhone(contactDraft.alternateNumber, alternateCountry)
-    ) {
-      showContactValidationError(
-        "Enter a valid alternate number"
-      );
-      return;
-    }
-
-    if (
-      contactDraft.alternateEmail &&
-      !isValidEmail(contactDraft.alternateEmail)
-    ) {
-      showContactValidationError("Enter a valid Alternate Email");
-      return;
-    }
-
-    setContactValidationError(null);
+    setBasicInfo(basicDraft);
     setContactInfo(contactDraft);
-    setSavedMobileCountry(mobileCountry);
-    setSavedAlternateCountry(alternateCountry);
-    setContactSectionCompleted(true);
+    setIsBasicEditing(false);
     setIsContactEditing(false);
-    showStatus(setContactStatus, "saved");
+
+    window.location.href = "/sign_in";
   };
 
-  const handleContactCancel = () => {
-    setContactDraft(contactInfo);
-    setMobileCountry(savedMobileCountry);
-    setAlternateCountry(savedAlternateCountry);
-    setContactValidationError(null);
+  const handleCancelProfile = () => {
+    const resetBasicInfo = {
+      fullName: "Rajesh Mehta",
+      displayName: "",
+      designation: "CEO/Founder",
+      dateOfBirth: "",
+      gender: "",
+      officeLocation: "",
+    };
+
+    const resetContactInfo = {
+      officialEmail: "",
+      mobileNumber: "",
+      alternateNumber: "",
+      alternateEmail: "",
+    };
+
+    setProfileImage("");
+    localStorage.removeItem("superAdminProfileImage");
+    window.dispatchEvent(new Event("profileImageUpdated"));
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+
+    setBasicInfo(resetBasicInfo);
+    setBasicDraft(resetBasicInfo);
+
+    setContactInfo(resetContactInfo);
+    setContactDraft(resetContactInfo);
+
+    setGovernmentIdProof(null);
+    setGovernmentIdDocumentType("");
+    setGovernmentIdUploadError(null);
+
+    setBasicStepMessage(null);
+    setContactStepMessage(null);
+    setShowDraftSaved(false);
+
+    setIsBasicEditing(false);
     setIsContactEditing(false);
-    showStatus(setContactStatus, "discarded");
-  };
-
-  const handleSaveProfile = () => {
-    if (isBasicEditing) {
-      setBasicInfo(basicDraft);
-      setIsBasicEditing(false);
-    }
-
-    if (isContactEditing) {
-      setContactInfo(contactDraft);
-      setIsContactEditing(false);
-    }
   };
 
   return (
@@ -1787,7 +1504,22 @@ export default function SuperAdminPage() {
                 <div className="completionSteps targetCompletionSteps">
                   <div className="completionStep">
                     {profilePhotoCompleted ? (
-                      <span className="completedCircle">✓</span>
+                      <span className="completedCircle" aria-hidden="true">
+                        <svg
+                          className="completedCheckIcon"
+                          viewBox="0 0 8 6"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M0.75 3.05L2.85 5.15L7.25 0.75"
+                            stroke="#2A7308"
+                            strokeWidth="1.25"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     ) : (
                       <span className="emptyCircle" />
                     )}
@@ -1795,7 +1527,22 @@ export default function SuperAdminPage() {
                   </div>
                   <div className="completionStep">
                     {basicSectionCompleted ? (
-                      <span className="completedCircle">✓</span>
+                      <span className="completedCircle" aria-hidden="true">
+                        <svg
+                          className="completedCheckIcon"
+                          viewBox="0 0 8 6"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M0.75 3.05L2.85 5.15L7.25 0.75"
+                            stroke="#2A7308"
+                            strokeWidth="1.25"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     ) : (
                       <span className="emptyCircle" />
                     )}
@@ -1803,7 +1550,22 @@ export default function SuperAdminPage() {
                   </div>
                   <div className="completionStep">
                     {contactSectionCompleted ? (
-                      <span className="completedCircle">✓</span>
+                      <span className="completedCircle" aria-hidden="true">
+                        <svg
+                          className="completedCheckIcon"
+                          viewBox="0 0 8 6"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M0.75 3.05L2.85 5.15L7.25 0.75"
+                            stroke="#2A7308"
+                            strokeWidth="1.25"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     ) : (
                       <span className="emptyCircle" />
                     )}
@@ -1822,48 +1584,16 @@ export default function SuperAdminPage() {
                   <h2>Basic Information</h2>
                 </div>
 
-                {isBasicEditing ? (
-                  <div className="editHeaderActions">
-                    <button
-                      type="button"
-                      className="actionButton saveActionButton"
-                      aria-disabled={!basicInformationComplete}
-                      title={!basicInformationComplete ? "Fill all Basic Information fields first" : "Save Basic Information"}
-                      onClick={handleBasicSave}
-                    >
-                      <IconImage src="/assets/superadminicons/tick.svg" width={14} height={14} />
-                      <span>Save</span>
-                    </button>
-                    <button type="button" className="actionButton cancelActionButton" onClick={handleBasicCancel}>
-                      <IconImage src="/assets/superadminicons/cancel.svg" width={14} height={14} />
-                      <span>Cancel</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="editButton"
-                    aria-label="Edit profile"
-                    aria-disabled={!profilePhotoCompleted}
-                    title={!profilePhotoCompleted ? "Complete Profile Photo first" : "Edit Basic Information"}
-                    onClick={openBasicEditMode}
-                  >
-                    <IconImage src="/assets/superadminicons/edits.svg" width={24} height={24} />
-                  </button>
-                )}
-
-                {basicStatus === "saved" && (
-                  <div className="statusPopup statusSaved">
-                    <IconImage src="/assets/superadminicons/clapping.svg" width={24} height={24} />
-                    <span>Changes Saved</span>
-                  </div>
-                )}
-                {basicStatus === "discarded" && (
-                  <div className="statusPopup statusDiscarded">
-                    <IconImage src="/assets/superadminicons/sad.svg" width={24} height={24} />
-                    <span>Changes Discarded</span>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="editButton"
+                  aria-label="Edit profile"
+                  aria-disabled={!profilePhotoCompleted}
+                  title={!profilePhotoCompleted ? "Complete Profile Photo first" : "Edit Basic Information"}
+                  onClick={openBasicEditMode}
+                >
+                  <IconImage src="/assets/superadminicons/edits.svg" width={24} height={24} />
+                </button>
 
                 {basicStepMessage && (
                   <div className="statusPopup statusDiscarded" role="status" aria-live="polite">
@@ -1948,66 +1678,27 @@ export default function SuperAdminPage() {
                   <h2>Contact Information</h2>
                 </div>
 
-                {isContactEditing ? (
-                  <div className="editHeaderActions">
-                    <button
-                      type="button"
-                      className="actionButton saveActionButton"
-                      aria-disabled={!contactInformationComplete}
-                      title={!contactInformationComplete ? "Fill required Contact Information first" : "Save Contact Information"}
-                      onClick={handleContactSave}
-                    >
-                      <IconImage src="/assets/superadminicons/tick.svg" width={14} height={14} />
-                      <span>Save</span>
-                    </button>
-                    <button type="button" className="actionButton cancelActionButton" onClick={handleContactCancel}>
-                      <IconImage src="/assets/superadminicons/cancel.svg" width={14} height={14} />
-                      <span>Cancel</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="editButton"
-                    aria-label="Edit profile"
-                    aria-disabled={!profilePhotoCompleted || !basicSectionCompleted}
-                    title={
-                      !profilePhotoCompleted
-                        ? "Complete Profile Photo first"
-                        : !basicSectionCompleted
-                          ? "Complete Basic Information first"
-                          : "Edit Contact Information"
-                    }
-                    onClick={openContactEditMode}
-                  >
-                    <IconImage src="/assets/superadminicons/edits.svg" width={24} height={24} />
-                  </button>
-                )}
-
-                {contactStatus === "saved" && (
-                  <div className="statusPopup statusSaved">
-                    <IconImage src="/assets/superadminicons/clapping.svg" width={24} height={24} />
-                    <span>Changes Saved</span>
-                  </div>
-                )}
-                {contactStatus === "discarded" && (
-                  <div className="statusPopup statusDiscarded">
-                    <IconImage src="/assets/superadminicons/sad.svg" width={24} height={24} />
-                    <span>Changes Discarded</span>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="editButton"
+                  aria-label="Edit profile"
+                  aria-disabled={!profilePhotoCompleted || !basicSectionCompleted}
+                  title={
+                    !profilePhotoCompleted
+                      ? "Complete Profile Photo first"
+                      : !basicSectionCompleted
+                        ? "Complete Basic Information first"
+                        : "Edit Contact Information"
+                  }
+                  onClick={openContactEditMode}
+                >
+                  <IconImage src="/assets/superadminicons/edits.svg" width={24} height={24} />
+                </button>
 
                 {contactStepMessage && (
                   <div className="statusPopup statusDiscarded contactValidationPopup" role="status" aria-live="polite">
                     <IconImage src="/assets/superadminicons/sad.svg" width={24} height={24} />
                     <span>{contactStepMessage}</span>
-                  </div>
-                )}
-
-                {contactValidationError && (
-                  <div className="statusPopup statusDiscarded contactValidationPopup">
-                    <IconImage src="/assets/superadminicons/sad.svg" width={24} height={24} />
-                    <span>{contactValidationError}</span>
                   </div>
                 )}
               </div>
@@ -2042,27 +1733,33 @@ export default function SuperAdminPage() {
                       }))
                     }
                   />
-                  <PhoneNumberField
+                  <EditableField
+                    id="contact-mobile-number"
                     label="Mobile Number"
-                    country={mobileCountry}
                     value={contactDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={15}
+                    placeholder="Enter Mobile Number"
                     onChange={(value) =>
                       setContactDraft((current) => ({
                         ...current,
-                        mobileNumber: value,
+                        mobileNumber: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
-                  <PhoneNumberField
+                  <EditableField
+                    id="contact-alternate-number"
                     label="Alternate Number"
-                    country={alternateCountry}
                     value={contactDraft.alternateNumber}
-                    onCountryChange={setAlternateCountry}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={15}
+                    placeholder="Enter Alternate Number"
                     onChange={(value) =>
                       setContactDraft((current) => ({
                         ...current,
-                        alternateNumber: value,
+                        alternateNumber: value.replace(/\D/g, "").slice(0, 15),
                       }))
                     }
                   />
@@ -2073,17 +1770,13 @@ export default function SuperAdminPage() {
                   <InfoField label="Alternate Email" value={contactInfo.alternateEmail} placeholder="Enter an email" />
                   <InfoField
                     label="Mobile Number"
-                    value={contactInfo.mobileNumber && savedMobileCountry
-                      ? `+${getCountryCallingCode(savedMobileCountry)} ${contactInfo.mobileNumber}`
-                      : ""}
-                    placeholder="Select"
+                    value={contactInfo.mobileNumber}
+                    placeholder="Enter Mobile Number"
                   />
                   <InfoField
                     label="Alternate Number"
-                    value={contactInfo.alternateNumber && savedAlternateCountry
-                      ? `+${getCountryCallingCode(savedAlternateCountry)} ${contactInfo.alternateNumber}`
-                      : ""}
-                    placeholder="Select"
+                    value={contactInfo.alternateNumber}
+                    placeholder="Enter Alternate Number"
                   />
                 </div>
               )}
@@ -2093,8 +1786,15 @@ export default function SuperAdminPage() {
               <button
                 type="button"
                 className="reviewProfileButton"
+                onClick={handleCancelProfile}
               >
-                Review Profile
+                <IconImage
+                  src="/assets/superadminicons/cancel.svg"
+                  width={14}
+                  height={14}
+                  className="cancelProfileIcon"
+                />
+                Cancel
               </button>
 
               <button

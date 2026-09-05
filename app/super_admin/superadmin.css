@@ -5,7 +5,7 @@ input,
 select,
 textarea,
 option {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 * {
@@ -304,25 +304,54 @@ button {
   font-weight: 400;
 }
 
-.completedCircle {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  background: #487533;
+.completedCircle,
+.emptyCircle {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: block;
+  color: transparent;
+  background: transparent;
+  border: 0;
   border-radius: 50%;
-  font-size: 11px;
 }
 
-.emptyCircle {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  border: 1px solid #BABABA;
+/* Before checked: full 20px inset circle */
+.emptyCircle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #DFE6E9;
   border-radius: 50%;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
+}
+
+/* After checked: full 20px raised circle */
+.completedCircle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
+}
+
+/* Green check: larger and centered for clear visibility */
+.completedCheckIcon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 8px;
+  display: block;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 .informationCard {
@@ -445,33 +474,7 @@ button {
   overflow-wrap: anywhere;
 }
 
-.editHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-left: auto;
-}
 
-.actionButton {
-  min-width: 78px;
-  height: 38px;
-  padding: 0 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  background: #DFE6E9;
-  border-radius: 7px;
-  box-shadow:
-    -4px -4px 8px #FFFFFF,
-    4px 4px 8px #C4C4C4;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.saveActionButton { color: #2A7308; }
-.cancelActionButton { color: #D65A00; }
 
 .statusPopup {
   position: absolute;
@@ -495,10 +498,6 @@ button {
   z-index: 20;
 }
 
-.statusSaved {
-  color: #2A7308;
-  border: 1px solid #6D9D54;
-}
 
 .statusDiscarded {
   color: #D65A00;
@@ -631,7 +630,6 @@ input:focus-visible,
   .completionHeader h3 { font-size: 16px; }
   .completionHeader span { font-size: 12px; }
   .informationTitle h2 { font-size: 17px; }
-  .actionButton { min-width: 68px; height: 34px; padding: 0 9px; }
 }
 
 .roundFieldAction {
@@ -675,7 +673,7 @@ input:focus-visible,
   background: transparent;
   border: 0;
   outline: 0;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 16px;
   font-weight: 400;
   text-align: left;
@@ -753,7 +751,7 @@ input:focus-visible,
   justify-content: space-between;
   gap: 10px;
   border-radius: 10px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 18px;
   font-weight: 500;
   text-align: left;
@@ -931,7 +929,7 @@ input:focus-visible,
   background: transparent;
   border: 0;
   outline: 0;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 16px;
   font-weight: 400;
   text-align: left;
@@ -984,7 +982,7 @@ input:focus-visible,
   background: #DFE6E9;
   border: 0;
   border-radius: 7px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 16px;
   text-align: left;
   cursor: pointer;
@@ -1017,8 +1015,7 @@ input:focus-visible,
 
 .reviewProfileButton,
 .saveProfileButton {
-  min-width: 145px;
-  height: 45px;
+  height: 48px;
   padding: 0 22px;
   background: #DFE6E9;
   border-radius: 24px;
@@ -1031,31 +1028,38 @@ input:focus-visible,
 }
 
 .reviewProfileButton {
-  color: #2D4CC8;
+  width: 122px;
+  min-width: 122px;
+  max-width: 122px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #D65A00;
 }
 
+.cancelProfileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+}
+
+/* .reviewProfileButton {
+  color: #2D4CC8;
+} */
+
 .saveProfileButton {
+  width: 138px;
+  min-width: 138px;
+  max-width: 138px;
   color: #235F07;
 }
 
-.editHeaderActions .actionButton {
-  min-width: 78px;
-  height: 38px;
-  background: #DFE6E9;
-  border-radius: 7px;
-  box-shadow:
-    -4px -4px 8px #FFFFFF,
-    4px 4px 8px #C4C4C4;
-}
 
 .editableField {
   min-height: 68px;
 }
 
-.informationHeader .editHeaderActions {
-  margin-left: auto;
-  flex: 0 0 auto;
-}
 
 .profileBottomActions {
   width: 100%;
@@ -1091,7 +1095,7 @@ input:focus-visible,
 }
 
 .reviewProfileButton:not(:disabled) {
-  color: #2D4CC8;
+  color: #D65A00;
   cursor: pointer;
   opacity: 1;
 }
@@ -1130,12 +1134,12 @@ input:focus-visible,
   padding-bottom: 10px !important;
 }
 
-.reviewProfileButton,
+/* .reviewProfileButton,
 .saveProfileButton {
   opacity: 1 !important;
   cursor: pointer !important;
   pointer-events: auto !important;
-}
+} */
 
 .reviewProfileButton:disabled,
 .saveProfileButton:disabled {
@@ -1221,7 +1225,6 @@ input:focus-visible,
   .verticalDivider { width: 100%; height: 1px; margin: 20px 0; }
   .informationGrid { grid-template-columns: 1fr; }
   .informationHeader { flex-wrap: wrap; }
-  .editHeaderActions { margin-left: auto; }
   .statusPopup {
     top: calc(100% + 8px);
     left: auto;
@@ -1237,10 +1240,7 @@ input:focus-visible,
     margin-top: 22px;
   }
 
-  .reviewProfileButton,
-  .saveProfileButton {
-    min-width: 130px;
-  }
+  
 
   .profileBottomActions {
     margin-top: 28px !important;
@@ -1687,7 +1687,7 @@ input:focus-visible,
   width: 100% !important;
   min-width: 0 !important;
   height: 34px !important;
-
+  transform: translateX(10);
   box-shadow:
     -4px -4px 4px rgba(255, 255, 255, 0.95),
     4px 4px 4px rgba(196, 196, 196, 0.8) !important;
@@ -3097,7 +3097,7 @@ input:focus-visible,
   background: transparent;
   border: 0;
   outline: 0;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 16px;
   font-weight: 400;
   text-align: left;
@@ -3122,7 +3122,7 @@ input:focus-visible,
   transform: translateY(2px) rotate(225deg);
 }
 
-.officeLocationPanel {
+/* .officeLocationPanel {
   position: absolute;
   top: calc(100% + 12px);
   left: 0;
@@ -3135,7 +3135,7 @@ input:focus-visible,
     -8px -8px 16px #FFFFFF,
     8px 8px 16px #C4C4C4;
   z-index: 300;
-}
+} */
 
 .officeLocationPanelTitle {
   min-height: 78px;
@@ -3384,7 +3384,7 @@ input:focus-visible,
 }
 
 @media (max-width: 700px) {
-  .officeLocationPanel {
+  /* .officeLocationPanel {
     position: absolute;
     left: 0;
     right: 0;
@@ -3394,7 +3394,7 @@ input:focus-visible,
     transform: none;
     overflow-y: auto;
     z-index: 1200;
-  }
+  } */
 
   .officeLocationOptionsPanel {
     position: relative;
@@ -3424,11 +3424,11 @@ input:focus-visible,
 }
 
 /* Attach the location panel directly under the top field */
-.officeLocationFieldOpen .officeLocationPanel {
+/* .officeLocationFieldOpen .officeLocationPanel {
   top: 100%;
   padding: 10px 16px 16px;
   border-radius: 0 0 14px 14px;
-}
+} */
 
 /* Reduce the large vertical gaps in the opened panel */
 .officeLocationFieldOpen .officeLocationSelectorGroup {
@@ -3482,14 +3482,14 @@ input:focus-visible,
 
 /* Override the earlier mobile rule that adds the 12px gap again */
 @media (max-width: 700px) {
-  .officeLocationFieldOpen .officeLocationPanel {
+  /* .officeLocationFieldOpen .officeLocationPanel {
     top: 100%;
     left: 0;
     right: 0;
     width: 100%;
     max-height: 75vh;
     padding: 10px 16px 16px;
-  }
+  } */
 
   .officeLocationFieldOpen .officeLocationSelectorGroup {
     margin-top: 14px;
@@ -3505,311 +3505,90 @@ input:focus-visible,
 }
 
 
-/* PHONE COUNTRY SELECTOR — Mobile Number + Alternate Number only */
-.phoneNumberField { position: relative; overflow: visible; padding: 0; }
-.phoneNumberFieldOpen { z-index: 700; }
-.phoneNumberMainButton {
-  width:100%; min-height:68px; padding:12px 13px; display:flex;
-  align-items:center; justify-content:space-between; gap:10px;
-  color:#2F3547; background:transparent; text-align:left; cursor:pointer;
-}
-.phoneNumberMainText { flex:1; min-width:0; }
-.phoneNumberMainButton .infoLabel { margin-bottom:8px; }
-.phoneNumberSavedValue {
-  display:block; overflow:hidden; color:#2F3547; font-size:16px;
-  line-height:1.2; text-overflow:ellipsis; white-space:nowrap;
-}
-.phoneNumberPanel {
-  position:absolute; top:100%; left:0; width:100%; padding:22px 13px 16px;
-  background:#DFE6E9; border-radius:0 0 8px 8px;
-  box-shadow:inset -4px -4px 4px #FFFFFF, inset 4px 4px 4px #C4C4C4;
-  z-index:720;
-  transform: translateY(-12);
-}
-.phoneNumberPanelLabel { margin-bottom:10px; color:#374151; font-size:16px; font-weight:500; }
-.phoneCountryBox { position:relative; width:100%; }
-.phoneCountrySearch {
-  position:relative; width:100%; min-height:52px; padding:0 42px 0 46px;
-  display:flex; align-items:center; background:#DFE6E9; border-radius:7px;
-  box-shadow:inset -4px -4px 7px #FFFFFF,inset 4px 4px 7px #C4C4C4;
-}
-.phoneCountrySearchOpen { border-radius:7px 7px 0 0; }
-.phoneCountrySearch input {
-  width:100%; min-width:0; height:50px; padding:0; color:#374151;
-  background:transparent; border:0; outline:0; font-size:15px;
-}
-.phoneCountrySearchIcon {
-  position:absolute; left:16px; top:50%; width:17px; height:17px;
-  transform:translateY(-50%); border:2px solid #374151; border-radius:50%;
-}
-.phoneCountrySearchIcon::after {
-  content:""; position:absolute; right:-6px; bottom:-3px; width:7px; height:2px;
-  background:#374151; border-radius:2px; transform:rotate(45deg);
-}
-.phoneCountrySelectedCode {
-  flex:0 0 auto; margin-right:4px; color:#374151; font-size:14px;
-  font-weight:600; white-space:nowrap;
-}
-.phoneCountryChevron { position:absolute; right:14px; margin:0; cursor:pointer; }
-.phoneCountryMenu {
-  position:absolute; top:100%; left:0; right:0; width:100%; margin:0;
-  padding:3px 0 5px; overflow:hidden; background:#DFE6E9; border:0;
-  border-radius:0 0 8px 8px;
-  box-shadow:4px 5px 7px rgba(196,196,196,.58); z-index:800;
-}
-.phoneCountryList {
-  width:100%; max-height:184px; padding:3px 5px 5px;
-  overflow-x:hidden; overflow-y:auto; scrollbar-width:thin;
-  scrollbar-color:#90989E transparent;
-}
-.phoneCountryList::-webkit-scrollbar { width:5px; }
-.phoneCountryList::-webkit-scrollbar-track { background:transparent; }
-.phoneCountryList::-webkit-scrollbar-thumb { background:#90989E; border-radius:10px; }
-.phoneCountryOption {
-  width:100%; min-height:42px; padding:5px 8px; display:flex;
-  align-items:center; gap:8px; color:#374151; background:transparent;
-  border:0; box-shadow:none; text-align:left; cursor:pointer;
-}
-.phoneCountryOptionSelected { color:#2D4CC8; font-weight:600; }
-.phoneCountryOptionContent {
-  flex:1; min-width:0; display:flex; align-items:center; gap:9px;
-}
-.phoneCountryFlag, .phoneCountryFlag svg {
-  width:22px; min-width:22px; height:15px; flex:0 0 22px; display:block;
-}
-.phoneCountryOptionText {
-  min-width:0; overflow:hidden; font-size:12.5px; line-height:18px;
-  text-overflow:ellipsis; white-space:nowrap;
-}
-.phoneCountryOption .raisedDropdownRadio { margin-left:auto; flex-shrink:0; }
-.phoneNumberInputLabel { margin-top:20px; }
-.phoneNumberInputFrame {
-  width:100%; min-height:52px; padding:0 14px; display:flex; align-items:center;
-  background:#DFE6E9; border-radius:7px;
-  box-shadow:inset -4px -4px 4px #FFFFFF, inset 4px 4px 4px #C4C4C4;
-}
-.phoneNumberInputFrame input {
-  width:100%; height:48px; padding:0; color:#2F3547; background:transparent;
-  border:0; outline:0; font-size:15px;
-}
-@media (max-width:700px) {
-  .phoneCountryOption { min-height:48px; padding:5px 7px; }
-  .phoneCountryOptionContent { gap:7px; }
-  .phoneCountryOptionText {
-    display:-webkit-box; overflow:hidden; white-space:normal; text-overflow:clip;
-    overflow-wrap:break-word; -webkit-box-orient:vertical; -webkit-line-clamp:2;
-    line-clamp:2; font-size:11.5px; line-height:16px; max-height:32px;
-  }
-  .phoneCountryFlag, .phoneCountryFlag svg {
-    width:20px; min-width:20px; height:14px; flex-basis:20px;
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* COUNTRY LIST ROW FRAMES — same raised frame style */
-.phoneCountryList {
-  padding: 8px 10px 10px !important;
-}
-
-.phoneCountryOption {
-  width: 100% !important;
-  min-height: 48px !important;
-  margin: 0 0 10px 0 !important;
-  padding: 6px 12px !important;
-  background: #DFE6E9 !important;
-  border: 0 !important;
-  border-radius: 8px !important;
-  box-shadow:
-    -4px -4px 7px #FFFFFF,
-    4px 4px 7px #C4C4C4 !important;
-}
-
-.phoneCountryOption:last-child {
-  margin-bottom: 2px !important;
-}
-
-.phoneCountryOption:hover,
-.phoneCountryOption:focus-visible {
-  outline: none !important;
-  box-shadow:
-    inset -3px -3px 5px #FFFFFF,
-    inset 3px 3px 5px #C4C4C4 !important;
-}
-
-.phoneCountryOptionSelected {
-  color: #2D4CC8 !important;
-  font-weight: 600 !important;
-  box-shadow:
-    inset -3px -3px 5px #FFFFFF,
-    inset 3px 3px 5px #C4C4C4 !important;
-}
-
-@media (max-width: 700px) {
-  .phoneCountryList {
-    padding: 8px 8px 10px !important;
-  }
-
-  .phoneCountryOption {
-    min-height: 50px !important;
-    margin-bottom: 9px !important;
-    padding: 6px 9px !important;
-  }
-}
 
 
-/* ==========================================================================
-   FINAL PHONE COUNTRY DROPDOWN — match reference
-   Top Search Country = raised when open
-   Country rows = flat (no individual raised cards)
-   ========================================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Raised TOP search section when dropdown is open */
-.phoneCountrySearch.phoneCountrySearchOpen {
-  position: relative !important;
-  z-index: 802 !important;
-  background: #DFE6E9 !important;
-  border-radius: 8px 8px 0 0 !important;
-  box-shadow:
-   inset  -4px -4px 4px #FFFFFF,
-    inset 4px 4px 4px rgba(196, 196, 196, 0.85) !important;
-}
+
 
 /* List attaches directly below the raised search field */
-.phoneCountryMenu {
-  top: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 2px 0 5px !important;
 
-  background: #DFE6E9 !important;
-  border: 0 !important;
-  border-radius: 0 0 8px 8px !important;
-  box-shadow:
-    4px 5px 7px rgba(196, 196, 196, 0.58) !important;
 
-  overflow: hidden !important;
-  z-index: 801 !important;
-}
 
-.phoneCountryList {
-  width: 100% !important;
-  max-height: 184px !important;
-  margin: 0 !important;
-  padding: 4px 8px 6px !important;
-  background: transparent !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-}
 
 /* Flat country rows like the reference image */
-.phoneCountryOption,
-.phoneCountryOption:hover,
-.phoneCountryOption:focus-visible,
-.phoneCountryOptionSelected {
-  width: 100% !important;
-  min-height: 40px !important;
-  margin: 0 !important;
-  padding: 5px 8px !important;
 
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-
-  outline: none !important;
-  text-align: left !important;
-}
 
 /* Selected row only changes text/check — still no row frame */
-.phoneCountryOptionSelected {
-  color: #2D4CC8 !important;
-  font-weight: 600 !important;
-}
+
 
 /* Reference spacing: flag -> code/name -> check on far right */
-.phoneCountryOptionContent {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 9px !important;
-}
 
-.phoneCountryFlag,
-.phoneCountryFlag svg {
-  width: 22px !important;
-  min-width: 22px !important;
-  height: 15px !important;
-  flex: 0 0 22px !important;
-}
 
-.phoneCountryOptionText {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  font-size: 12.5px !important;
-  line-height: 18px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
 
-.phoneCountryOption .raisedDropdownRadio {
-  flex: 0 0 auto !important;
-  margin-left: auto !important;
-}
+
+
+
+
 
 /* Mobile: long names may use up to 2 lines, same list/frame */
-@media (max-width: 700px) {
-  .phoneCountryOption {
-    min-height: 44px !important;
-    padding: 5px 7px !important;
-  }
 
-  .phoneCountryOptionText {
-    display: -webkit-box !important;
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    overflow-wrap: break-word !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    line-height: 16px !important;
-    max-height: 32px !important;
-  }
-}
 
 
 /* FINAL FIX — raise ONLY the top Mobile Number / Alternate Number field when open */
-.phoneNumberField.phoneNumberFieldOpen {
-  overflow: visible !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
 
-.phoneNumberField.phoneNumberFieldOpen > .phoneNumberMainButton {
-  position: relative !important;
-  z-index: 730 !important;
 
-  background: #DFE6E9 !important;
-  border: 0 !important;
-  border-radius: 8px !important;
 
-  box-shadow:
-    -5px -5px 8px #FFFFFF,
-    5px 5px 8px rgba(196, 196, 196, 0.95) !important;
-}
 
 /* Keep the lower opened panel inset/flat as it already is */
-.phoneNumberField.phoneNumberFieldOpen > .phoneNumberPanel {
-  z-index: 720 !important;
-}
+
 
 
 /* ==========================================================================
@@ -3834,10 +3613,10 @@ input:focus-visible,
 }
 
 /* Keep opened content attached below the raised top field */
-.officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+/* .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
   top: 100% !important;
   z-index: 640 !important;
-}
+} */
 
 /* Same compact scrollbar style as the other dropdowns */
 .officeLocationOptionsList {
@@ -4116,10 +3895,7 @@ input:focus-visible,
 }
 
 /* Keep checks at far right in their dropdown rows */
-.phoneCountryOption .raisedDropdownRadio {
-  margin-left: auto !important;
-  flex-shrink: 0 !important;
-}
+
 
 .officeLocationOption .officeLocationRadio {
   justify-self: end !important;
@@ -4166,7 +3942,7 @@ input:focus-visible,
    - Bottom panel keeps its border/frame but is NOT raised outward.
    ========================================================================== */
 
-.officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+/* .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
   top: 100% !important;
   left: 0 !important;
   right: 0 !important;
@@ -4176,20 +3952,18 @@ input:focus-visible,
   padding: 22px 20px 18px !important;
 
   background: #DFE6E9 !important;
-  /* transform: translateY(-15); */
-  /* Keep visible frame/border like the reference */
-  /* border: 1px solid rgba(183, 190, 198, 0.52) !important; */
+
   border-top: 0 !important;
   border-radius: 0 0 12px 12px !important;
 
-  /* Inset/inside depth only — NOT an outward raised card */
+ 
   box-shadow:
     inset -4px -4px 7px rgba(255, 255, 255, 0.78),
     inset 4px 4px 7px rgba(196, 196, 196, 0.72) !important;
 
   outline: 0 !important;
   z-index: 640 !important;
-}
+} */
 
 /* Keep each Country / State / City selector raised like the reference */
 .officeLocationSelector {
@@ -4251,10 +4025,10 @@ input:focus-visible,
 
 /* Mobile: same frame, no dropdown positioning changes */
 @media (max-width: 700px) {
-  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+  /* .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
     padding: 18px 14px 16px !important;
     border-radius: 0 0 10px 10px !important;
-  }
+  } */
 }
 
 
@@ -4319,9 +4093,7 @@ input:focus-visible,
 
 /* Mobile Number / Alternate Number arrows:
    only bring them a little inward from the right border */
-.phoneNumberMainButton > .genderChevron {
-  margin-right: 10px !important;
-}
+
 
 /* Office Location main arrow:
    only bring it a little inward from the right border */
@@ -4336,10 +4108,8 @@ input:focus-visible,
   margin-right: 8px !important;
 }
 
-/* Phone Country arrow */
-.phoneCountrySearch > .phoneCountryChevron {
-  right: 18px !important;
-}
+
+
 
 /* Government ID Document Type arrow */
 .documentTypeButton > .genderChevron {
@@ -4353,14 +4123,11 @@ input:focus-visible,
     top: -7px !important;
   }
 
-  .phoneNumberMainButton > .genderChevron,
   .officeLocationMainButton > .officeLocationChevron {
     margin-right: 8px !important;
   }
 
-  .phoneCountrySearch > .phoneCountryChevron {
-    right: 16px !important;
-  }
+  
 }
 
 
@@ -4374,8 +4141,7 @@ input:focus-visible,
 .genderChevron,
 .officeLocationChevron,
 .officeLocationInnerChevron,
-.officeLocationPanelChevron,
-.phoneCountryChevron {
+.officeLocationPanelChevron {
   width: 10px !important;
   height: 10px !important;
   flex: 0 0 10px !important;
@@ -4390,8 +4156,7 @@ input:focus-visible,
 /* CLOSED — same down icon */
 .genderChevron:not(.genderChevronOpen),
 .officeLocationChevron:not(.officeLocationChevronOpen),
-.officeLocationInnerChevron:not(.officeLocationInnerChevronOpen),
-.phoneCountryChevron:not(.phoneCountryChevronOpen) {
+.officeLocationInnerChevron:not(.officeLocationInnerChevronOpen) {
   transform: rotate(45deg) !important;
 }
 
@@ -4399,8 +4164,7 @@ input:focus-visible,
 .genderChevron.genderChevronOpen,
 .officeLocationChevron.officeLocationChevronOpen,
 .officeLocationInnerChevron.officeLocationInnerChevronOpen,
-.officeLocationPanelChevron,
-.phoneCountryChevron.phoneCountryChevronOpen {
+.officeLocationPanelChevron {
   transform: rotate(225deg) !important;
 }
 
@@ -4411,11 +4175,8 @@ input:focus-visible,
   margin: 0 !important;
 }
 
-/* Phone main dropdowns */
-.phoneNumberMainButton > .genderChevron {
-  right: 16px !important;
-  margin: 0 !important;
-}
+
+
 
 /* Office Location main dropdown */
 .officeLocationMainButton > .officeLocationChevron {
@@ -4429,32 +4190,26 @@ input:focus-visible,
   margin-right: 8px !important;
 }
 
-/* Phone country selector */
-.phoneCountrySearch > .phoneCountryChevron {
-  right: 16px !important;
-}
+
+
 
 @media (max-width: 700px) {
   .genderChevron,
-  .officeLocationChevron,
-  .officeLocationInnerChevron,
-  .officeLocationPanelChevron,
-  .phoneCountryChevron {
+.officeLocationChevron,
+.officeLocationInnerChevron,
+.officeLocationPanelChevron {
     width: 9px !important;
     height: 9px !important;
     flex-basis: 9px !important;
   }
 
   .genderDropdownButton > .genderChevron,
-  .documentTypeButton > .genderChevron,
-  .phoneNumberMainButton > .genderChevron,
-  .officeLocationMainButton > .officeLocationChevron {
+.documentTypeButton > .genderChevron,
+.officeLocationMainButton > .officeLocationChevron {
     right: 14px !important;
   }
 
-  .phoneCountrySearch > .phoneCountryChevron {
-    right: 14px !important;
-  }
+  
 }
 
 
@@ -4465,10 +4220,8 @@ input:focus-visible,
 
 /* Make each dropdown trigger the positioning reference */
 .genderDropdownButton,
-.phoneNumberMainButton,
 .officeLocationMainButton,
 .documentTypeButton,
-.phoneCountrySearch,
 .officeLocationSelector,
 .officeLocationSearchRow {
   position: relative !important;
@@ -4476,7 +4229,6 @@ input:focus-visible,
 
 /* SAME placement as Gender for all MAIN dropdown arrows */
 .genderDropdownButton > .genderChevron,
-.phoneNumberMainButton > .genderChevron,
 .officeLocationMainButton > .officeLocationChevron,
 .documentTypeButton > .genderChevron {
   position: absolute !important;
@@ -4487,7 +4239,6 @@ input:focus-visible,
 
 /* Closed arrow: center vertically exactly like Gender */
 .genderDropdownButton > .genderChevron:not(.genderChevronOpen),
-.phoneNumberMainButton > .genderChevron:not(.genderChevronOpen),
 .officeLocationMainButton > .officeLocationChevron:not(.officeLocationChevronOpen),
 .documentTypeButton > .genderChevron:not(.genderChevronOpen) {
   transform: translateY(-50%) rotate(45deg) !important;
@@ -4495,24 +4246,15 @@ input:focus-visible,
 
 /* Open arrow: same centered position, pointing up */
 .genderDropdownButton > .genderChevron.genderChevronOpen,
-.phoneNumberMainButton > .genderChevron.genderChevronOpen,
 .officeLocationMainButton > .officeLocationChevron.officeLocationChevronOpen,
 .documentTypeButton > .genderChevron.genderChevronOpen {
   transform: translateY(-50%) rotate(225deg) !important;
 }
 
-/* Phone Country selector — same right and vertical placement */
-.phoneCountrySearch > .phoneCountryChevron {
-  position: absolute !important;
-  right: 16px !important;
-  top: 50% !important;
-  margin: 0 !important;
-  transform: translateY(-50%) rotate(45deg) !important;
-}
 
-.phoneCountrySearch > .phoneCountryChevron.genderChevronOpen {
-  transform: translateY(-50%) rotate(225deg) !important;
-}
+
+
+
 
 /* Office Location Country / State / City — same placement */
 .officeLocationSelector > .officeLocationInnerChevron,
@@ -4532,12 +4274,10 @@ input:focus-visible,
 /* Mobile */
 @media (max-width: 700px) {
   .genderDropdownButton > .genderChevron,
-  .phoneNumberMainButton > .genderChevron,
-  .officeLocationMainButton > .officeLocationChevron,
-  .documentTypeButton > .genderChevron,
-  .phoneCountrySearch > .phoneCountryChevron,
-  .officeLocationSelector > .officeLocationInnerChevron,
-  .officeLocationSearchRow > .officeLocationInnerChevron {
+.officeLocationMainButton > .officeLocationChevron,
+.documentTypeButton > .genderChevron,
+.officeLocationSelector > .officeLocationInnerChevron,
+.officeLocationSearchRow > .officeLocationInnerChevron {
     right: 14px !important;
     top: 50% !important;
   }
@@ -4671,6 +4411,7 @@ input:focus-visible,
   color: #2F3547 !important;
   border-color: transparent !important;
   opacity: 1 !important;
+  /* transform: translateX(-20); */
 }
 
 .chooseFileButton img,
@@ -4691,3 +4432,1442 @@ input:focus-visible,
   filter: brightness(0) saturate(100%) invert(31%) sepia(43%) saturate(1090%) hue-rotate(57deg) brightness(89%) contrast(96%) !important;
   opacity: 1 !important;
 }
+
+
+/* ==========================================================================
+   OFFICE LOCATION SEARCH + AUTO APPLY UPDATE
+   - Search text is typed directly in the clicked Country / State / City field
+   - Search input is immediately focused so the caret is visible
+   - Cancel / Apply buttons are removed from the component
+   - Selecting a City automatically applies the full location
+   - Office Location heading/control stay vertically centered in the field
+   ========================================================================== */
+
+.officeLocationField {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.officeLocationField.officeLocationFieldOpen {
+  justify-content: center !important;
+}
+
+.officeLocationField.officeLocationFieldOpen > .infoLabel {
+  margin-top: auto;
+}
+
+.officeLocationField.officeLocationFieldOpen > .officeLocationMainButton {
+  margin-bottom: auto;
+}
+
+/* Do not hide the selected Office Location text when the panel opens. */
+.officeLocationFieldOpen .officeLocationMainButton > span:first-child {
+  display: inline !important;
+}
+
+/* Keep the main Office Location content centered instead of pushed to the top. */
+.officeLocationFieldOpen .officeLocationMainButton {
+  min-height: 24px !important;
+  justify-content: space-between !important;
+}
+
+/* Active search uses the same selector frame, but the middle content is a real input. */
+.officeLocationSelectorSearchActive {
+  position: relative;
+  z-index: 342;
+  cursor: text !important;
+}
+
+.officeLocationInlineSearchInput {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #2F3547 !important;
+  -webkit-text-fill-color: #2F3547 !important;
+  caret-color: #2D4CC8 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  opacity: 1 !important;
+  font-family: "Segoe UI" !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+
+.officeLocationInlineSearchInput::placeholder {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+
+.officeLocationInlineClose {
+  width: 18px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+}
+
+.officeLocationInlineClose .officeLocationInnerChevron {
+  margin: 0;
+}
+
+/* The options list starts directly below the field being searched. */
+.officeLocationOptionsPanelSearchActive {
+  top: calc(100% + 8px) !important;
+}
+
+/* Search row is no longer used by Office Location. */
+.officeLocationActions {
+  display: none !important;
+}
+
+@media (max-width: 700px) {
+  .officeLocationField.officeLocationFieldOpen {
+    justify-content: center !important;
+  }
+
+  .officeLocationOptionsPanelSearchActive {
+    top: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   OFFICE LOCATION - COMPACT SPACING / NO OTHER CARD HEIGHT CHANGE
+   ========================================================================== */
+
+/* IMPORTANT:
+   Keep the Office Location dropdown floating absolutely.
+   It must NOT increase the height of this card or any surrounding card. */
+.officeLocationField.officeLocationFieldOpen {
+  height: auto !important;
+  min-height: 68px !important;
+  overflow: visible !important;
+  justify-content: center !important;
+}
+
+/* .officeLocationFieldOpen .officeLocationPanel,
+.officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 8px 12px 10px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  border-radius: 0 0 14px 14px !important;
+  box-shadow:
+    inset -4px -4px 4px #FFFFFF,
+    inset 4px 4px 4px #C4C4C4 !important;
+  z-index: 1200 !important;
+  transform: translateY(-3);
+} */
+
+/* Much tighter spacing between Country, State and City. */
+.officeLocationFieldOpen .officeLocationSelectorGroup {
+  margin-top: 6px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorGroup:first-child {
+  margin-top: 2px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorLabel {
+  margin: 0 0 4px !important;
+  line-height: 1.15 !important;
+}
+
+/* Keep the three selector cards compact without changing other cards. */
+.officeLocationFieldOpen .officeLocationSelector,
+.officeLocationFieldOpen .officeLocationSelectorSearchActive {
+  min-height: 46px !important;
+  height: 46px !important;
+}
+
+/* No extra space after City. */
+.officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Search results stay attached to the active field and remain fully opaque,
+   so the content behind does not visually mix with the dropdown. */
+.officeLocationFieldOpen .officeLocationSelectorGroup {
+  position: relative;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorGroup:has(.officeLocationOptionsPanel) {
+  z-index: 1250;
+}
+
+.officeLocationOptionsPanelSearchActive {
+  position: absolute !important;
+  top: calc(100% + 3px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 0 5px !important;
+  background: #DFE6E9 !important;
+  opacity: 1 !important;
+  z-index: 1300 !important;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px #C4C4C4 !important;
+}
+
+.officeLocationOptionsPanelSearchActive .officeLocationOptionsList {
+  padding: 5px 8px 3px !important;
+  background: #DFE6E9 !important;
+}
+
+/* Make sure the Office Location popup is above the next section,
+   without resizing or modifying that section. */
+.officeLocationField,
+.officeLocationFieldOpen {
+  z-index: 900;
+}
+
+@media (max-width: 700px) {
+  /* .officeLocationFieldOpen .officeLocationPanel,
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 12px 10px !important;
+    max-height: 75vh !important;
+    overflow-y: auto !important;
+    z-index: 1200 !important;
+  } */
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup {
+    margin-top: 6px !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup:first-child {
+    margin-top: 2px !important;
+  }
+
+  .officeLocationOptionsPanelSearchActive {
+    position: absolute !important;
+    top: calc(100% + 3px) !important;
+  }
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION - INNER DROPDOWN GAP + MOBILE SCROLLBAR FIX
+   Only Office Location dropdown presentation is changed.
+   ========================================================================== */
+
+/* Active Country / State / City search field and its list must look connected. */
+.officeLocationFieldOpen .officeLocationSelectorSearchActive {
+  border-radius: 7px 7px 0 0 !important;
+}
+
+/* Remove the visible gap between the active search field and option list. */
+.officeLocationFieldOpen .officeLocationOptionsPanelSearchActive {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: -1px 0 0 !important;
+  padding: 0 0 5px !important;
+  border-top: 0 !important;
+  border-radius: 0 0 7px 7px !important;
+  background: #DFE6E9 !important;
+  z-index: 1300 !important;
+}
+
+/* Keep list content close to the search field instead of adding a blank strip. */
+.officeLocationOptionsPanelSearchActive .officeLocationOptionsList {
+  margin: 0 !important;
+  padding: 5px 10px 4px !important;
+}
+
+/* Desktop: enough visible options without creating extra empty space. */
+@media (min-width: 701px) {
+  .officeLocationOptionsPanelSearchActive .officeLocationOptionsList {
+    max-height: 228px !important;
+  }
+}
+
+/* Mobile/tablet:
+   - dropdown remains attached directly below the search field
+   - list scrolls normally
+   - scrollbar itself is hidden so the UI is clean
+   - no other card/section height is changed */
+@media (max-width: 700px) {
+  .officeLocationFieldOpen .officeLocationOptionsPanelSearchActive {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin: -1px 0 0 !important;
+    padding: 0 0 4px !important;
+    border-radius: 0 0 7px 7px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .officeLocationOptionsPanelSearchActive .officeLocationOptionsList {
+    max-height: min(300px, 48vh) !important;
+    margin: 0 !important;
+    padding: 5px 8px 4px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    /* Firefox */
+    scrollbar-width: none !important;
+
+    /* Edge legacy */
+    -ms-overflow-style: none !important;
+  }
+
+  .officeLocationOptionsPanelSearchActive
+    .officeLocationOptionsList::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+
+  .officeLocationOptionsPanelSearchActive
+    .officeLocationOptionsList::-webkit-scrollbar-track,
+  .officeLocationOptionsPanelSearchActive
+    .officeLocationOptionsList::-webkit-scrollbar-thumb {
+    display: none !important;
+    background: transparent !important;
+  }
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION - USE THE SAME DROPDOWN PATTERN AS GENDER
+   Only Office Location dropdown presentation is overridden here.
+   ========================================================================== */
+
+/* The Country / State / City result menu now follows .genderDropdownMenu:
+   12px below the field, 8px padding, 8px item gap, same radius and shadows. */
+.officeLocationGenderMenu {
+  position: absolute !important;
+  top: calc(100% + 12px) !important;
+  left: 0 !important;
+  right: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  background: #DFE6E9 !important;
+  border-radius: 10px !important;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px #C4C4C4 !important;
+  z-index: 1400 !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.officeLocationGenderMenu::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Each country/state/city row uses the same raised Gender option card. */
+.officeLocationGenderOption {
+  width: 100% !important;
+  min-height: 40px !important;
+  padding: 0 13px !important;
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) 36px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #2F3547 !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  font-family: "Segoe UI" !important;
+  font-size: 16px !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  box-shadow:
+    -4px -3px 6px #FFFFFF,
+    4px 3px 6px #C4C4C4 !important;
+}
+
+.officeLocationGenderOptionWithoutFlag {
+  grid-template-columns: minmax(0, 1fr) 36px !important;
+}
+
+.officeLocationGenderOption:hover,
+.officeLocationGenderOption.genderDropdownOptionSelected {
+  box-shadow:
+    inset -3px -3px 5px #FFFFFF,
+    inset 3px 3px 5px #C4C4C4 !important;
+}
+
+/* Keep the search field as a single clean raised field, exactly above its list. */
+.officeLocationFieldOpen .officeLocationSelectorSearchActive {
+  border-radius: 7px !important;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px #C4C4C4 !important;
+}
+
+/* Office Location outer panel stays floating, so no other card height changes. */
+/* .officeLocationFieldOpen .officeLocationPanel,
+.officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  z-index: 1200 !important;
+} */
+
+/* Compact spacing between Country, State and City only. */
+.officeLocationFieldOpen .officeLocationSelectorGroup {
+  position: relative !important;
+  margin-top: 8px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorGroup:first-child {
+  margin-top: 2px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorLabel {
+  margin: 0 0 6px !important;
+}
+
+/* Mobile uses the SAME gender dropdown appearance, not a separate design. */
+@media (max-width: 700px) {
+  .officeLocationGenderMenu {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-height: min(240px, 42vh) !important;
+    padding: 8px !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: 10px !important;
+  }
+
+  .officeLocationGenderOption {
+    min-height: 40px !important;
+    padding: 0 13px !important;
+    font-size: 16px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL OFFICE LOCATION DROPDOWN
+   Country, State and City now use the SAME dropdown structure.
+   ========================================================================== */
+
+.officeLocationField {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.officeLocationField.officeLocationFieldOpen {
+  min-height: 68px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Outer Office Location popup stays floating and does not resize other cards. */
+/* .officeLocationFieldOpen > .officeLocationPanel {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 12px !important;
+  overflow: visible !important;
+  background: #DFE6E9 !important;
+  border-radius: 12px !important;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px #C4C4C4 !important;
+  z-index: 1200 !important;
+} */
+
+/* Same spacing for Country, State and City. */
+.officeLocationFieldOpen .officeLocationSelectorGroup {
+  position: relative !important;
+  margin: 0 0 12px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+  margin-bottom: 0 !important;
+}
+
+.officeLocationFieldOpen .officeLocationSelectorLabel {
+  margin: 0 0 6px !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
+/* Same closed field for Country / State / City. */
+.officeLocationFieldOpen .officeLocationSelector {
+  width: 100% !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  padding: 0 14px !important;
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, 1fr) 18px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  box-shadow:
+   inset  -4px -4px 4px #FFFFFF,
+    inset 4px 4px 4px #C4C4C4 !important;
+}
+
+/* SAME dropdown under Country / State / City. */
+.officeLocationFieldOpen .officeLocationOptionsPanel {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 0 8px !important;
+  overflow: hidden !important;
+  background: #DFE6E9 !important;
+  border-radius: 8px !important;
+  box-shadow:
+    -6px -6px 12px #FFFFFF,
+    6px 6px 12px #C4C4C4 !important;
+  z-index: 1500 !important;
+}
+
+/* SAME search bar at top of every dropdown. */
+.officeLocationFieldOpen .officeLocationSearchRow {
+  width: 100% !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  padding: 0 14px !important;
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, 1fr) 18px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: #DFE6E9 !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  box-shadow:
+    -4px -4px 8px #FFFFFF,
+    4px 4px 8px #C4C4C4 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.officeLocationFieldOpen .officeLocationSearchRow input {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #2F3547 !important;
+  -webkit-text-fill-color: #2F3547 !important;
+  caret-color: #2D4CC8 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  opacity: 1 !important;
+  font-family: "Segoe UI" !important;
+  font-size: 16px !important;
+}
+
+.officeLocationFieldOpen .officeLocationSearchRow input::placeholder {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+
+/* SAME result list for Country / State / City. */
+.officeLocationFieldOpen .officeLocationOptionsList {
+  max-height: 240px !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: #DFE6E9 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.officeLocationFieldOpen .officeLocationOptionsList::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.officeLocationFieldOpen .officeLocationOption {
+  width: 100% !important;
+  min-height: 44px !important;
+  margin: 0 0 6px !important;
+}
+
+.officeLocationFieldOpen .officeLocationOption:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Mobile keeps exactly the same dropdown design. */
+@media (max-width: 700px) {
+  /* .officeLocationFieldOpen > .officeLocationPanel {
+    top: calc(100% + 6px) !important;
+    padding: 10px !important;
+  } */
+
+  .officeLocationFieldOpen .officeLocationOptionsPanel {
+    top: calc(100% + 6px) !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationOptionsList {
+    max-height: min(230px, 42vh) !important;
+  }
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION - ONE FIELD ONLY
+   The Country / State / City selector itself becomes the search field.
+   No duplicate search field is rendered.
+   ========================================================================== */
+
+.officeLocationSingleSearch {
+  cursor: text !important;
+}
+
+.officeLocationSingleSearch input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #2F3547 !important;
+  -webkit-text-fill-color: #2F3547 !important;
+  caret-color: #2D4CC8 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  opacity: 1 !important;
+  font-family: "Segoe UI" !important;
+  font-size: 16px !important;
+}
+
+.officeLocationSingleSearch input::placeholder {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+
+.officeLocationSingleSearchClose {
+  width: 18px !important;
+  height: 100% !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+}
+
+.officeLocationSingleSearchClose .officeLocationInnerChevron {
+  margin: 0 !important;
+}
+
+/* Results attach directly to that ONE search field. */
+.officeLocationFieldOpen .officeLocationSingleOptionsPanel {
+  top: 100% !important;
+  margin-top: 0 !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+/* When open, the single search field forms the top of the dropdown. */
+.officeLocationFieldOpen .officeLocationSelectorGroup:has(.officeLocationSingleOptionsPanel)
+  > .officeLocationSingleSearch {
+  border-radius: 7px 7px 0 0 !important;
+}
+
+/* The old second search row must never appear in this Office Location version. */
+.officeLocationFieldOpen .officeLocationSingleOptionsPanel > .officeLocationSearchRow {
+  display: none !important;
+}
+
+@media (max-width: 700px) {
+  .officeLocationFieldOpen .officeLocationSingleOptionsPanel {
+    top: 100% !important;
+    margin-top: 0 !important;
+  }
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION - FULL BOTTOM PANEL INSET
+   Only the expanded Office Location bottom panel is changed.
+   Country / State / City fields keep their existing inset styling.
+   ========================================================================== */
+
+/* .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+  background: #DFE6E9 !important;
+  border-radius: 0 0 14px 14px !important;
+
+ 
+  box-shadow:
+    inset -6px -6px 10px rgba(255, 255, 255, 0.95),
+    inset 6px 6px 10px rgba(196, 196, 196, 0.88) !important;
+} */
+
+/* Keep the same full inset panel appearance on mobile too. */
+@media (max-width: 700px) {
+  /* .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+    background: #DFE6E9 !important;
+    transform: translateY(-6);
+    border-radius: 0 0 14px 14px !important;
+    box-shadow:
+      inset -4px -4px 4px rgba(255, 255, 255, 0.95),
+      inset 4px 4px 4px rgba(196, 196, 196, 0.88) !important;
+      
+  } */
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION — CORRECT RESPONSIVE FORMAT
+   Desktop/tablet: dropdown floats only under Office Location, so the grid row
+   does NOT become very tall.
+   Mobile: dropdown stays in normal flow, so it cannot overlap the next field.
+   No other card styles/heights are changed.
+   ========================================================================== */
+
+/* ---------- DESKTOP / TABLET ---------- */
+@media (min-width: 701px) {
+  .officeLocationField.officeLocationFieldOpen {
+    position: relative !important;
+    min-height: 68px !important;
+    height: auto !important;
+    margin-bottom: 0 !important;
+    align-self: auto !important;
+    overflow: visible !important;
+    z-index: 900 !important;
+  }
+
+  /* Do NOT make the whole grid row as tall as the Office Location popup. */
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen .officeLocationPanel {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 12px 13px 36px !important;
+
+    transform: none !important;
+    overflow: visible !important;
+
+    background: #DFE6E9 !important;
+    border: 0 !important;
+    border-radius: 0 0 12px 12px !important;
+    box-shadow:
+      inset -4px -4px 4px rgba(255,255,255,.95),
+      inset 4px 4px 4px rgba(196,196,196,.88) !important;
+
+    z-index: 1200 !important;
+  }
+
+  /* Country / State / City search-result dropdowns stay attached
+     to their own field on desktop. */
+  .officeLocationFieldOpen .officeLocationOptionsPanel,
+  .officeLocationFieldOpen .officeLocationSingleOptionsPanel {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 1500 !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup {
+    position: relative !important;
+    margin: 0 0 12px !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 700px) {
+  .officeLocationField.officeLocationFieldOpen {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    align-self: start !important;
+    overflow: visible !important;
+    z-index: 30 !important;
+  }
+
+  /* On one-column mobile layout the panel MUST participate in layout,
+     otherwise it covers Mobile Number / the next field. */
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen .officeLocationPanel {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    display: block !important;
+    width: calc(100% + 26px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 10px -13px -12px !important;
+    padding: 12px 13px 14px !important;
+
+    transform: none !important;
+    overflow: visible !important;
+
+    background: #DFE6E9 !important;
+    border: 0 !important;
+    border-radius: 0 0 12px 12px !important;
+    box-shadow:
+      inset -4px -4px 4px rgba(255,255,255,.95),
+      inset 4px 4px 4px rgba(196,196,196,.88) !important;
+
+    z-index: auto !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup {
+    position: relative !important;
+    margin: 0 0 12px !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* Result list stays below the active Country/State/City field
+     and pushes the following location fields down, preventing overlap. */
+  .officeLocationFieldOpen .officeLocationOptionsPanel,
+  .officeLocationFieldOpen .officeLocationSingleOptionsPanel {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    width: 100% !important;
+    margin: 4px 0 0 !important;
+    z-index: auto !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationOptionsList {
+    max-height: min(220px, 40vh) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationOptionsList::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+
+/* ==========================================================================
+   OFFICE LOCATION — FINAL SPACING / HEIGHT CORRECTION
+   Only Office Location is adjusted.
+   - small extra bottom room
+   - equal spacing for Country / State / City
+   - clear separation from the next card
+   - no overlap
+   ========================================================================== */
+
+/* Desktop/tablet: keep existing floating behavior, only tidy the inner spacing. */
+@media (min-width: 701px) {
+  .officeLocationFieldOpen .officeLocationSelectorGroup {
+    margin: 0 0 14px !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorLabel {
+    margin: 0 0 8px !important;
+  }
+
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel {
+    padding-bottom: 36px !important;
+  }
+}
+
+/* Mobile: let only Office Location grow enough to contain its full panel,
+   then leave a small clean gap before the next profile card. */
+@media (max-width: 700px) {
+  .officeLocationField.officeLocationFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    margin-bottom: 14px !important;
+  }
+
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen .officeLocationPanel {
+    position: relative !important;
+    inset: auto !important;
+
+    width: calc(100% + 26px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 10px -13px 0 !important;
+    padding: 14px 13px 36px !important;
+
+    overflow: visible !important;
+    transform: none !important;
+
+    background: #DFE6E9 !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  /* Equal vertical rhythm for all three fields. */
+  .officeLocationFieldOpen .officeLocationSelectorGroup {
+    margin: 0 0 16px !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .officeLocationFieldOpen .officeLocationSelectorLabel {
+    margin: 0 0 8px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Give Country the same clear label-to-card spacing as State and City. */
+  .officeLocationFieldOpen .officeLocationSelectorGroup:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* Small internal room below City so the next card does not look attached. */
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child
+  > .officeLocationSelector,
+  .officeLocationFieldOpen .officeLocationSelectorGroup:last-child
+  > .officeLocationSingleSearch {
+    margin-bottom: 4px !important;
+  }
+
+  /* Keep dropdown lists inside Office Location flow on mobile. */
+  .officeLocationFieldOpen .officeLocationOptionsPanel,
+  .officeLocationFieldOpen .officeLocationSingleOptionsPanel {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    margin: 5px 0 0 !important;
+  }
+}
+
+
+/* ==========================================================================
+   GENDER DROPDOWN — MOBILE NO OVERLAP FIX
+   Only affects Gender while its dropdown is open on mobile.
+   ========================================================================== */
+@media (max-width: 700px) {
+  .genderField.raisedDropdownFieldOpen {
+    position: relative !important;
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    z-index: 300 !important;
+  }
+
+  .genderField.raisedDropdownFieldOpen .genderDropdown {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .genderField.raisedDropdownFieldOpen
+  .genderDropdownMenu:not(.documentTypeMenu) {
+    position: relative !important;
+    top: auto !important;
+    left: -13px !important;
+    right: auto !important;
+
+    width: calc(100% + 26px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 12px 0 -12px !important;
+    padding: 10px 12px 12px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+
+    overflow: visible !important;
+    transform: none !important;
+
+    background: #DFE6E9 !important;
+    border-radius: 0 0 12px 12px !important;
+    z-index: auto !important;
+  }
+
+  .genderField.raisedDropdownFieldOpen
+  .genderDropdownMenu:not(.documentTypeMenu)
+  .genderDropdownOption {
+    min-height: 46px !important;
+    height: 46px !important;
+    flex: 0 0 46px !important;
+  }
+}
+
+/* FINAL MOBILE FIX: increase only the Office Location dropdown list.
+   Keep it in normal flow so it cannot overlap the next section. */
+@media (max-width: 700px) {
+  .officeLocationField.officeLocationFieldOpen {
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    margin-bottom: 14px !important;
+    overflow: visible !important;
+  }
+
+  .officeLocationField.officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen > .officeLocationPanel,
+  .officeLocationFieldOpen .officeLocationPanel {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: calc(100% + 26px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 10px -13px -12px !important;
+    padding: 14px 13px 36px !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   FINAL FIX — GOVERNMENT ID "CHOOSE FILE" POSITION
+   Keep both controls inside the field without changing the field height.
+   ========================================================================== */
+@media (min-width: 701px) {
+  .superAdminPage .governmentIdField .governmentIdControls {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 142px 126px !important;
+    column-gap: 8px !important;
+    row-gap: 4px !important;
+    justify-content: start !important;
+    align-items: start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .superAdminPage .governmentIdField .documentTypeDropdown {
+    width: 142px !important;
+    min-width: 142px !important;
+    max-width: 142px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .superAdminPage .governmentIdField .documentTypeButton {
+    width: 142px !important;
+    min-width: 142px !important;
+    max-width: 142px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 0 9px !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .superAdminPage .governmentIdField .documentTypeButton > span:first-child {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  .superAdminPage .governmentIdField .governmentIdFileColumn {
+    width: 126px !important;
+    min-width: 126px !important;
+    max-width: 126px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .superAdminPage .governmentIdField .governmentIdFileColumn .chooseFileButton {
+    width: 126px !important;
+    min-width: 126px !important;
+    max-width: 126px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+  }
+
+  .superAdminPage .governmentIdField .governmentIdFileColumn .fileNameText {
+    width: 126px !important;
+    min-width: 0 !important;
+    max-width: 126px !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE-ONLY FIX — GOVERNMENT ID PROOF
+   Desktop/webpage (701px and above) is NOT changed.
+   ========================================================================== */
+@media (max-width: 700px) {
+  .governmentIdField {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12px 13px !important;
+    overflow: visible !important;
+  }
+
+  .governmentIdControls {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  .governmentIdField .documentTypeDropdown,
+  .governmentIdField .governmentIdFileColumn {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  .governmentIdField .documentTypeButton,
+  .governmentIdField .governmentIdFileColumn .chooseFileButton {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .governmentIdField .documentTypeButton {
+    padding: 0 14px !important;
+    font-size: 14px !important;
+  }
+
+  .governmentIdField .governmentIdFileColumn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+  }
+
+  .governmentIdField .governmentIdFileColumn .chooseFileButton {
+    padding: 0 12px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+
+    font-size: 14px !important;
+    line-height: 18px !important;
+    white-space: nowrap !important;
+  }
+
+  .governmentIdField .governmentIdFileColumn .fileNameText {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 2px !important;
+
+    font-size: 12px !important;
+    line-height: 16px !important;
+    text-align: left !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Smaller phones only */
+@media (max-width: 390px) {
+  .governmentIdField .documentTypeButton,
+  .governmentIdField .governmentIdFileColumn .chooseFileButton {
+    height: 42px !important;
+    min-height: 42px !important;
+    font-size: 13px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE FIX — PROFILE COMPLETION + DATE OF BIRTH CALENDAR
+   Mobile only. Desktop/webpage remains unchanged.
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* ----------------------------------------------------------
+     1. Profile Completion
+     Show title first and percentage below it, one by one.
+     ---------------------------------------------------------- */
+  .completionHeader {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .completionHeader h3,
+  .completionHeader span {
+    width: 100% !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  /* ----------------------------------------------------------
+     2. Date of Birth calendar
+     Keep the calendar in normal mobile flow so Office Location
+     starts only AFTER the calendar. No overlap.
+     ---------------------------------------------------------- */
+  .dateField:has(.joiningCalendarPopup) {
+    position: relative !important;
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    align-self: start !important;
+    z-index: 20 !important;
+  }
+
+  .dateField:has(.joiningCalendarPopup) .joiningCalendarPopup {
+    position: relative !important;
+
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    margin: 10px -13px -12px !important;
+    padding: 8px !important;
+
+    transform: none !important;
+
+    background: #DFE6E9 !important;
+    border-radius: 0 0 12px 12px !important;
+
+    z-index: auto !important;
+  }
+
+  /* Keep the calendar compact and fully responsive. */
+  .dateField:has(.joiningCalendarPopup) .joiningCalendarTopRow {
+    grid-template-columns:
+      32px
+      minmax(0, 1fr)
+      minmax(64px, 0.8fr)
+      32px !important;
+
+    gap: 5px !important;
+  }
+
+  .dateField:has(.joiningCalendarPopup) .joiningCalendarHeaderSelect {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .dateField:has(.joiningCalendarPopup) .joiningCalendarMonthButton > span:first-child,
+  .dateField:has(.joiningCalendarPopup) .joiningCalendarYearButton > span:first-child {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Normal clean spacing before the next mobile field. */
+  .dateField:has(.joiningCalendarPopup) {
+    margin-bottom: 14px !important;
+  }
+}
+
+
+/* ==========================================================================
+   FINAL MOBILE DATE OF BIRTH / OFFICE LOCATION FIX
+   Mobile only.
+   Date of Birth top field stays the same.
+   Calendar takes its own full row, so Office Location starts only after it.
+   ========================================================================== */
+@media (max-width: 700px) {
+
+  /* Keep Date of Birth label/value + calendar icon on the first row,
+     and allow the opened calendar to take a second full row. */
+  .dateField:has(.joiningCalendarPopup) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+
+    height: auto !important;
+    min-height: 68px !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+  }
+
+  .dateField:has(.joiningCalendarPopup) > .editableFieldText {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    order: 1 !important;
+  }
+
+  .dateField:has(.joiningCalendarPopup) > .dateCalendarButton {
+    flex: 0 0 48px !important;
+    order: 2 !important;
+  }
+
+  /* Calendar gets a complete row BELOW Date of Birth. */
+  .dateField:has(.joiningCalendarPopup) > .joiningCalendarPopup {
+    position: relative !important;
+
+    flex: 0 0 calc(100% + 26px) !important;
+    width: calc(100% + 26px) !important;
+    max-width: calc(100% + 26px) !important;
+
+    order: 3 !important;
+
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    margin: 10px -13px -12px !important;
+
+    transform: none !important;
+  }
+
+  /* Office Location must remain a normal next grid item.
+     It will now begin only after the complete calendar. */
+  .basicTargetGrid:has(.dateField .joiningCalendarPopup)
+    .officeLocationField {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    transform: none !important;
+    margin-top: 0 !important;
+
+    z-index: 1 !important;
+  }
+}
+
