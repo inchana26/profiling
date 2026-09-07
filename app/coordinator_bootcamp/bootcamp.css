@@ -24,7 +24,7 @@ button {
   padding: 8px;
   color: #2f3547;
   background: #dfe6e9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 .dashboardLayout {
   width: 100%;
@@ -174,7 +174,7 @@ button {
   margin: 0 0 7px;
   font-size: 24px;
   font-weight: 700;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 32px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -183,7 +183,7 @@ button {
   color: #2D4CC8;
   font-size: 16px;
   font-weight: 600;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 24px;
   letter-spacing: 0.03em;}
 .institutionActiveBadge {
@@ -196,7 +196,7 @@ button {
   background: #CDDDC5;
   border-radius: 20px;
   font-size: 14px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 22px;
   font-weight: 600;
   letter-spacing: 0.03em;}
@@ -226,7 +226,7 @@ button {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 28px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -264,7 +264,7 @@ button {
   gap: 9px;
   font-size: 14px;
   white-space: nowrap;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 22px;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -272,20 +272,43 @@ button {
 }
 .institutionCompletedCircle,
 .institutionEmptyCircle {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  border: 1px solid #aaaeb5;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 0;
   border-radius: 50%;
+  background: transparent;
 }
-.institutionCompletedCircle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  background: #487533;
-  border-color: #487533;
-  font-size: 11px;
+
+/* BEFORE CHECK — checkmark-circle-01 */
+.institutionEmptyCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
+}
+
+/* AFTER CHECK — checkmark-circle-02 */
+.institutionCompletedCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
 }
 .institutionInformationCard {
   margin-bottom: 22px;
@@ -311,7 +334,7 @@ button {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 28px;
   letter-spacing: 0.02em;
   color: #374151;}
@@ -402,7 +425,7 @@ button {
   font-size: 18px;
   line-height: 26px;
   font-weight: 600;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   letter-spacing: 0.03em;}
 .institutionFieldValue,
 .institutionFieldInput,
@@ -411,7 +434,7 @@ button {
   color: #2F3547;
   font-size: 16px;
   line-height: 24px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-weight: 400;
   letter-spacing: 0.03em;}
 .institutionFieldInput,
@@ -539,15 +562,13 @@ button {
   color: #2a7308;
 }
 .institutionCompletedCircle {
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
   border: 0;
   background: transparent;
 }
 .institutionCompletedCircle img {
-  width: 17px !important;
-  height: 17px !important;
-  object-fit: contain;
+  display: none !important;
 }
 .institutionFilePicker,
 .institutionFilePreview {
@@ -697,7 +718,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -880,37 +901,49 @@ button {
   outline: 0;
 }
 .institutionCompletionSteps .institutionProfileStepCheck {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #487533;
+  background: transparent;
   box-shadow: none;
   overflow: visible;
 }
+
+/* Keep the tick positioned inside the checked 20px circle. */
 .institutionProfileStepCheckMark {
-  position: relative;
-  width: 9px;
-  height: 6px;
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
   display: block;
+  z-index: 2;
 }
+
+/* Weighted green tick */
 .institutionProfileStepCheckMark::after {
   content: "";
   position: absolute;
-  left: 1px;
-  top: 0px;
-  width: 6px;
-  height: 3px;
-  border-left: 1.6px solid #ffffff;
-  border-bottom: 1.6px solid #ffffff;
-  transform: rotate(-45deg);
+
+  left: 50%;
+  top: 47%;
+
+  width: 5px;
+  height: 9px;
+
+  border: solid #2A7308;
+  border-width: 0 2.5px 2.5px 0;
+
+  transform: translate(-50%, -55%) rotate(45deg);
   transform-origin: center;
 }
+
 .institutionCompletionSteps .institutionProfileStepCheck img {
   display: none !important;
 }
@@ -1334,7 +1367,7 @@ body {
   padding: 0;
   overflow: hidden;
   background: #DFE6E9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 .superAdminPage.institutionAdminPage .dashboardLayout {
   width: 100%;
@@ -1391,7 +1424,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 @media (max-width: 767px) {
   html,
@@ -1431,7 +1464,7 @@ body {
   padding: 8px !important;
   overflow: hidden !important;
   background: #DFE6E9 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 .superAdminPage.institutionAdminPage .dashboardLayout {
   width: 100% !important;
@@ -1490,7 +1523,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 .institutionProgressBar {
   transition: width 0.35s ease !important;
@@ -1531,7 +1564,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 .superAdminPage.institutionAdminPage .dashboardLayout {
   width: 100% !important;
@@ -1582,7 +1615,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 @media (max-width: 700px) {
   .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1638,7 +1671,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", "Inter" !important;
 }
 .superAdminPage.institutionAdminPage .dashboardLayout {
   width: 100% !important;
@@ -1710,7 +1743,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", "Inter" !important;
 }
 @media (max-width: 700px) {
   .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -4548,7 +4581,7 @@ body {
   box-shadow:
     -3px -3px 6px #FFFFFF,
     3px 3px 6px rgba(196, 196, 196, 0.85) !important;
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", "Inter" !important;
   font-size: 12px !important;
   line-height: 18px !important;
   font-weight: 500 !important;
@@ -5005,3 +5038,204 @@ body {
     font-size: 15px;
   }
 }
+
+/* =========================================================
+   FINAL PROFILE ACTIONS — ONLY requested final buttons
+   ========================================================= */
+.superAdminPage.institutionAdminPage .institutionBottomActions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 24px !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomButton {
+  min-width: 0 !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  font-weight: 700 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  flex: 0 0 122px !important;
+  color: #D65A00 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelButton img,
+.superAdminPage.institutionAdminPage .institutionProfileCancelIcon {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  object-fit: contain !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+  width: 138px !important;
+  min-width: 138px !important;
+  max-width: 138px !important;
+  flex: 0 0 138px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  font-size: 14px !important;
+  color: #2A7308 !important;
+}
+
+/* Mobile — same correct size, side by side, no oversized blocks */
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 0 24px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+    flex: 0 0 122px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+    flex: 0 0 138px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    gap: 8px !important;
+  }
+}
+
+/* =========================================================
+   MOBILE HEADER SPACE FIX ONLY
+   Dropdown styles are restored to the previous/original code.
+   ========================================================= */
+@media (max-width: 767px) {
+
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderEditing:not(.institutionInformationHeaderHasPopup) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "title" !important;
+    row-gap: 0 !important;
+    align-items: center !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderEditing:not(.institutionInformationHeaderHasPopup)
+    .institutionHeaderActions {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderHasPopup {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "title"
+      "actions" !important;
+    row-gap: 8px !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderHasPopup
+    .institutionHeaderActions {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 36px !important;
+    height: auto !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+    overflow: visible !important;
+  }
+}
+
+/* =========================================================
+   MOBILE DROPDOWN — REMOVE ONLY EXTRA BACK/BOTTOM LAYER
+   Desktop/web dropdown is untouched.
+   Dropdown dimensions, spacing, radio controls and content stay the same.
+   ========================================================= */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage
+    .institutionSelectField
+    .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionRadioSelectField
+    .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionSelectField
+    .institutionRadioSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionRadioSelectField
+    .institutionRadioSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionFacultyRegistrationGrid
+    .institutionSelectField
+    .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionFacultyProfessionalGrid
+    .institutionSelectField
+    .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionFacultySkillsGrid
+    .institutionSelectField
+    .institutionCustomSelectList {
+    /* Same inset panel appearance as the web view.
+       Removes only the raised outer layer visible below on mobile. */
+    box-shadow:
+      inset -4px -4px 7px rgba(255, 255, 255, 0.72),
+      inset 4px 4px 7px rgba(196, 196, 196, 0.62) !important;
+
+    filter: none !important;
+  }
+}
+
+/* =========================================================
+   MOBILE DROPDOWN — SLIGHT HEIGHT INCREASE ONLY
+   Adds only a little extra bottom space to every dropdown.
+   Desktop/web and option spacing remain unchanged.
+   ========================================================= */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage
+    .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage
+    .institutionRadioSelectList {
+    padding-bottom: 18px !important;
+  }
+}
+
+/* =========================================================
+   PROFILE COMPLETION — 100% GREEN LOADER ONLY
+   ========================================================= */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+

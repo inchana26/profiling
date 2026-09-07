@@ -279,16 +279,13 @@ button {
   position: relative;
   width: 20px;
   height: 20px;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
+  flex: 0 0 20px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
 }
 
-/* Top completion circle - before completion */
 .institutionEmptyCircle::before {
   content: "";
   position: absolute;
@@ -301,34 +298,6 @@ button {
   box-shadow:
     inset -2px -2px 2px #FFFFFF,
     inset 2px 2px 2px #C4C4C4;
-}
-
-/* Top completion circle - after completion */
-.institutionCompletedCircle::before {
-  content: "";
-  position: absolute;
-  left: 8.34%;
-  right: 8.33%;
-  top: 8.33%;
-  bottom: 8.33%;
-  background: #DFE6E9;
-  border-radius: 50%;
-  box-shadow:
-    -2px -2px 2px #FFFFFF,
-    2px 2px 2px #C4C4C4;
-}
-
-.institutionCompletedCircle::after {
-  content: "✓";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  color: #2A7308;
-  font-family: "Segoe UI", Inter;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 700;
-  transform: translate(-50%, -54%);
 }
 .institutionInformationCard {
   margin-bottom: 22px;
@@ -1012,9 +981,7 @@ button {
   position: relative;
   width: 20px;
   height: 20px;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
+  flex: 0 0 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1044,7 +1011,9 @@ button {
   position: relative;
   width: 20px;
   height: 20px;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1;
   font-family: "Segoe UI", Inter;
   font-weight: 700;
@@ -1063,8 +1032,7 @@ button {
   transform: translate(-50%, -54%);
 }
 
-.institutionCompletionSteps .institutionProfileStepCheck img,
-.institutionCompletedCircle img {
+.institutionCompletionSteps .institutionProfileStepCheck img {
   display: none !important;
 }
 .institutionDocumentsCard .institutionChooseFileButton {
@@ -5263,62 +5231,146 @@ body {
   }
 }
 
+/* ==========================================================================
+   BOOTCAMP RESUME UPLOAD ONLY
+   Existing card sizes, field sizes, fonts, spacing, dropdowns, scrollers,
+   checkboxes, Documents and Confirmation styles remain unchanged.
+   ========================================================================== */
+
+.bootcampResumeField {
+  overflow: visible;
+}
+
+.bootcampResumeFileRow {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bootcampResumePickerControl {
+  flex: 0 0 auto;
+}
+
+.bootcampResumeChooseFile {
+  box-sizing: border-box;
+  width: 124px;
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 8px;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+  color: #2F3547;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bootcampResumeChooseFile > span {
+  font-family: "Segoe UI", Inter;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.03em;
+  color: #2F3547;
+}
+
+.bootcampResumeChooseFileUploaded {
+  border: 0.5px solid #2A7308;
+  color: #2A7308;
+}
+
+.bootcampResumeChooseFileUploaded > span {
+  color: #2A7308;
+}
+
+.bootcampResumeUploadIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  display: block;
+  object-fit: contain;
+}
+
+.bootcampResumeFileName {
+  min-width: 0;
+  overflow: hidden;
+  color: #4C5568;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bootcampResumeError {
+  display: block;
+  margin-top: 4px;
+  color: #C94F05;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 700px) {
+  .bootcampResumeFileRow {
+    flex-wrap: wrap;
+  }
+
+  .bootcampResumeFileName {
+    max-width: 100%;
+  }
+}
+
 /* =========================================================
-   MOBILE HEADER BREADCRUMB — EXACT TWO-LINE LAYOUT
+   MOBILE — BOOTCAMP BREADCRUMB ONE-LINE + SMALLER SECTION GAP
    Mobile only. Desktop/tablet remain unchanged.
-   Line 1: Parent profile title
-   Line 2: Arrow + current page
    ========================================================= */
 @media (max-width: 700px) {
   .mobileBreadcrumb {
     width: 100% !important;
     min-width: 0 !important;
-    min-height: 64px !important;
-    height: auto !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    gap: 4px !important;
 
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    align-content: center !important;
-    justify-content: flex-start !important;
-
-    column-gap: 6px !important;
-    row-gap: 5px !important;
-
-    padding: 8px 16px !important;
-
-    white-space: normal !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
     overflow-x: hidden !important;
-    overflow-y: visible !important;
+    overflow-y: hidden !important;
+
+    font-size: 14px !important;
   }
 
-  /* Parent heading always occupies the complete first line. */
-  .mobileBreadcrumb > .breadcrumbParent {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-
-    display: block !important;
+  .mobileBreadcrumb .breadcrumbParent,
+  .mobileBreadcrumb .breadcrumbCurrent {
+    font-size: 14px !important;
     white-space: nowrap !important;
-  }
-
-  /* Arrow + current page remain together on the second line. */
-  .mobileBreadcrumb > img,
-  .mobileBreadcrumb > .breadcrumbCurrent {
     flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    white-space: nowrap !important;
   }
 
-  .mobileBreadcrumb > .breadcrumbCurrent {
-    max-width: calc(100% - 24px) !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+  .mobileBreadcrumb .breadcrumbParent {
+    font-weight: 400 !important;
   }
-}
-@media (max-width: 700px) {
+
+  .mobileBreadcrumb .breadcrumbCurrent {
+    color: #2D4CC8 !important;
+    font-weight: 700 !important;
+  }
+
+  .mobileBreadcrumb > img,
+  .mobileBreadcrumb .breadcrumbSegment img {
+    flex: 0 0 15px !important;
+    margin: 0 !important;
+  }
+
   .superAdminPage.institutionAdminPage .institutionPageContent {
-    padding-top: 6px !important;
+    padding-top: 5px !important;
   }
 }
+

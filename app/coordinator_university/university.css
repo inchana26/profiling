@@ -29,7 +29,7 @@ button {
   padding: 8px;
   color: #2f3547;
   background: #dfe6e9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .dashboardLayout {
@@ -194,7 +194,7 @@ button {
   font-size: 24px;
   font-weight: 700;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 32px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -205,7 +205,7 @@ button {
   font-size: 16px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 24px;
   letter-spacing: 0.03em;}
 
@@ -220,7 +220,7 @@ button {
   border-radius: 20px;
   font-size: 14px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 22px;
   font-weight: 600;
   letter-spacing: 0.03em;}
@@ -236,7 +236,7 @@ button {
   margin-top: 17px;
   font-size: 16px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 22px;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -266,7 +266,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 28px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -308,7 +308,7 @@ button {
   font-size: 14px;
   white-space: nowrap;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 22px;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -316,20 +316,29 @@ button {
 
 .institutionCompletedCircle,
 .institutionEmptyCircle {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  border: 1px solid #aaaeb5;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 0;
   border-radius: 50%;
+  background: #DFE6E9;
+}
+
+.institutionEmptyCircle {
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
 }
 
 .institutionCompletedCircle {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  background: #487533;
-  border-color: #487533;
+  color: #2A7308;
+  background: #DFE6E9;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
   font-size: 11px;
 }
 
@@ -378,7 +387,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   line-height: 28px;
   letter-spacing: 0.02em;
   color: #374151;}
@@ -415,35 +424,13 @@ button {
   cursor: pointer;
 }
 
-.institutionEditActions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
 
-.institutionActionButton {
-  min-width: 78px;
-  height: 36px;
-  padding: 0 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  background: #dfe6e9;
-  border-radius: 7px;
-  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #c4c4c4;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
 
-.institutionSaveButton {
-  color: #2a7308;
-}
 
-.institutionCancelButton {
-  color: #d65a00;
-}
+
+
+
+
 
 .institutionGrid {
   display: grid;
@@ -481,7 +468,7 @@ button {
   line-height: 26px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   letter-spacing: 0.03em;}
 
 .institutionFieldValue,
@@ -493,7 +480,7 @@ button {
   font-size: 16px;
   line-height: 24px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-weight: 400;
   letter-spacing: 0.03em;}
 
@@ -672,9 +659,7 @@ button {
   cursor: pointer;
 }
 
-.institutionReviewButton {
-  color: #2d4cc8;
-}
+
 
 .institutionFinalSaveButton {
   color: #2a7308;
@@ -706,7 +691,10 @@ button {
   overflow: hidden;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: #DFE6E9;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
 }
 
 .institutionCompletedCircle img {
@@ -789,7 +777,6 @@ button {
 }
 
 .institutionEditButton img,
-.institutionActionButton img,
 .institutionFieldAction img,
 .institutionSectionIcon img,
 .institutionChooseFileButton img,
@@ -812,10 +799,7 @@ button {
   max-height: 18px;
 }
 
-.institutionEditActions {
-  flex: 0 0 auto;
-  margin-left: auto;
-}
+
 
 .institutionHeaderActions {
   margin-left: auto;
@@ -1027,7 +1011,7 @@ button {
   align-items: center;
   justify-content: center;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1059,10 +1043,7 @@ button {
   margin-left: auto;
 }
 
-.institutionDocumentsCard .institutionEditActions {
-  display: flex;
-  align-items: center;
-}
+
 
 .institutionCheckRow {
   position: relative;
@@ -1511,9 +1492,9 @@ button {
 }
 
 .institutionCompletionSteps .institutionProfileStepCheck {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
 
   display: inline-flex;
   align-items: center;
@@ -1523,15 +1504,17 @@ button {
   border: 0;
   border-radius: 50%;
 
-  background: #487533;
-  box-shadow: none;
+  background: #DFE6E9;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
   overflow: visible;
 }
 
 .institutionProfileStepCheckMark {
   position: relative;
-  width: 9px;
-  height: 6px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
@@ -1539,16 +1522,15 @@ button {
   content: "";
   position: absolute;
 
-  left: 1px;
-  top: 0px;
+  width: 5px;
+  height: 9px;
+  left: 50%;
+  top: 46%;
 
-  width: 6px;
-  height: 3px;
+  border: solid #2A7308;
+  border-width: 0 2.5px 2.5px 0;
 
-  border-left: 1.6px solid #ffffff;
-  border-bottom: 1.6px solid #ffffff;
-
-  transform: rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(45deg);
   transform-origin: center;
 }
 
@@ -1722,7 +1704,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -2012,7 +1994,10 @@ button {
 }
 
 .institutionEmptyCircle {
-  background: transparent;
+  background: #DFE6E9;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
 }
 
 .institutionConfirmationCheckBox:not(.institutionConfirmationCheckBoxActive)
@@ -2297,15 +2282,9 @@ button {
     align-items: flex-start;
   }
 
-  .institutionEditActions {
-    gap: 8px;
-  }
+  
 
-  .institutionActionButton {
-    min-width: 68px;
-    height: 34px;
-    padding: 0 10px;
-  }
+  
 
   .institutionBottomActions {
     justify-content: center;
@@ -2791,10 +2770,7 @@ button {
     flex-wrap: wrap;
   }
 
-  .institutionEditActions {
-    width: 100%;
-    justify-content: flex-end;
-  }
+  
 
   .institutionField {
     min-height: 64px;
@@ -2837,16 +2813,9 @@ button {
     gap: 10px;
   }
 
-  .institutionEditActions {
-    width: auto;
-    max-width: 100%;
-    margin-left: auto;
-  }
+  
 
-  .institutionActionButton {
-    min-width: 64px;
-    padding: 0 8px;
-  }
+  
 
 .institutionHeaderActions {
     width: 100%;
@@ -2857,7 +2826,7 @@ button {
     order: 1;
   }
 
-  .institutionEditActions,
+  
   .institutionEditButton {
     order: 2;
   }
@@ -2957,79 +2926,23 @@ button {
     right: 0 !important;
   }
 
-  .institutionInformationHeader:not(:has(.institutionEditActions)) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex-wrap: nowrap !important;
-  }
+  
 
-  .institutionInformationHeader:not(:has(.institutionEditActions))
-    .institutionInformationTitle {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-  }
+  
 
-  .institutionInformationHeader:not(:has(.institutionEditActions))
-    .institutionHeaderActions {
-    width: auto !important;
-    flex: 0 0 auto !important;
-    margin-left: auto !important;
-  }
+  
 
-  .institutionInformationHeader:has(.institutionEditActions) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex-wrap: wrap !important;
-    row-gap: 14px !important;
-  }
+  
 
-  .institutionInformationHeader:has(.institutionEditActions)
-    .institutionInformationTitle {
-    flex: 1 1 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
+  
 
-  .institutionInformationHeader:has(.institutionEditActions)
-    .institutionHeaderActions {
-    width: 100% !important;
-    flex: 1 1 100% !important;
-    margin-left: 0 !important;
+  
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
+  
 
-  .institutionInformationHeader:has(.institutionEditActions)
-    .institutionEditActions {
-    width: auto !important;
-    margin-left: auto !important;
+  
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    flex-wrap: nowrap !important;
-    gap: 16px !important;
-  }
-
-  .institutionInformationHeader:has(.institutionEditActions)
-    .institutionInlinePopup {
-    order: 0 !important;
-    width: auto !important;
-    max-width: 100% !important;
-  }
-
-  .institutionInformationHeader:has(.institutionEditActions)
-    .institutionEditActions {
-    order: 1 !important;
-  }
+  
 
   .institutionInformationHeader:has(.institutionInlinePopup) {
     display: flex !important;
@@ -3077,16 +2990,7 @@ button {
     height: 0 !important;
   }
 
-  .institutionInformationHeader:has(.institutionInlinePopup)
-    .institutionEditActions {
-    order: 4 !important;
-    width: auto !important;
-    flex: 0 0 auto !important;
-    margin-left: auto !important;
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
-  }
+  
 
 .institutionCustomSelectList {
     left: -12px;
@@ -3211,7 +3115,7 @@ body {
   padding: 0;
   overflow: hidden;
   background: #DFE6E9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -3281,7 +3185,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 @media (max-width: 767px) {
@@ -3327,7 +3231,7 @@ body {
   padding: 8px !important;
   overflow: hidden !important;
   background: #DFE6E9 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -3404,7 +3308,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .institutionProgressBar {
@@ -3452,7 +3356,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -3515,7 +3419,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 @media (max-width: 700px) {
@@ -3695,7 +3599,7 @@ body {
   padding: 0;
   background: #DFE6E9;
   color: #374151;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 .governmentCoordinatorPage .dashboardLayout {
@@ -4139,7 +4043,7 @@ body {
 .governmentCoordinatorPage input,
 .governmentCoordinatorPage select,
 .governmentCoordinatorPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
 }
 
 @media (max-width: 1100px) {
@@ -4271,7 +4175,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", "Inter" !important;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -4345,9 +4249,7 @@ body {
   font-weight: 700 !important;
 }
 
-.superAdminPage.institutionAdminPage .institutionReviewButton {
-  color: #2D4CC8 !important;
-}
+
 
 .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
   color: #235F07 !important;
@@ -4359,7 +4261,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", "Inter" !important;
 }
 
 @media (max-width: 700px) {
@@ -4832,7 +4734,7 @@ body {
   justify-content: space-between;
   gap: 10px;
   border-radius: 10px;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", "Inter";
   font-size: 18px;
   font-weight: 500;
   text-align: left;
@@ -9416,693 +9318,86 @@ body
   color: #2A7308 !important;
 }
 
-/* Phone fields from supplied University/reference code */
-.institutionPhoneAccordion {
-  position: relative;
-  width: 100%;
-  min-width: 0;
-  overflow: visible;
-}
-.institutionPhoneAccordionOpen {
-  z-index: 5000;
-}
-.institutionPhoneMainTrigger {
-  width: 100%;
-  min-height: 68px;
-  padding: 12px 13px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-  cursor: pointer;
-  border: 0;
-}
-.institutionPhoneMainText {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.institutionPhoneMainTrigger .institutionSelectArrow {
-  position: static !important;
-  flex: 0 0 30px;
-  transform: none !important;
-}
-.institutionPhoneMainTrigger
-  .institutionSelectArrow.institutionSelectArrowOpen {
-  transform: rotate(180deg) !important;
-}
-.institutionPhoneAccordionOpen > .institutionPhoneMainTrigger {
-  position: relative;
-  z-index: 2;
-  border-radius: 10px 10px 0 0;
-  box-shadow:
-    -7px -7px 12px #FFFFFF,
-    7px 7px 12px #C4C4C4;
-}
-.institutionPhonePanel {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 850;
-  width: 100%;
-  padding: 24px 14px 18px;
-  background: #DFE6E9;
-  border-radius: 0 0 12px 12px;
-  box-shadow:
-    inset -4px -4px 7px rgba(255, 255, 255, 0.78),
-    inset 4px 4px 7px rgba(196, 196, 196, 0.72);
-}
-.institutionPhonePanelLabel {
-  margin: 0 0 10px;
-  color: #2F3547;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 500;
-}
-.institutionPhoneCountryBox {
-  position: relative;
-  width: 100%;
-  overflow: visible;
-}
-.institutionPhoneCountryTrigger {
-  position: relative;
-  width: 100%;
-  min-height: 54px;
-  padding: 0 44px 0 50px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #374151;
-  background: #DFE6E9;
-  border-radius: 7px;
-  box-shadow:
-    inset -4px -4px 6px #FFFFFF,
-    inset 4px 4px 7px #C4C4C4;
-  cursor: text;
-}
-.institutionPhoneCountryTriggerOpen {
-  border-radius: 7px 7px 0 0;
-}
-.institutionPhoneSearchMini {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  transform: translateY(-50%);
-  border: 2px solid #2F3547;
-  border-radius: 50%;
-  pointer-events: none;
-}
-.institutionPhoneSearchMini::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 2px;
-  right: -6px;
-  bottom: -3px;
-  background: #2F3547;
-  transform: rotate(45deg);
-  border-radius: 2px;
-}
-.institutionPhoneCountrySearchInput {
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-  height: 50px;
-  padding: 0;
-  color: #374151;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  font-size: 16px;
-  line-height: 24px;
-}
-.institutionPhoneCountrySearchInput::placeholder {
-  color: #59616d;
-  opacity: 1;
-}
-.institutionPhoneSelectedCountryCode {
-  flex: 0 0 auto;
-  margin-right: 4px;
-  color: #374151;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.institutionPhoneArrow {
-  position: absolute;
-  right: 13px;
-  top: 50%;
-  width: 24px !important;
-  height: 24px !important;
-  transform: translateY(-50%);
-  transition: transform 0.15s ease;
-  pointer-events: none;
-}
-.institutionPhoneArrowOpen {
-  transform: translateY(-50%) rotate(180deg);
-}
-.institutionPhoneCountryMenu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  width: 100%;
-  min-width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  background: #DFE6E9;
-  border-radius: 8px;
-  box-shadow:
-    -5px -5px 9px #FFFFFF,
-    5px 5px 9px rgba(196, 196, 196, 0.88);
-  z-index: 900;
-}
-.institutionPhoneCountryList {
-  width: 100%;
-  max-height: 184px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 0;
-}
-.institutionPhoneCountryOption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-}
-.institutionPhoneCountryOptionSelected {
-  color: #2D4CC8;
-  font-weight: 600;
-}
-.institutionPhoneCountryName {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  overflow: visible;
-  font-size: 15px;
-  line-height: 21px;
-}
-.institutionPhoneCountryName > span:last-child {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: normal;
-  word-break: normal;
-}
-.institutionPhoneFlag {
-  width: 28px;
-  min-width: 28px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 2px;
-}
-.institutionPhoneFlag svg {
-  display: block;
-  width: 28px;
-  height: 20px;
-}
-.institutionPhoneNumberTitle {
-  margin-top: 20px;
-}
-.institutionPhoneNumberInputWrap {
-  width: 100%;
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  background: #DFE6E9;
-  border-radius: 7px;
-  box-shadow:
-    inset -4px -4px 6px #FFFFFF,
-    inset 4px 4px 7px #C4C4C4;
-}
-.institutionPhoneNumberInputDisabled {
-  opacity: 0.72;
-}
-.institutionPhoneNumberInput {
-  width: 100%;
-  min-width: 0;
-  height: 50px;
-  padding: 0 16px;
-  color: #2F3547;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  font-size: 15px;
-}
-@media (max-width: 700px) {
-  .institutionPhoneAccordion,
-  .institutionPhoneMainTrigger,
-  .institutionPhonePanel {
-    width: 100%;
-  }
-  .institutionPhoneMainTrigger {
-    min-height: 64px;
-  }
-  .institutionPhonePanel {
-    padding: 20px 12px 16px;
-  }
-  .institutionPhoneCountryTrigger {
-    min-height: 52px;
-    padding-left: 46px;
-    padding-right: 42px;
-  }
-  .institutionPhoneCountrySearchInput,
-  .institutionPhoneSelectedCountryCode {
-    font-size: 14px;
-  }
-  .institutionPhoneCountryName {
-    font-size: 13px;
-    gap: 9px;
-  }
-  .institutionPhoneFlag,
-  .institutionPhoneFlag svg {
-    width: 26px;
-    min-width: 26px;
-    height: 18px;
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .institutionGrid,
-.institutionInformationCard,
-.institutionPhoneAccordion {
+.institutionInformationCard{
   overflow: visible;
 }
-.institutionPhoneAccordionOpen .institutionPhonePanel {
-  margin-top: 0;
-}
-.institutionPhoneCountryOption.institutionCustomSelectOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
-  position: relative;
-}
-.institutionPhoneCountryOption .institutionPhoneCountryName {
-  order: 1;
-}
-.institutionPhoneCountryOption .institutionRadioSelectCircle {
-  order: 2;
-  margin-left: auto;
-}
-.institutionPhoneCountryMenu {
-  background: #DFE6E9 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-}
-.institutionPhoneCountryList {
-  background: #DFE6E9 !important;
-  padding: 4px 0 6px !important;
-}
-.institutionPhoneCountryOption,
-.institutionPhoneCountryOption.institutionCustomSelectOption,
-.institutionPhoneCountryOption.institutionRadioSelectOption {
-  min-height: 44px !important;
-  padding: 6px 10px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  gap: 10px !important;
-}
-.institutionPhoneCountryName {
-  min-width: 0 !important;
-  flex: 1 1 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  font-size: 14px !important;
-  line-height: 20px !important;
-}
-.institutionPhoneCountryName > span:last-child {
-  display: block !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-.institutionPhoneFlag,
-.institutionPhoneFlag svg {
-  width: 24px !important;
-  min-width: 24px !important;
-  height: 17px !important;
-  flex: 0 0 24px !important;
-  border-radius: 1px !important;
-}
-.institutionPhoneCountryOption .institutionRadioSelectCircle {
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  min-height: 24px !important;
-  flex: 0 0 24px !important;
-  margin-left: 8px !important;
-}
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  min-height: 24px !important;
-  flex: 0 0 24px !important;
-}
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::before {
-  width: 14px !important;
-  height: 14px !important;
-}
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::after {
-  width: 5px !important;
-  height: 3px !important;
-}
-.institutionPhoneCountryOptionSelected {
-  color: #2D4CC8 !important;
-}
-@media (max-width: 700px) {
-  .institutionPhoneCountryOption,
-  .institutionPhoneCountryOption.institutionCustomSelectOption,
-  .institutionPhoneCountryOption.institutionRadioSelectOption {
-    min-height: 42px !important;
-    padding: 5px 8px !important;
-  }
-  .institutionPhoneCountryName {
-    gap: 8px !important;
-    font-size: 13px !important;
-    line-height: 18px !important;
-  }
-  .institutionPhoneFlag,
-  .institutionPhoneFlag svg {
-    width: 22px !important;
-    min-width: 22px !important;
-    height: 15px !important;
-    flex: 0 0 22px !important;
-  }
-  .institutionPhoneCountryOption .institutionRadioSelectCircle,
-  .institutionPhoneCountryOption
-    .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    flex: 0 0 22px !important;
-  }
-}
-.institutionPhoneMainSavedValue {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  color: #2F3547;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.institutionPhoneCountryTriggerOpen {
-  border-radius: 8px 8px 0 0 !important;
-  box-shadow:
-    -4px -4px 6px #FFFFFF,
-    4px 4px 7px #C4C4C4 !important;
-}
-.institutionPhoneCountryList {
-  width: 100% !important;
-  max-height: 184px !important;
-  padding: 3px 5px 5px !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  background: transparent !important;
-}
-.institutionPhoneCountryOption,
-.institutionPhoneCountryOption.institutionCustomSelectOption,
-.institutionPhoneCountryOption.institutionRadioSelectOption {
-  width: 100% !important;
-  min-height: 42px !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 8px !important;
-  padding: 5px 8px !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  text-align: left !important;
-}
-.institutionPhoneCountryOption .institutionPhoneCountryName {
-  order: 1 !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 9px !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-}
-.institutionPhoneCountryOption .institutionPhoneFlag,
-.institutionPhoneCountryOption .institutionPhoneFlag svg {
-  width: 22px !important;
-  min-width: 22px !important;
-  height: 15px !important;
-  flex: 0 0 22px !important;
-  display: block !important;
-  border-radius: 1px !important;
-}
-.institutionPhoneCountryText {
-  display: block !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  color: inherit !important;
-  font-size: 12.5px !important;
-  line-height: 18px !important;
-  font-weight: 400 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-.institutionPhoneCountryOptionSelected .institutionPhoneCountryText {
-  color: #2D4CC8 !important;
-  font-weight: 600 !important;
-}
-.institutionPhoneCountryOption .institutionRadioSelectCircle,
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
-  order: 2 !important;
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  min-height: 24px !important;
-  flex: 0 0 24px !important;
-  margin: 0 1px 0 auto !important;
-}
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::before {
-  width: 14px !important;
-  height: 14px !important;
-}
-.institutionPhoneCountryOption
-  .institutionRadioSelectCircle.institutionRadioSelectCircleActive::after {
-  width: 5px !important;
-  height: 3px !important;
-}
-.institutionPhoneCountryOption .institutionPhoneCountryName {
-  margin-right: 0 !important;
-}
-.institutionPhoneCountryList::-webkit-scrollbar {
-  width: 5px !important;
-}
-.institutionPhoneCountryList::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-.institutionPhoneCountryList::-webkit-scrollbar-thumb {
-  background: #90989E !important;
-  border-radius: 10px !important;
-}
-.institutionPhoneCountryList {
-  scrollbar-width: thin !important;
-  scrollbar-color: #90989E transparent !important;
-}
-@media (max-width: 700px) {
-  .institutionPhoneCountryMenu {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-  }
-  .institutionPhoneCountryOption,
-  .institutionPhoneCountryOption.institutionCustomSelectOption,
-  .institutionPhoneCountryOption.institutionRadioSelectOption {
-    min-height: 40px !important;
-    padding: 5px 7px !important;
-    gap: 7px !important;
-  }
-  .institutionPhoneCountryOption .institutionPhoneCountryName {
-    gap: 7px !important;
-  }
-  .institutionPhoneCountryOption .institutionPhoneFlag,
-  .institutionPhoneCountryOption .institutionPhoneFlag svg {
-    width: 20px !important;
-    min-width: 20px !important;
-    height: 14px !important;
-    flex: 0 0 20px !important;
-  }
-  .institutionPhoneCountryText {
-    font-size: 11.5px !important;
-    line-height: 17px !important;
-  }
-  .institutionPhoneCountryOption .institutionRadioSelectCircle,
-  .institutionPhoneCountryOption
-    .institutionRadioSelectCircle.institutionRadioSelectCircleActive {
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    flex: 0 0 22px !important;
-  }
-}
-@media (max-width: 700px) {
-  .institutionPhoneCountryOption .institutionPhoneCountryName {
-    align-items: center !important;
-    overflow: visible !important;
-    white-space: normal !important;
-  }
-  .institutionPhoneCountryText {
-    display: -webkit-box !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    white-space: normal !important;
-    text-overflow: clip !important;
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    line-height: 17px !important;
-    max-height: 34px !important;
-  }
-  .institutionPhoneCountryOption,
-  .institutionPhoneCountryOption.institutionCustomSelectOption,
-  .institutionPhoneCountryOption.institutionRadioSelectOption {
-    min-height: 48px !important;
-    height: auto !important;
-  }
-}
-@media (max-width: 900px) {
-  .institutionPhoneCountryOption .institutionPhoneCountryName {
-    min-width: 0 !important;
-    align-items: center !important;
-    overflow: visible !important;
-    white-space: normal !important;
-  }
-  .institutionPhoneCountryName > .institutionPhoneCountryText,
-  .institutionPhoneCountryName > span.institutionPhoneCountryText:last-child {
-    display: -webkit-box !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    width: auto !important;
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    line-height: 17px !important;
-    max-height: 34px !important;
-  }
-  .institutionPhoneCountryOption,
-  .institutionPhoneCountryOption.institutionCustomSelectOption,
-  .institutionPhoneCountryOption.institutionRadioSelectOption {
-    min-height: 48px !important;
-    height: auto !important;
-    align-items: center !important;
-  }
-}
-@media (max-width: 520px) {
-  .institutionPhoneCountryOption,
-  .institutionPhoneCountryOption.institutionCustomSelectOption,
-  .institutionPhoneCountryOption.institutionRadioSelectOption {
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-    gap: 6px !important;
-  }
-  .institutionPhoneCountryOption .institutionPhoneCountryName {
-    gap: 7px !important;
-  }
-  .institutionPhoneCountryName > .institutionPhoneCountryText,
-  .institutionPhoneCountryName > span.institutionPhoneCountryText:last-child {
-    font-size: 11.5px !important;
-    line-height: 16px !important;
-    max-height: 32px !important;
-  }
-}
-.institutionPhoneCountryBox {
-  position: relative !important;
-  width: 100% !important;
-}
-.institutionPhoneCountryTriggerOpen {
-  position: relative !important;
-  z-index: 902 !important;
-  border-radius: 8px 8px 0 0 !important;
-  border-bottom: 0 !important;
-  background: #DFE6E9 !important;
-  box-shadow:
-    -4px -4px 6px #FFFFFF,
-    4px 4px 7px #C4C4C4 !important;
-}
-.institutionPhoneCountryMenu {
-  top: calc(100% - 1px) !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 2px 0 5px !important;
-  background: #DFE6E9 !important;
-  border-top: 0 !important;
-  border-radius: 0 0 8px 8px !important;
-  box-shadow:
-    4px 5px 7px rgba(196, 196, 196, 0.58) !important;
-  overflow: hidden !important;
-  z-index: 901 !important;
-}
-.institutionPhoneCountryTriggerOpen + .institutionPhoneCountryMenu {
-  margin-top: 0 !important;
-}
-.institutionPhoneCountryList {
-  margin: 0 !important;
-  padding: 4px 5px 5px !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-.institutionPhoneCountryOption,
-.institutionPhoneCountryOption.institutionCustomSelectOption,
-.institutionPhoneCountryOption.institutionRadioSelectOption {
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-@media (max-width: 700px) {
-  .institutionPhoneCountryTriggerOpen,
-  .institutionPhoneCountryMenu {
-    width: 100% !important;
-  }
-  .institutionPhoneCountryMenu {
-    top: calc(100% - 1px) !important;
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @media (max-width: 520px) {
   .institutionSectionIcon img,
   .institutionSectionIcon .institutionWhiteIcon,
@@ -10127,195 +9422,38 @@ body
     object-fit: contain !important;
   }
 }
-.institutionPhoneAccordion {
-  position: relative !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-.institutionPhoneAccordionOpen {
-  z-index: 5000 !important;
-}
-.institutionPhonePanel {
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
-  min-height: 330px !important;
-  height: auto !important;
-  padding: 24px 14px 22px !important;
-  margin: 0 !important;
-  box-sizing: border-box !important;
-  background: #DFE6E9 !important;
-  border-radius: 0 0 12px 12px !important;
-  box-shadow:
-    inset -4px -4px 7px rgba(255, 255, 255, 0.78),
-    inset 4px 4px 7px rgba(196, 196, 196, 0.68) !important;
-  overflow: visible !important;
-}
-.institutionPhoneCountryBox,
-.institutionPhoneCountryTrigger,
-.institutionPhoneNumberInputWrap {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-.institutionPhoneNumberTitle {
-  margin-top: 24px !important;
-}
-@media (max-width: 700px) {
-  .institutionPhonePanel {
-    min-height: 340px !important;
-    padding: 22px 12px 20px !important;
-  }
-}
-@media (max-width: 520px) {
-  .institutionPhonePanel {
-    min-height: 350px !important;
-  }
-}
-.institutionPhonePanel {
-  min-height: 0 !important;
-  height: auto !important;
-  padding: 22px 14px 12px !important;
-}
-.institutionPhoneNumberTitle {
-  margin-top: 20px !important;
-}
-.institutionPhonePanelActions {
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 12px !important;
-  margin-top: 14px !important;
-  padding: 0 !important;
-}
-.institutionPhonePanelAction {
-  min-width: 66px !important;
-  height: 30px !important;
-  padding: 0 14px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #DFE6E9 !important;
-  border: 0 !important;
-  border-radius: 6px !important;
-  box-shadow:
-    -3px -3px 6px #FFFFFF,
-    3px 3px 6px rgba(196, 196, 196, 0.85) !important;
-  font-family: "Segoe UI" !important;
-  font-size: 12px !important;
-  line-height: 18px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-}
-.institutionPhonePanelCancel {
-  color: #374151 !important;
-}
-.institutionPhonePanelApply {
-  color: #2D4CC8 !important;
-}
-@media (max-width: 700px) {
-  .institutionPhonePanel {
-    min-height: 0 !important;
-    height: auto !important;
-    padding: 20px 12px 12px !important;
-  }
-  .institutionPhoneNumberTitle {
-    margin-top: 18px !important;
-  }
-  .institutionPhonePanelActions {
-    margin-top: 12px !important;
-    gap: 16px !important;
-    transform: translateY(8);
-    font-size: 14px;
-  }
-  .institutionPhonePanelAction {
-    min-width: 64px !important;
-    height: 30px !important;
-    padding: 0 12px !important;
-    font-size: 12px !important;
-  }
-}
-@media (max-width: 520px) {
-  .institutionPhonePanel {
-    min-height: 0 !important;
-    height: auto !important;
-    padding-bottom: 10px !important;
-  }
-  .institutionPhonePanelActions {
-    margin-top: 12px !important;
-  }
-}
-@media (max-width: 700px) {
-  .institutionPhonePanel {
-    padding-bottom: 16px !important;
-  }
-}
 
-@media (max-width: 520px) {
-  .institutionPhonePanel {
-    padding-bottom: 18px !important;
-  }
 
-  .institutionPhonePanelActions {
-    margin-bottom: 2px !important;
-  }
-}
 
-.institutionPhoneAccordionOpen {
-  position: relative !important;
-  z-index: 80 !important;
-}
 
-.institutionPhoneAccordionOpen > .institutionPhoneMainTrigger {
-  z-index: 81 !important;
-}
 
-.institutionPhonePanel {
-  z-index: 82 !important;
-}
 
-.institutionPhoneCountryMenu {
-  z-index: 83 !important;
-}
 
-@media (max-width: 1024px) {
-  .institutionPhoneAccordionOpen {
-    z-index: 80 !important;
-  }
 
-  .institutionPhonePanel {
-    z-index: 82 !important;
-  }
 
-  .institutionPhoneCountryMenu {
-    z-index: 83 !important;
-  }
-}
 
-@media (max-width: 700px) {
-  .institutionPhoneAccordionOpen {
-    z-index: 80 !important;
-  }
 
-  .institutionPhonePanel {
-    z-index: 82 !important;
-  }
 
-  .institutionPhoneCountryMenu {
-    z-index: 83 !important;
-  }
-}
 
-.institutionPhoneSearchMini {
-  width: 14px !important;
-  height: 14px !important;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* =========================================================
    PROFILE PHOTO — FULL IMAGE-AREA RAISED EMPTY CIRCLE
@@ -10339,5 +9477,439 @@ body
 .institutionAvatarEmpty::after {
   content: none !important;
   display: none !important;
+}
+
+
+
+/* =========================================================
+   FINAL PROFILE ACTIONS — requested sizes
+   Section-level Save/Cancel controls are removed in JSX.
+   ========================================================= */
+.superAdminPage.institutionAdminPage .institutionBottomActions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 24px !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomButton {
+  min-width: 0 !important;
+  height: 48px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  font-weight: 700 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+  width: 122px !important;
+  flex: 0 0 122px !important;
+  color: #D65A00 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelButton img {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  object-fit: contain !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+  width: 138px !important;
+  flex: 0 0 138px !important;
+  height: 48px !important;
+  font-size: 14px !important;
+}
+
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    justify-content: center !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+    width: 122px !important;
+    flex-basis: 122px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+    width: 138px !important;
+    flex-basis: 138px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    gap: 10px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+
+/* =========================================================
+   FINAL — 100% COMPLETION + COMPACT DROPDOWN VIEW FIX
+   Only completion bar and open dropdown presentation changed.
+   ========================================================= */
+
+/* Turn the existing progress/loader green only after 100%. */
+.superAdminPage.institutionAdminPage .institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+
+/* Every select stays in the same layout position; only its menu overlays. */
+.superAdminPage.institutionAdminPage .institutionSelectField {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionSelectField.institutionSelectFieldOpen {
+  z-index: 10020 !important;
+  isolation: isolate;
+}
+
+/* Keep the open dropdown above the sections below it so no back section shows. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationCard:has(.institutionSelectFieldOpen),
+.superAdminPage.institutionAdminPage
+  .institutionGrid:has(.institutionSelectFieldOpen),
+.superAdminPage.institutionAdminPage
+  .institutionResearchActivityBlock:has(.institutionSelectFieldOpen) {
+  position: relative !important;
+  z-index: 10010 !important;
+  overflow: visible !important;
+}
+
+/* ALL normal and multi-select dropdown menus. */
+.superAdminPage.institutionAdminPage .institutionCustomSelectList,
+.superAdminPage.institutionAdminPage .institutionRadioSelectList {
+  position: absolute !important;
+  left: -13px !important;
+  right: -13px !important;
+  width: auto !important;
+  top: calc(100% + 12px) !important;
+  z-index: 10030 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+
+  /* Keep the first compact look; add only a small amount of breathing room. */
+  gap: 2px !important;
+  row-gap: 2px !important;
+  padding: 7px 14px 9px !important;
+
+  /* Opaque dropdown keeps the section behind completely hidden.
+     Restore the original inset/neumorphic dropdown panel appearance. */
+  background: #DFE6E9 !important;
+  background-color: #DFE6E9 !important;
+  opacity: 1 !important;
+  border: 0 !important;
+  border-radius: 0 0 16px 16px !important;
+  box-shadow:
+    inset -6px -6px 12px rgba(255, 255, 255, 0.96),
+    inset 6px 6px 12px rgba(196, 196, 196, 0.88) !important;
+  -webkit-box-shadow:
+    inset -6px -6px 12px rgba(255, 255, 255, 0.96),
+    inset 6px 6px 12px rgba(196, 196, 196, 0.88) !important;
+
+  isolation: isolate !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Only a SMALL increase from the original compact option height. */
+.superAdminPage.institutionAdminPage .institutionCustomSelectOption,
+.superAdminPage.institutionAdminPage .institutionRadioSelectOption {
+  width: 100% !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  max-height: 40px !important;
+  flex: 0 0 40px !important;
+
+  margin: 0 !important;
+  padding: 4px 14px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+
+  background: transparent !important;
+  box-shadow: none !important;
+  line-height: 20px !important;
+  box-sizing: border-box !important;
+}
+
+.superAdminPage.institutionAdminPage
+  .institutionCustomSelectOption > span:not(.institutionRadioSelectCircle),
+.superAdminPage.institutionAdminPage
+  .institutionRadioSelectOption > span:not(.institutionRadioSelectCircle) {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 20px !important;
+}
+
+/* Long lists remain compact and scroll inside the dropdown instead of growing over sections. */
+.superAdminPage.institutionAdminPage .institutionRadioSelectListScrollable,
+.superAdminPage.institutionAdminPage
+  .institutionCustomSelectList.institutionRadioSelectListScrollable {
+  height: auto !important;
+  max-height: 178px !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  gap: 2px !important;
+  row-gap: 2px !important;
+  padding: 7px 14px 9px !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tablet/mobile — keep the same compact appearance. */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionCustomSelectList,
+  .superAdminPage.institutionAdminPage .institutionRadioSelectList {
+    left: -13px !important;
+    right: -13px !important;
+    top: calc(100% + 10px) !important;
+    gap: 2px !important;
+    row-gap: 2px !important;
+    padding: 7px 12px 9px !important;
+    border-radius: 0 0 14px 14px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionCustomSelectOption,
+  .superAdminPage.institutionAdminPage .institutionRadioSelectOption {
+    min-height: 40px !important;
+    height: 40px !important;
+    max-height: 40px !important;
+    flex: 0 0 40px !important;
+    padding: 4px 12px !important;
+    gap: 12px !important;
+    line-height: 20px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionRadioSelectListScrollable,
+  .superAdminPage.institutionAdminPage
+    .institutionCustomSelectList.institutionRadioSelectListScrollable {
+    max-height: 176px !important;
+    gap: 2px !important;
+    row-gap: 2px !important;
+    padding: 7px 12px 9px !important;
+  }
+}
+
+/* =========================================================
+   FINAL — SLIGHT DROPDOWN HEIGHT INCREASE
+   Keep the same dropdown design/spacing; only give long
+   dropdowns a little more height so the section behind
+   does not peek through at the bottom.
+   ========================================================= */
+.superAdminPage.institutionAdminPage .institutionRadioSelectListScrollable,
+.superAdminPage.institutionAdminPage
+  .institutionCustomSelectList.institutionRadioSelectListScrollable {
+  max-height: 188px !important;
+}
+
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionRadioSelectListScrollable,
+  .superAdminPage.institutionAdminPage
+    .institutionCustomSelectList.institutionRadioSelectListScrollable {
+    max-height: 186px !important;
+  }
+}
+
+/* =========================================================
+   FINAL — MOBILE PROFILE COMPLETION HEADER STACK
+   Mobile only: place title first and percentage below it.
+   No desktop/tablet layout changes.
+   ========================================================= */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionCompletionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionCompletionHeader h3 {
+    margin: 0;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionCompletionHeader span {
+    display: block;
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================================
+   FINAL — HEADER SCROLL STACKING FIX
+   Keep the sticky header above every section/card/dropdown
+   while scrolling. No layout or component changes.
+   ========================================================= */
+.superAdminPage.institutionAdminPage .mainContent > .topHeader,
+.superAdminPage.institutionAdminPage .mainContent .topHeader {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30000 !important;
+  isolation: isolate;
+  background: #DFE6E9 !important;
+}
+
+/* =========================================================
+   MOBILE — LOWER BREADCRUMB ONLY, EXACT TWO-LINE LAYOUT
+   Top header breadcrumb/icons are NOT changed.
+   Font family, font size, font weight and color are NOT changed.
+   ========================================================= */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage
+    .institutionLowerBreadcrumbTwoLine {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    transform: translateY(5);
+    column-gap: 8px !important;
+    row-gap: 2px !important;
+
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  /* First breadcrumb text occupies the complete first line. */
+  .superAdminPage.institutionAdminPage
+    .institutionLowerBreadcrumbTwoLine > :first-child {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Arrow + Profile and Identity stay together on line two. */
+  .superAdminPage.institutionAdminPage
+    .institutionLowerBreadcrumbTwoLine > :not(:first-child) {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Keep the page content slightly closer to the breadcrumb.
+     No font/design changes. */
+  .superAdminPage.institutionAdminPage .institutionPageContent {
+    padding-top: 10px !important;
+  }
+
+  /* Long read-only values / emails can use up to two lines on mobile. */
+  .superAdminPage.institutionAdminPage .institutionFieldValue {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    max-height: 44px !important;
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+}
+
+/* =========================================================
+   FINAL — MOBILE CANCEL + SAVE PROFILE FIX
+   Only the bottom action buttons are changed on mobile.
+   ========================================================= */
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    width: 100% !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 12px !important;
+
+    margin-top: 4px !important;
+    padding: 10px 0 24px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionBottomButton {
+    min-width: 0 !important;
+
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    padding: 0 16px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+
+    border-radius: 24px !important;
+
+    font-size: 14px !important;
+    line-height: 22px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+
+    flex: 0 0 122px !important;
+
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    color: #D65A00 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionProfileCancelButton img {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+
+    flex: 0 0 138px !important;
+
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    gap: 8px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 

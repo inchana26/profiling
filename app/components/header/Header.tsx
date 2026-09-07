@@ -85,6 +85,18 @@ const COORDINATOR_NGO_ROUTES: Record<string, string> = {
   "/coordinator_ngo": "Profile and Identity",
 };
 
+const STUDENT_UNIVERSITY_ROUTES: Record<string, string> = {
+  "/student_university": "Profile and Identity",
+  "/student_university_profile": "Profile and Identity",
+  "/student_university/profile": "Profile and Identity",
+};
+
+const STUDENT_BOOTCAMP_ROUTES: Record<string, string> = {
+  "/student_bootcamp": "Profile and Identity",
+  "/student_bootcamp_profile": "Profile and Identity",
+  "/student_bootcamp/profile": "Profile and Identity",
+};
+
 const STUDENT_ROUTES: Record<string, string[]> = {
   "/student_profile": ["Student Profile", "Student Profile"],
   "/studentprofile": ["Student Profile", "Student Profile"],
@@ -181,10 +193,22 @@ export default function Header() {
     normalizedPath.startsWith("/government/") ||
     normalizedPath.startsWith("/government_coordinator");
 
+  const isStudentUniversity =
+    normalizedPath === "/student_university" ||
+    normalizedPath.startsWith("/student_university/") ||
+    normalizedPath.startsWith("/student_university_");
+
+  const isStudentBootcamp =
+    normalizedPath === "/student_bootcamp" ||
+    normalizedPath.startsWith("/student_bootcamp/") ||
+    normalizedPath.startsWith("/student_bootcamp_");
+
   const isStudent =
-    normalizedPath.startsWith("/student_profile") ||
-    normalizedPath.startsWith("/studentprofile") ||
-    normalizedPath.startsWith("/student_");
+    !isStudentUniversity &&
+    !isStudentBootcamp &&
+    (normalizedPath.startsWith("/student_profile") ||
+      normalizedPath.startsWith("/studentprofile") ||
+      normalizedPath.startsWith("/student_"));
 
   const isSuperAdmin =
     normalizedPath.startsWith("/super_admin") ||
@@ -196,19 +220,29 @@ export default function Header() {
       ? "institutionAdminProfileImage"
       : isSuperAdmin
         ? "superAdminProfileImage"
-        : isUniversity
-          ? "universityCoordinatorProfileImage"
-          : isBootcamp
-            ? "bootcampCoordinatorProfileImage"
-            : isCorporate
-              ? "corporateCoordinatorProfileImage"
-              : isCoordinatorGovernment
-                ? "governmentCoordinatorProfileImage"
-                : isNgo
-                  ? "ngoCoordinatorProfileImage"
-                  : null;
+        : isStudentUniversity
+          ? "studentUniversityProfileImage"
+          : isStudentBootcamp
+            ? "studentBootcampProfileImage"
+            : isUniversity
+              ? "universityCoordinatorProfileImage"
+              : isBootcamp
+                ? "bootcampCoordinatorProfileImage"
+                : isCorporate
+                  ? "corporateCoordinatorProfileImage"
+                  : isCoordinatorGovernment
+                    ? "governmentCoordinatorProfileImage"
+                    : isNgo
+                      ? "ngoCoordinatorProfileImage"
+                      : null;
 
-  const currentPage = isCorporate
+  const currentPage = isStudentUniversity
+    ? STUDENT_UNIVERSITY_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isStudentBootcamp
+    ? STUDENT_BOOTCAMP_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isCorporate
     ? COORDINATOR_CORPORATE_ROUTES[normalizedPath] ??
       "Profile and Identity"
     : isNgo
@@ -236,7 +270,11 @@ export default function Header() {
           : SUPER_ADMIN_ROUTES[normalizedPath] ??
             "Profile and Identity";
 
-  const profileTitle = isCorporate
+  const profileTitle = isStudentUniversity
+    ? "University/ College Student Profile"
+    : isStudentBootcamp
+    ? "Bootcamp Learner Profile"
+    : isCorporate
     ? "Corporate Coordinator Profile"
     : isNgo
     ? "NGO Coordinator Profile"
@@ -252,7 +290,11 @@ export default function Header() {
           ? "Platform admin Profile"
           : "Super admin Profile";
 
-  const userName = isCorporate
+  const userName = isStudentUniversity
+    ? "Antony Thomas"
+    : isStudentBootcamp
+    ? "Antony Thomas"
+    : isCorporate
     ? "Antony Thomas"
     : isNgo
     ? "Antony Thomas"
@@ -270,7 +312,11 @@ export default function Header() {
             ? "Student"
             : "Rajesh Mehta";
 
-  const userRole = isCorporate
+  const userRole = isStudentUniversity
+    ? "University Student"
+    : isStudentBootcamp
+    ? "Bootcamp Learner"
+    : isCorporate
     ? "Corporate Coordinator"
     : isNgo
     ? "NGO Coordinator"
@@ -316,7 +362,11 @@ export default function Header() {
         ? "/assets/platformadmin.imagesandicons/notification.svg"
         : "/assets/superadminicons/notification.svg";
 
-  const profileImage = isCorporate
+  const profileImage = isStudentUniversity
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isStudentBootcamp
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isCorporate
     ? headerProfileImage || "/assets/institutionimages/profile.png"
     : isNgo
     ? headerProfileImage || "/assets/institutionimages/profile.png"
@@ -370,6 +420,8 @@ export default function Header() {
 
   useEffect(() => {
     const isCoordinatorPage =
+      isStudentUniversity ||
+      isStudentBootcamp ||
       isUniversity ||
       isBootcamp ||
       isCorporate ||
@@ -439,6 +491,8 @@ export default function Header() {
       );
     };
   }, [
+    isStudentUniversity,
+    isStudentBootcamp,
     isUniversity,
     isBootcamp,
     isCorporate,
@@ -497,13 +551,21 @@ export default function Header() {
             />
           )}
 
-          <span>{item}</span>
+          <span
+            className={
+              index === studentBreadcrumb.length - 1
+                ? "breadcrumbCurrent"
+                : "breadcrumbParent"
+            }
+          >
+            {item}
+          </span>
         </span>
       ))}
     </>
   ) : (
     <>
-      <span>{profileTitle}</span>
+      <span className="breadcrumbParent">{profileTitle}</span>
 
       <Image
         src={arrowRightIcon}
@@ -512,7 +574,7 @@ export default function Header() {
         height={15}
       />
 
-      <span>{currentPage}</span>
+      <span className="breadcrumbCurrent">{currentPage}</span>
     </>
   );
 

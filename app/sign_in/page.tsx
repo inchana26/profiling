@@ -92,6 +92,19 @@ export default function LoginPage() {
       }
     }
 
+    /* Student navigation */
+    if (tenant === "Student") {
+      if (actor === "University & College") {
+        router.push("/student_university");
+        return;
+      }
+
+      if (actor === "Bootcamp") {
+        router.push("/student_bootcamp");
+        return;
+      }
+    }
+
     // Add navigation for remaining Coordinator actors,
     // Faculty and Student here.
     console.log({

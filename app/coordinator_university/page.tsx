@@ -1,14 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import {
-  getCountries,
-  getCountryCallingCode,
-  type Country,
-} from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
-import { getExampleNumber } from "libphonenumber-js/max";
-import examples from "libphonenumber-js/examples.mobile.json";
 import { useEffect, useId, useRef, useState } from "react";
 import "./university.css";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -24,10 +16,8 @@ const images = {
   save: "/assets/universityicons/tick.svg",
   cancel: "/assets/universityicons/cancel.svg",
   arrowDown: "/assets/universityicons/arrow-down.svg",
-  completed: "/assets/universityicons/checkmark.svg",
   calendar: "/assets/universityicons/calendar.svg",
   upload: "/assets/universityicons/upload.svg",
-  clap: "/assets/universityicons/clap.svg",
   sad: "/assets/universityicons/sad.svg",
 
   basicInformation: "/assets/universityicons/user.svg",
@@ -704,426 +694,13 @@ function DateField({
   );
 }
 
-type PhoneCountrySelectProps = {
-  label: string;
-  country: Country | null;
-  value: string;
-  onCountryChange: (country: Country) => void;
-  onChange: (value: string) => void;
-};
-
-const PHONE_COUNTRIES = getCountries();
-const countryNames =
-  typeof Intl !== "undefined" && "DisplayNames" in Intl
-    ? new Intl.DisplayNames(["en"], { type: "region" })
-    : null;
-
-const getCountryName = (country: Country) =>
-  countryNames?.of(country) || country;
-
-const getCountryMaxDigits = (country: Country) => {
-  const example = getExampleNumber(country, examples);
-
-  if (example?.nationalNumber) {
-    return example.nationalNumber.length;
-  }
-
-  // Safe fallback only when the library has no mobile example.
-  return 15 - getCountryCallingCode(country).length;
-};
-
-function PhoneCountrySelect({
-  label,
-  country,
-  value,
-  onCountryChange,
-  onChange,
-}: PhoneCountrySelectProps) {
-  const [open, setOpen] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [search, setSearch] = useState("");
-
-  /* Keep edits local until Apply is clicked. */
-  const [pendingCountry, setPendingCountry] = useState<Country | null>(country);
-  const [pendingValue, setPendingValue] = useState(value);
-
-  const rootRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const selectId = useId();
-
-  /* Value shown in the CLOSED top field = last applied value only. */
-  const callingCode = country
-    ? `+${getCountryCallingCode(country)}`
-    : "";
-
-  /* Values used inside the OPEN editor. */
-  const pendingCallingCode = pendingCountry
-    ? `+${getCountryCallingCode(pendingCountry)}`
-    : "";
-
-  const pendingMaxDigits = pendingCountry
-    ? getCountryMaxDigits(pendingCountry)
-    : 15;
-
-  const filteredCountries = PHONE_COUNTRIES.filter((item) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-
-    const name = getCountryName(item).toLowerCase();
-    const code = `+${getCountryCallingCode(item)}`;
-
-    return (
-      name.includes(q) ||
-      item.toLowerCase().includes(q) ||
-      code.includes(q)
-    );
-  });
-
-  /* If the saved parent value changes while closed, keep draft in sync. */
-  useEffect(() => {
-    if (!open) {
-      setPendingCountry(country);
-      setPendingValue(value);
-    }
-  }, [country, value, open]);
-
-  const discardPendingChanges = () => {
-    setPendingCountry(country);
-    setPendingValue(value);
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        rootRef.current &&
-        !rootRef.current.contains(event.target as Node)
-      ) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    const closeOtherDropdown = (event: Event) => {
-      const customEvent = event as CustomEvent<string>;
-
-      if (customEvent.detail !== selectId) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    window.addEventListener(
-      "faculty-profile-dropdown-open",
-      closeOtherDropdown as EventListener
-    );
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      window.removeEventListener(
-        "faculty-profile-dropdown-open",
-        closeOtherDropdown as EventListener
-      );
-    };
-  }, [selectId, country, value]);
-
-  useEffect(() => {
-    if (countryOpen) {
-      window.setTimeout(() => searchRef.current?.focus(), 0);
-    }
-  }, [countryOpen]);
-
-  const openMainField = () => {
-    const nextOpen = !open;
-
-    if (nextOpen) {
-      /* Every new open starts from the last applied values. */
-      setPendingCountry(country);
-      setPendingValue(value);
-
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    } else {
-      /* Closing with the top arrow works like Cancel. */
-      setPendingCountry(country);
-      setPendingValue(value);
-      setCountryOpen(false);
-      setSearch("");
-    }
-
-    setOpen(nextOpen);
-  };
-
-  const openCountryList = () => {
-    if (!countryOpen) {
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    }
-
-    setCountryOpen(true);
-  };
-
-  const handleNumberChange = (rawValue: string) => {
-    const digits = rawValue.replace(/\D/g, "");
-
-    if (!pendingCountry) {
-      setPendingValue("");
-      return;
-    }
-
-    setPendingValue(digits.slice(0, pendingMaxDigits));
-  };
-
-  const selectCountry = (nextCountry: Country) => {
-    setPendingCountry(nextCountry);
-
-    const nextMaxDigits = getCountryMaxDigits(nextCountry);
-    setPendingValue((current) =>
-      current.replace(/\D/g, "").slice(0, nextMaxDigits)
-    );
-
-    setCountryOpen(false);
-    setSearch("");
-  };
-
-  const applyPhoneChanges = () => {
-    if (pendingCountry) {
-      onCountryChange(pendingCountry);
-    }
-
-    onChange(pendingValue);
-
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  return (
-    <div
-      ref={rootRef}
-      className={`institutionPhoneAccordion ${
-        open ? "institutionPhoneAccordionOpen" : ""
-      }`}
-    >
-      <button
-        type="button"
-        className="institutionField institutionPhoneMainTrigger"
-        aria-expanded={open}
-        onClick={openMainField}
-      >
-        <span className="institutionPhoneMainText">
-          <span className="institutionFieldLabel">{label}</span>
-
-          <span
-            className={
-              country && value
-                ? "institutionPhoneMainSavedValue"
-                : "institutionSelectPlaceholderValue"
-            }
-          >
-            {country && value ? `${callingCode} ${value}` : "Select"}
-          </span>
-        </span>
-
-        <IconImage
-          src={images.arrowDown}
-          width={30}
-          height={30}
-          className={`institutionSelectArrow institutionPhoneMainArrow ${
-            open ? "institutionSelectArrowOpen" : ""
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="institutionPhonePanel">
-          <div className="institutionPhonePanelLabel">Country Code</div>
-
-          <div className="institutionPhoneCountryBox">
-            <div
-              className={`institutionPhoneCountryTrigger ${
-                countryOpen ? "institutionPhoneCountryTriggerOpen" : ""
-              }`}
-              onClick={openCountryList}
-            >
-              <span
-                className="institutionPhoneSearchMini"
-                aria-hidden="true"
-              />
-
-              <input
-                ref={searchRef}
-                type="text"
-                value={
-                  countryOpen
-                    ? search
-                    : pendingCountry
-                      ? `${getCountryName(pendingCountry)}`
-                      : ""
-                }
-                onFocus={openCountryList}
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setCountryOpen(true);
-                }}
-                className="institutionPhoneCountrySearchInput"
-                placeholder="Search Country"
-                aria-label="Search Country"
-                autoComplete="off"
-              />
-
-              {pendingCountry && !countryOpen && (
-                <span className="institutionPhoneSelectedCountryCode">
-                  {pendingCountry} ({pendingCallingCode})
-                </span>
-              )}
-
-              <IconImage
-                src={images.arrowDown}
-                width={24}
-                height={24}
-                className={`institutionPhoneArrow ${
-                  countryOpen ? "institutionPhoneArrowOpen" : ""
-                }`}
-              />
-            </div>
-
-            {countryOpen && (
-              <div className="institutionPhoneCountryMenu">
-                <div
-                  className="institutionPhoneCountryList institutionRadioSelectListScrollable"
-                  role="listbox"
-                >
-                  {filteredCountries.map((item) => {
-                    const selected = pendingCountry === item;
-                    const ItemFlag = flags[item];
-                    const itemCallingCode =
-                      `+${getCountryCallingCode(item)}`;
-
-                    return (
-                      <button
-                        type="button"
-                        key={item}
-                        className={`institutionCustomSelectOption institutionRadioSelectOption institutionPhoneCountryOption ${
-                          selected
-                            ? "institutionCustomSelectOptionActive institutionPhoneCountryOptionSelected"
-                            : ""
-                        }`}
-                        role="option"
-                        aria-selected={selected}
-                        onClick={() => selectCountry(item)}
-                      >
-                        <span className="institutionPhoneCountryName">
-                          <span className="institutionPhoneFlag">
-                            {ItemFlag ? (
-                              <ItemFlag
-                                title={getCountryName(item)}
-                              />
-                            ) : null}
-                          </span>
-
-                          <span className="institutionPhoneCountryText">
-                            {item} ({itemCallingCode}) - {getCountryName(item)}
-                          </span>
-                        </span>
-
-                        <span
-                          className={`institutionRadioSelectCircle ${
-                            selected
-                              ? "institutionRadioSelectCircleActive"
-                              : ""
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {selected && (
-                            <span className="institutionRadioSelectCheck">
-                              ✓
-                            </span>
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="institutionPhonePanelLabel institutionPhoneNumberTitle">
-            {label}
-          </div>
-
-          <div
-            className={`institutionPhoneNumberInputWrap ${
-              !pendingCountry ? "institutionPhoneNumberInputDisabled" : ""
-            }`}
-          >
-            <input
-              type="tel"
-              inputMode="numeric"
-              className="institutionPhoneNumberInput"
-              value={pendingValue}
-              disabled={!pendingCountry}
-              maxLength={pendingMaxDigits}
-              placeholder={
-                pendingCountry
-                  ? `Enter ${pendingMaxDigits} Digit Mobile number`
-                  : "Select Country First"
-              }
-              onChange={(event) =>
-                handleNumberChange(event.target.value)
-              }
-            />
-          </div>
-
-          <div className="institutionPhonePanelActions">
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelCancel"
-              onClick={discardPendingChanges}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelApply"
-              onClick={applyPhoneChanges}
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 type SectionHeaderProps = {
   title: string;
   iconSrc: string;
   iconTone: "purple" | "pink";
   editing: boolean;
-  popupType?: "saved" | "discarded" | null;
   validationMessage?: string | null;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
 };
 
 function SectionHeader({
@@ -1131,11 +708,8 @@ function SectionHeader({
   iconSrc,
   iconTone,
   editing,
-  popupType = null,
   validationMessage = null,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
     <div className="institutionInformationHeader">
@@ -1173,51 +747,7 @@ function SectionHeader({
           </div>
         )}
 
-        {popupType && (
-          <div
-            className={`institutionInlinePopup ${
-              popupType === "saved"
-                ? "institutionInlinePopupSaved"
-                : "institutionInlinePopupDiscarded"
-            }`}
-            role="status"
-            aria-live="polite"
-          >
-            <IconImage
-              src={popupType === "saved" ? images.clap : images.sad}
-              width={18}
-              height={18}
-              className="institutionInlinePopupIcon"
-            />
-            <span>
-              {popupType === "saved"
-                ? "Changes Saved"
-                : "Changes Discarded"}
-            </span>
-          </div>
-        )}
-
-        {editing ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton institutionSaveButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.save} width={13} height={13} />
-              <span>Save</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionActionButton institutionCancelButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={13} height={13} />
-              <span>Cancel</span>
-            </button>
-          </div>
-        ) : (
+        {!editing && (
           <button
             type="button"
             className="institutionEditButton"
@@ -1243,7 +773,6 @@ type ActivityHeaderProps = {
   iconSrc: string;
   tone: "blue" | "orange" | "green" | "red";
   editing: boolean;
-  popupType?: "saved" | "discarded" | null;
   validationMessage?: string | null;
   onEdit: () => void;
   onAdd: () => void;
@@ -1255,7 +784,6 @@ function ActivityHeader({
   iconSrc,
   tone,
   editing,
-  popupType = null,
   validationMessage = null,
   onEdit,
   onAdd,
@@ -1291,30 +819,6 @@ function ActivityHeader({
               className="institutionInlinePopupIcon"
             />
             <span>{validationMessage}</span>
-          </div>
-        )}
-
-        {popupType && (
-          <div
-            className={`institutionInlinePopup ${
-              popupType === "saved"
-                ? "institutionInlinePopupSaved"
-                : "institutionInlinePopupDiscarded"
-            }`}
-            role="status"
-            aria-live="polite"
-          >
-            <IconImage
-              src={popupType === "saved" ? images.clap : images.sad}
-              width={18}
-              height={18}
-              className="institutionInlinePopupIcon"
-            />
-            <span>
-              {popupType === "saved"
-                ? "Changes Saved"
-                : "Changes Discarded"}
-            </span>
           </div>
         )}
 
@@ -1861,19 +1365,74 @@ const createResearchInnovationRecord = (
 export default function CoordinatorUniversityPage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
-  const [showDraftSaved, setShowDraftSaved] = useState(true);
-  const [draftSavedTime, setDraftSavedTime] = useState("02:26PM");
+  /* Mobile breadcrumb fix:
+     Header contains two breadcrumb displays. Keep the top/header breadcrumb
+     exactly as it is and mark only the second/lower breadcrumb. */
+  useEffect(() => {
+    const normalizeText = (value: string | null) =>
+      (value || "").replace(/\s+/g, " ").trim();
+
+    const applyLowerBreadcrumbClass = () => {
+      const root = document.querySelector<HTMLElement>(
+        ".superAdminPage.institutionAdminPage"
+      );
+
+      if (!root) return;
+
+      const allMatches = Array.from(
+        root.querySelectorAll<HTMLElement>("*")
+      ).filter((element) => {
+        const text = normalizeText(element.textContent);
+
+        if (
+          !text.includes("University/ College Coordinator Profile") ||
+          !text.includes("Profile and Identity")
+        ) {
+          return false;
+        }
+
+        /* Keep only the smallest wrapper that contains the complete breadcrumb,
+           rather than a large parent such as Header/Main. */
+        return !Array.from(element.children).some((child) => {
+          const childText = normalizeText(child.textContent);
+          return (
+            childText.includes("University/ College Coordinator Profile") &&
+            childText.includes("Profile and Identity")
+          );
+        });
+      });
+
+      root
+        .querySelectorAll(".institutionLowerBreadcrumbTwoLine")
+        .forEach((element) =>
+          element.classList.remove("institutionLowerBreadcrumbTwoLine")
+        );
+
+      /* The lower breadcrumb is the last matching breadcrumb in document order. */
+      const lowerBreadcrumb = allMatches[allMatches.length - 1];
+
+      if (lowerBreadcrumb) {
+        lowerBreadcrumb.classList.add("institutionLowerBreadcrumbTwoLine");
+      }
+    };
+
+    applyLowerBreadcrumbClass();
+
+    const frameId = window.requestAnimationFrame(applyLowerBreadcrumbClass);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      document
+        .querySelectorAll(".institutionLowerBreadcrumbTwoLine")
+        .forEach((element) =>
+          element.classList.remove("institutionLowerBreadcrumbTwoLine")
+        );
+    };
+  }, []);
+
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [editingSection, setEditingSection] = useState<SectionName | null>(null);
   const [confirmation, setConfirmation] = useState(false);
-
-  const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
-  const [registrationSectionCompleted, setRegistrationSectionCompleted] =
-    useState(false);
-  const [researchInnovationSectionCompleted, setResearchInnovationSectionCompleted] =
-    useState(false);
-  const [documentsSectionCompleted, setDocumentsSectionCompleted] =
-    useState(false);
 
   const [documentFileStatus, setDocumentFileStatus] = useState({
     profilePhoto: false,
@@ -1904,8 +1463,7 @@ export default function CoordinatorUniversityPage() {
   type SequenceSection =
     | "registration"
     | "researchInnovation"
-    | "documents"
-    | "confirmation";
+    | "documents";
 
   const [sequenceValidationPopup, setSequenceValidationPopup] = useState<{
     section: SequenceSection;
@@ -1935,38 +1493,67 @@ export default function CoordinatorUniversityPage() {
   const isResearchInnovationEditing = editingSection === "researchInnovation";
   const isDocumentsEditing = editingSection === "documents";
 
-  const [sectionPopup, setSectionPopup] = useState<{
-    section: SectionName;
-    type: "saved" | "discarded";
-  } | null>(null);
 
   const [registrationValidationPopup, setRegistrationValidationPopup] =
     useState<string | null>(null);
+  const registrationValidationTimerRef = useRef<number | null>(null);
+
+  const clearRegistrationValidationTimer = () => {
+    if (registrationValidationTimerRef.current !== null) {
+      window.clearTimeout(registrationValidationTimerRef.current);
+      registrationValidationTimerRef.current = null;
+    }
+  };
 
   const showRegistrationValidationPopup = (message: string) => {
+    clearRegistrationValidationTimer();
     setRegistrationValidationPopup(message);
-    window.setTimeout(() => {
+
+    registrationValidationTimerRef.current = window.setTimeout(() => {
       setRegistrationValidationPopup((current) =>
         current === message ? null : current
       );
+      registrationValidationTimerRef.current = null;
     }, 3000);
   };
+
+  /* Live field errors use the same popup design, but stay visible while the
+     current value is invalid. They disappear immediately once corrected. */
+  const showLiveRegistrationValidationPopup = (message: string) => {
+    clearRegistrationValidationTimer();
+    setRegistrationValidationPopup(message);
+  };
+
+  const clearLiveRegistrationValidationPopup = (message: string) => {
+    setRegistrationValidationPopup((current) =>
+      current === message ? null : current
+    );
+  };
+
+  useEffect(() => {
+    return () => clearRegistrationValidationTimer();
+  }, []);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/.test(
       value.trim()
     );
 
-  const isValidPhoneNumber = (value: string, country: Country | null) => {
-    if (!value || !country) return false;
-
-    const digits = value.replace(/\D/g, "");
-    const requiredDigits = getCountryMaxDigits(country);
-
-    return digits.length === requiredDigits;
-  };
+  const isValidPhoneNumber = (value: string) =>
+    /^\d{10}$/.test(value.replace(/\D/g, ""));
 
   const validateRegistrationContactFields = () => {
+    const allRegistrationFieldsFilled = Object.values(registrationDraft).every(
+      (value) => value.trim().length > 0
+    );
+
+    if (!allRegistrationFieldsFilled) {
+      showRegistrationValidationPopup(
+        "Please Fill All Registration Data Fields"
+      );
+      return false;
+    }
+
     if (!isValidEmail(registrationDraft.officialEmail)) {
       showRegistrationValidationPopup(
         "Please Enter a Valid Official Email"
@@ -1974,33 +1561,23 @@ export default function CoordinatorUniversityPage() {
       return false;
     }
 
-    if (
-      registrationDraft.alternateEmail.trim() &&
-      !isValidEmail(registrationDraft.alternateEmail)
-    ) {
+    if (!isValidEmail(registrationDraft.alternateEmail)) {
       showRegistrationValidationPopup(
         "Please Enter a Valid Alternate Email"
       );
       return false;
     }
 
-    if (!isValidPhoneNumber(registrationDraft.mobileNumber, mobileCountry)) {
+    if (!isValidPhoneNumber(registrationDraft.mobileNumber)) {
       showRegistrationValidationPopup(
-        mobileCountry
-          ? `Mobile Number must be ${getCountryMaxDigits(mobileCountry)} digits`
-          : "Please select country code for Mobile Number"
+        "Mobile Number must be 10 digits"
       );
       return false;
     }
 
-    if (
-      registrationDraft.alternatePhone.trim() &&
-      !isValidPhoneNumber(registrationDraft.alternatePhone, alternatePhoneCountry)
-    ) {
+    if (!isValidPhoneNumber(registrationDraft.alternatePhone)) {
       showRegistrationValidationPopup(
-        alternatePhoneCountry
-          ? `Alternate Phone must be ${getCountryMaxDigits(alternatePhoneCountry)} digits`
-          : "Please select country code for Alternate Phone"
+        "Alternate Phone must be 10 digits"
       );
       return false;
     }
@@ -2036,11 +1613,74 @@ export default function CoordinatorUniversityPage() {
   >([createResearchInnovationRecord("activity-1", true)]);
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
-  const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
-  const [alternatePhoneCountry, setAlternatePhoneCountry] =
-    useState<Country | null>(null);
   const [researchInnovationDraft, setResearchInnovationDraft] =
     useState<ResearchInnovationRecord[]>(researchInnovationInfo);
+
+  /* Completion checkmarks are driven by the actual entered content.
+     A checkmark appears only when the current step is fully complete. */
+  const profilePhotoCompleted = Boolean(profileImage);
+
+  const registrationCompletionSource = isRegistrationEditing
+    ? registrationDraft
+    : registrationInfo;
+
+  const registrationFieldsFilled = Object.values(
+    registrationCompletionSource
+  ).every((value) => value.trim().length > 0);
+
+  const registrationContactsValid =
+    isValidEmail(registrationCompletionSource.officialEmail) &&
+    isValidEmail(registrationCompletionSource.alternateEmail) &&
+    isValidPhoneNumber(registrationCompletionSource.mobileNumber) &&
+    isValidPhoneNumber(registrationCompletionSource.alternatePhone);
+
+  const registrationSectionCompleted =
+    profilePhotoCompleted &&
+    registrationFieldsFilled &&
+    registrationContactsValid;
+
+  const researchCompletionSource = isResearchInnovationEditing
+    ? researchInnovationDraft
+    : researchInnovationInfo;
+
+  const researchFieldsCompleted =
+    researchCompletionSource.length > 0 &&
+    researchCompletionSource.every((activity) => {
+      const allActivityFieldsFilled = [
+        activity.activityType,
+        activity.title,
+        activity.year,
+        activity.role,
+        activity.organizationAgency,
+        activity.link,
+        activity.additionalDetails,
+      ].every((value) => value.trim().length > 0);
+
+      return allActivityFieldsFilled && Boolean(researchProofStatus[activity.id]);
+    });
+
+  const researchInnovationSectionCompleted =
+    registrationSectionCompleted && researchFieldsCompleted;
+
+  const documentsCompletionNames = isDocumentsEditing
+    ? documentFileNamesDraft
+    : savedDocumentFileNames;
+
+  const documentsCompletionType = isDocumentsEditing
+    ? governmentDocumentTypeDraft
+    : savedGovernmentDocumentType;
+
+  const documentsFieldsCompleted =
+    Boolean(documentsCompletionType) &&
+    Boolean(documentsCompletionNames.profilePhoto) &&
+    Boolean(documentsCompletionNames.govtIdProof) &&
+    Boolean(documentsCompletionNames.supportingDocuments);
+
+  const documentsSectionCompleted =
+    researchInnovationSectionCompleted && documentsFieldsCompleted;
+
+  const confirmationCompleted = documentsSectionCompleted && confirmation;
+
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
   const registrationDraftRef = useRef(registrationDraft);
@@ -2066,18 +1706,88 @@ export default function CoordinatorUniversityPage() {
     }
   };
 
+
+  const commitCurrentSection = (section: SectionName) => {
+    if (section === "registration") {
+      if (!validateRegistrationContactFields()) return false;
+
+      if (!registrationSectionCompleted) {
+        showRegistrationValidationPopup(
+          "Please Fill All Registration Data Fields"
+        );
+        return false;
+      }
+
+      setRegistrationInfo(registrationDraft);
+      return true;
+    }
+
+    if (section === "researchInnovation") {
+      if (!researchInnovationSectionCompleted) {
+        showSequenceValidation(
+          "researchInnovation",
+          "Please fill all Research fields and upload Proof."
+        );
+        return false;
+      }
+
+      setResearchInnovationInfo(researchInnovationDraft);
+      return true;
+    }
+
+    if (section === "documents") {
+      if (!governmentDocumentTypeDraft) {
+        showSequenceValidation(
+          "documents",
+          "Please select a Government ID Document Type."
+        );
+        return false;
+      }
+
+      const allDocumentsUploaded =
+        Boolean(documentFileNamesDraft.profilePhoto) &&
+        Boolean(documentFileNamesDraft.govtIdProof) &&
+        Boolean(documentFileNamesDraft.supportingDocuments);
+
+      if (!allDocumentsUploaded) {
+        showSequenceValidation(
+          "documents",
+          "Please upload all required Documents."
+        );
+        return false;
+      }
+
+      if (!documentsSectionCompleted) {
+        showSequenceValidation(
+          "documents",
+          "Please complete the previous steps first."
+        );
+        return false;
+      }
+
+      setSavedGovernmentDocumentType(governmentDocumentTypeDraft);
+      setSavedDocumentFileNames(documentFileNamesDraft);
+      setDocumentFileStatus({
+        profilePhoto: true,
+        govtIdProof: true,
+        supportingDocuments: true,
+      });
+      return true;
+    }
+
+    return false;
+  };
+
   const startSectionEdit = (section: SectionName) => {
-    setSectionPopup(null);
     setRegistrationValidationPopup(null);
     setSequenceValidationPopup(null);
 
-    /* Do not allow jumping between sections with unsaved edits. */
+    /* No section Save / Cancel buttons are used anymore.
+       When the user proceeds to the next section, a completed current
+       section is committed automatically. */
     if (editingSection && editingSection !== section) {
-      showSequenceValidation(
-        section,
-        "Please Save or Cancel the current section before continuing."
-      );
-      return;
+      const committed = commitCurrentSection(editingSection);
+      if (!committed) return;
     }
 
     /* Required order:
@@ -2099,10 +1809,14 @@ export default function CoordinatorUniversityPage() {
       section === "researchInnovation" &&
       !registrationSectionCompleted
     ) {
-      showSequenceValidation(
-        "researchInnovation",
-        "Please Complete and Save Registration"
-      );
+      if (isRegistrationEditing) {
+        validateRegistrationContactFields();
+      } else {
+        showSequenceValidation(
+          "researchInnovation",
+          "Please Complete Registration first."
+        );
+      }
       return;
     }
 
@@ -2112,7 +1826,7 @@ export default function CoordinatorUniversityPage() {
     ) {
       showSequenceValidation(
         "documents",
-        "Please complete and Save Research and innovation"
+        "Please complete Research."
       );
       return;
     }
@@ -2132,116 +1846,114 @@ export default function CoordinatorUniversityPage() {
     setEditingSection(section);
   };
 
-  const saveSection = (section: SectionName) => {
-    if (section === "registration") {
-      if (!validateRegistrationContactFields()) return;
+  const cancelProfile = () => {
+    const initialRegistration = {
+      coordinatorId: "PRGEEQJQCBU006B",
+      fullName: "Antony Thomas",
+      dateOfBirth: "",
+      gender: "",
+      highestQualification: "",
+      employeeCode: "eg.EMP-0042",
+      officialEmail: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+      totalExperience: "",
+      dateOfJoining: "17-05-2004",
+      department: "",
+      designation: "",
+      assignedCourse: "",
+      assignedBatch: "",
+      academicYear: "",
+      reportingAuthority: "",
+      status: "eg. Active",
+    };
 
-      setRegistrationInfo(registrationDraft);
-      setRegistrationSectionCompleted(true);
+    const blankResearch = createResearchInnovationRecord(
+      `activity-reset-${Date.now()}`,
+      true
+    );
+
+    setProfileImage(null);
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
     }
 
-    if (section === "researchInnovation") {
-      setResearchInnovationInfo(researchInnovationDraft);
-      setResearchInnovationSectionCompleted(true);
-    }
+    setRegistrationInfo(initialRegistration);
+    setRegistrationDraft(initialRegistration);
+    setResearchInnovationInfo([blankResearch]);
+    setResearchInnovationDraft([blankResearch]);
+    setResearchProofStatus({});
 
-    if (section === "documents") {
-      if (!governmentDocumentTypeDraft) {
-        showSequenceValidation(
-          "documents",
-          "Please select a Government ID Document Type before saving."
-        );
-        return;
-      }
+    setSavedGovernmentDocumentType("");
+    setGovernmentDocumentTypeDraft("");
+    setSavedDocumentFileNames({
+      profilePhoto: "",
+      govtIdProof: "",
+      supportingDocuments: "",
+    });
+    setDocumentFileNamesDraft({
+      profilePhoto: "",
+      govtIdProof: "",
+      supportingDocuments: "",
+    });
+    setDocumentFileStatus({
+      profilePhoto: false,
+      govtIdProof: false,
+      supportingDocuments: false,
+    });
 
-      const allDocumentsUploaded =
-        Boolean(documentFileNamesDraft.profilePhoto) &&
-        Boolean(documentFileNamesDraft.govtIdProof) &&
-        Boolean(documentFileNamesDraft.supportingDocuments);
-
-      if (!allDocumentsUploaded) {
-        showSequenceValidation(
-          "documents",
-          "Please upload all required Documents before saving."
-        );
-        return;
-      }
-
-      setSavedGovernmentDocumentType(governmentDocumentTypeDraft);
-      setSavedDocumentFileNames(documentFileNamesDraft);
-      setDocumentFileStatus({
-        profilePhoto: true,
-        govtIdProof: true,
-        supportingDocuments: true,
-      });
-      setDocumentsSectionCompleted(true);
-    }
-
+    setConfirmation(false);
     setEditingSection(null);
-    setSectionPopup({ section, type: "saved" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "saved"
-          ? null
-          : current
-      );
-    }, 2500);
-  };
-
-  const cancelSection = (section: SectionName) => {
     setRegistrationValidationPopup(null);
     setSequenceValidationPopup(null);
-    resetDrafts(section);
-
-    if (section === "documents") {
-      setGovernmentDocumentTypeDraft(savedGovernmentDocumentType);
-      setDocumentFileNamesDraft(savedDocumentFileNames);
-      setDocumentFileStatus({
-        profilePhoto: Boolean(savedDocumentFileNames.profilePhoto),
-        govtIdProof: Boolean(savedDocumentFileNames.govtIdProof),
-        supportingDocuments: Boolean(savedDocumentFileNames.supportingDocuments),
-      });
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "discarded" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "discarded"
-          ? null
-          : current
-      );
-    }, 2500);
   };
 
   const saveProfile = () => {
-    if (editingSection === "registration") {
-      setRegistrationInfo(registrationDraft);
-      setRegistrationSectionCompleted(true);
+    setRegistrationValidationPopup(null);
+    setSequenceValidationPopup(null);
+
+    if (!profilePhotoCompleted) {
+      showSequenceValidation(
+        "registration",
+        "Please Upload the Profile Photo"
+      );
+      return;
     }
 
-    if (editingSection === "researchInnovation") {
-      setResearchInnovationInfo(researchInnovationDraft);
-      setResearchInnovationSectionCompleted(true);
+    if (!registrationSectionCompleted) {
+      validateRegistrationContactFields();
+      return;
     }
 
-    /* Documents completion is controlled only by the Documents Save button.
-       This prevents the loader/checkmark from changing before the section
-       has actually been saved. */
+    if (!researchInnovationSectionCompleted) {
+      showSequenceValidation(
+        "researchInnovation",
+        "Please fill all Research fields and upload Proof."
+      );
+      return;
+    }
+
+    if (!documentsSectionCompleted) {
+      showSequenceValidation(
+        "documents",
+        "Please complete all Documents fields and uploads."
+      );
+      return;
+    }
+
+    if (!confirmation) return;
+
+    if (editingSection) {
+      const committed = commitCurrentSection(editingSection);
+      if (!committed) return;
+    }
 
     setEditingSection(null);
-    setShowDraftSaved(true);
-    setDraftSavedTime(
-      new Date()
-        .toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-        .replace(" ", "")
-    );
+
+    /* The supplied page has no backend submit API. At this point the current
+       form state is committed locally, then the user is taken to sign_in. */
+    window.location.assign("/sign_in");
   };
 
   const handleProfileImageSelect = (
@@ -2265,7 +1977,6 @@ export default function CoordinatorUniversityPage() {
     reader.onload = () => {
       if (typeof reader.result === "string") {
         setProfileImage(reader.result);
-        setProfilePhotoCompleted(true);
       }
     };
 
@@ -2273,47 +1984,6 @@ export default function CoordinatorUniversityPage() {
     event.target.value = "";
   };
 
-  useEffect(() => {
-    let popupTimer: number | undefined;
-
-    const autoSaveDraft = () => {
-      // Draft values stay temporary while editing.
-      // Only the section Save button commits them.
-      // Cancel restores the last explicitly saved values.
-
-      const formattedTime = new Date()
-        .toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-        .replace(" ", "");
-
-      setDraftSavedTime(formattedTime);
-      setShowDraftSaved(false);
-
-      window.requestAnimationFrame(() => {
-        setShowDraftSaved(true);
-      });
-
-      if (popupTimer) {
-        window.clearTimeout(popupTimer);
-      }
-
-      popupTimer = window.setTimeout(() => {
-        setShowDraftSaved(false);
-      }, 3000);
-    };
-
-    const timer = window.setInterval(autoSaveDraft, 10000);
-
-    return () => {
-      window.clearInterval(timer);
-      if (popupTimer) window.clearTimeout(popupTimer);
-    };
-  }, []);
-
-  const confirmationCompleted = confirmation;
 
   const completionItems = [
     /* Keep the VISUAL order exactly as the existing design/image.
@@ -2321,7 +1991,7 @@ export default function CoordinatorUniversityPage() {
        Profile Photo -> Registration -> Research -> Documents -> Confirmation. */
     { label: "Profile Photo", completed: profilePhotoCompleted },
     {
-      label: "Research and innovation",
+      label: "Research",
       completed: researchInnovationSectionCompleted,
     },
     { label: "Confirmation", completed: confirmationCompleted },
@@ -2404,12 +2074,6 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                 </p>
               </div>
 
-              {showDraftSaved && (
-                <div className="savedBadge" role="status" aria-live="polite">
-                  <IconImage src={images.completed} width={16} height={16} />
-                  <span>Draft Saved at {draftSavedTime}</span>
-                </div>
-              )}
             </div>
 
             <section className="institutionOverviewCard">
@@ -2512,14 +2176,7 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                     ? sequenceValidationPopup.message
                     : null)
                 }
-                popupType={
-                  sectionPopup?.section === "registration"
-                    ? sectionPopup.type
-                    : null
-                }
                 onEdit={() => startSectionEdit("registration")}
-                onSave={() => saveSection("registration")}
-                onCancel={() => cancelSection("registration")}
               />
 
               {isRegistrationEditing ? (
@@ -2589,51 +2246,85 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                     placeholder="Enter official email"
                     type="email"
                     value={registrationDraft.officialEmail}
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRegistrationDraft((current) => ({
                         ...current,
                         officialEmail: value,
-                      }))
-                    }
-                                      visualIcon="edit"
+                      }));
+
+                      const message = "Please Enter a Valid Official Email";
+                      if (value.trim() && !isValidEmail(value)) {
+                        showLiveRegistrationValidationPopup(message);
+                      } else {
+                        clearLiveRegistrationValidationPopup(message);
+                      }
+                    }}
+                    visualIcon="edit"
                   />
                   <EditField
                     label="Alternate Email"
                     placeholder="Enter alternate email"
                     type="email"
                     value={registrationDraft.alternateEmail}
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRegistrationDraft((current) => ({
                         ...current,
                         alternateEmail: value,
-                      }))
-                    }
-                                      visualIcon="edit"
+                      }));
+
+                      const message = "Please Enter a Valid Alternate Email";
+                      if (value.trim() && !isValidEmail(value)) {
+                        showLiveRegistrationValidationPopup(message);
+                      } else {
+                        clearLiveRegistrationValidationPopup(message);
+                      }
+                    }}
+                    visualIcon="edit"
                   />
-                  <PhoneCountrySelect
+                  <EditField
                     label="Mobile Number"
-                    country={mobileCountry}
+                    placeholder="Enter mobile number"
+                    type="tel"
                     value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
-                    onChange={(value) =>
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "").slice(0, 10);
+
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value,
-                      }))
-                    }
+                        mobileNumber: digits,
+                      }));
+
+                      const message = "Mobile Number must be 10 digits";
+                      if (digits && !isValidPhoneNumber(digits)) {
+                        showLiveRegistrationValidationPopup(message);
+                      } else {
+                        clearLiveRegistrationValidationPopup(message);
+                      }
+                    }}
+                    visualIcon="edit"
                   />
 
-                  <PhoneCountrySelect
+                  <EditField
                     label="Alternate Phone"
-                    country={alternatePhoneCountry}
+                    placeholder="Enter alternate phone number"
+                    type="tel"
                     value={registrationDraft.alternatePhone}
-                    onCountryChange={setAlternatePhoneCountry}
-                    onChange={(value) =>
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "").slice(0, 10);
+
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value,
-                      }))
-                    }
+                        alternatePhone: digits,
+                      }));
+
+                      const message = "Alternate Phone must be 10 digits";
+                      if (digits && !isValidPhoneNumber(digits)) {
+                        showLiveRegistrationValidationPopup(message);
+                      } else {
+                        clearLiveRegistrationValidationPopup(message);
+                      }
+                    }}
+                    visualIcon="edit"
                   />
                   <SelectField
                     label="Total Experience"
@@ -2771,15 +2462,10 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
 
             <section className="institutionInformationCard institutionActivityCard institutionResearchInnovationCard">
               <ActivityHeader
-                title="Research and innovation"
+                title="Research"
                 iconSrc={images.researchInnovation}
                 tone="orange"
                 editing={isResearchInnovationEditing}
-                popupType={
-                  sectionPopup?.section === "researchInnovation"
-                    ? sectionPopup.type
-                    : null
-                }
                 validationMessage={
                   sequenceValidationPopup?.section === "researchInnovation"
                     ? sequenceValidationPopup.message
@@ -3000,35 +2686,6 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                           }
                         />
 
-                        {index === researchInnovationDraft.length - 1 && (
-                          <div className="institutionResearchBottomActions">
-                            <button
-                              type="button"
-                              className="institutionActionButton institutionSaveButton institutionResearchSaveCancelButton"
-                              onClick={() => saveSection("researchInnovation")}
-                            >
-                              <IconImage
-                                src={images.save}
-                                width={16}
-                                height={16}
-                              />
-                              <span>Save</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              className="institutionActionButton institutionCancelButton institutionResearchSaveCancelButton"
-                              onClick={() => cancelSection("researchInnovation")}
-                            >
-                              <IconImage
-                                src={images.cancel}
-                                width={16}
-                                height={16}
-                              />
-                              <span>Cancel</span>
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -3113,19 +2770,12 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                 iconSrc={images.documents}
                 iconTone="pink"
                 editing={isDocumentsEditing}
-                popupType={
-                  sectionPopup?.section === "documents"
-                    ? sectionPopup.type
-                    : null
-                }
                 validationMessage={
                   sequenceValidationPopup?.section === "documents"
                     ? sequenceValidationPopup.message
                     : null
                 }
                 onEdit={() => startSectionEdit("documents")}
-                onSave={() => saveSection("documents")}
-                onCancel={() => cancelSection("documents")}
               />
 
               <div className="institutionGrid institutionDocumentsGrid">
@@ -3214,21 +2864,6 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
               </div>
 
               <div className="institutionConfirmationInner">
-                {sequenceValidationPopup?.section === "confirmation" && (
-                  <div
-                    className="institutionInlinePopup institutionInlinePopupDiscarded"
-                    role="alert"
-                    aria-live="assertive"
-                  >
-                    <IconImage
-                      src={images.sad}
-                      width={18}
-                      height={18}
-                      className="institutionInlinePopupIcon"
-                    />
-                    <span>{sequenceValidationPopup.message}</span>
-                  </div>
-                )}
 
                 <div className="institutionFieldLabel">
                   Self Declaration Confirmation
@@ -3243,15 +2878,17 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                     name="institutionConfirmation"
                     type="checkbox"
                     className="institutionConfirmationCheckbox"
-                    checked={confirmation}
+                    checked={confirmation && documentsSectionCompleted}
                     aria-disabled={!documentsSectionCompleted}
                     onChange={(event) => {
                       if (!documentsSectionCompleted) {
-                        showSequenceValidation(
-                          "confirmation",
-                          "Please complete and Save Documents first."
-                        );
                         return;
+                      }
+
+                      if (editingSection === "documents") {
+                        const committed = commitCurrentSection("documents");
+                        if (!committed) return;
+                        setEditingSection(null);
                       }
 
                       setSequenceValidationPopup(null);
@@ -3261,7 +2898,7 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
 
                   <span
                     className={`institutionConfirmationCheckBox ${
-                      confirmation
+                      confirmationCompleted
                         ? "institutionConfirmationCheckBoxActive"
                         : ""
                     }`}
@@ -3278,9 +2915,11 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
             <div className="institutionBottomActions">
               <button
                 type="button"
-                className="institutionBottomButton institutionReviewButton"
+                className="institutionBottomButton institutionProfileCancelButton"
+                onClick={cancelProfile}
               >
-                Review Profile
+                <IconImage src={images.cancel} width={16} height={16} />
+                <span>Cancel</span>
               </button>
               <button
                 type="button"

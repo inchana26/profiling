@@ -16,7 +16,21 @@
   align-items: center;
   gap: 6px;
   color: #2F3547;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Shared breadcrumb typography for every current and future page using Header */
+.breadcrumbParent {
+  color: #2F3547;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.breadcrumbCurrent {
+  color: #2D4CC8;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .breadcrumbSegment {
@@ -133,6 +147,7 @@
 /* =========================================================
    MOBILE
 ========================================================= */
+
 @media (max-width: 700px) {
   .topHeader {
     width: 100%;
@@ -165,7 +180,8 @@
     gap: 6px;
     color: #2F3547;
     background: #DFE6E9;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 400;
     line-height: 1;
     white-space: nowrap;
     overflow-x: auto;
@@ -190,6 +206,18 @@
     align-items: center;
     flex: 0 0 auto;
     white-space: nowrap;
+  }
+
+  .mobileBreadcrumb .breadcrumbParent {
+    color: #2F3547;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .mobileBreadcrumb .breadcrumbCurrent {
+    color: #2D4CC8;
+    font-size: 14px;
+    font-weight: 700;
   }
 
   .headerRight {

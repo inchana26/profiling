@@ -197,6 +197,8 @@ type EditFieldProps = {
   onChange?: (value: string) => void;
   className?: string;
   visualIcon?: "lock" | "edit" | "select" | "calendar";
+  validate?: (value: string) => string | null;
+  onValidationError?: (message: string) => void;
 };
 
 function EditField({
@@ -208,8 +210,49 @@ function EditField({
   onChange,
   className = "",
   visualIcon,
+  validate,
+  onValidationError,
 }: EditFieldProps) {
   const inputId = useId();
+  const validationTimerRef = useRef<number | null>(null);
+  const lastValidationErrorRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (validationTimerRef.current) {
+        window.clearTimeout(validationTimerRef.current);
+      }
+    };
+  }, []);
+
+  const runValidation = (nextValue: string) => {
+    if (!validate) return;
+
+    const message = validate(nextValue);
+
+    if (message) {
+      if (lastValidationErrorRef.current !== message) {
+        lastValidationErrorRef.current = message;
+        onValidationError?.(message);
+      }
+      return;
+    }
+
+    lastValidationErrorRef.current = null;
+  };
+
+  const scheduleValidation = (nextValue: string) => {
+    if (!validate) return;
+
+    if (validationTimerRef.current) {
+      window.clearTimeout(validationTimerRef.current);
+    }
+
+    validationTimerRef.current = window.setTimeout(() => {
+      runValidation(nextValue);
+      validationTimerRef.current = null;
+    }, 500);
+  };
 
   return (
     <div className={`institutionField institutionEditableField ${className}`}>
@@ -234,7 +277,18 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
-            onChange={(event) => onChange?.(event.target.value)}
+            onChange={(event) => {
+              const nextValue = event.target.value;
+              onChange?.(nextValue);
+              scheduleValidation(nextValue);
+            }}
+            onBlur={(event) => {
+              if (validationTimerRef.current) {
+                window.clearTimeout(validationTimerRef.current);
+                validationTimerRef.current = null;
+              }
+              runValidation(event.currentTarget.value);
+            }}
           />
         )}
       </div>
@@ -1827,7 +1881,7 @@ export default function FacultyUniversityPage() {
         if (!complete) {
           showSectionError(
             "professional",
-            "Please complete the required Personal & Academic Profile fields."
+            "Please complete the required Academic Profile fields."
           );
           return;
         }
@@ -1855,7 +1909,7 @@ export default function FacultyUniversityPage() {
         if (!complete) {
           showSectionError(
             "skills",
-            "Please complete the required Credentials, Career & Digital Profile fields."
+            "Please complete the required Digital Profile fields."
           );
           return;
         }
@@ -1891,13 +1945,13 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "skills" && !professionalReady) {
-      showFlowPopup("Please Complete Personal & Academic Profile", "skills");
+      showFlowPopup("Please Complete Academic Profile", "skills");
       return;
     }
 
     if (section === "documents" && !skillsReady) {
       showFlowPopup(
-        "Please Complete Credentials, Career & Digital Profile",
+        "Please Complete Digital Profile",
         "documents"
       );
       return;
@@ -1938,6 +1992,35 @@ export default function FacultyUniversityPage() {
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+
+  const isValidWebAddress = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return true;
+
+    try {
+      const candidate = /^https?:\/\//i.test(trimmed)
+        ? trimmed
+        : `https://${trimmed}`;
+      const parsed = new URL(candidate);
+
+      return (
+        (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+        parsed.hostname.includes(".")
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  const isValidOptionalContact = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return true;
+
+    if (!/^[+()\d\s-]+$/.test(trimmed)) return false;
+
+    const digits = trimmed.replace(/\D/g, "");
+    return digits.length >= 7 && digits.length <= 15;
+  };
 
   const showSectionError = (section: SectionName, message: string) => {
     setSectionPopup({ section, type: "error", message });
@@ -2002,7 +2085,7 @@ export default function FacultyUniversityPage() {
 
     if (!professionalComplete) {
       showFlowPopup(
-        "Please complete Personal & Academic Profile before saving the profile.",
+        "Please complete Academic Profile before saving the profile.",
         "confirmation"
       );
       return;
@@ -2010,7 +2093,7 @@ export default function FacultyUniversityPage() {
 
     if (!skillsComplete) {
       showFlowPopup(
-        "Please complete Credentials, Career & Digital Profile before saving the profile.",
+        "Please complete Digital Profile before saving the profile.",
         "confirmation"
       );
       return;
@@ -2190,20 +2273,26 @@ export default function FacultyUniversityPage() {
     if (!file) return;
 
     if (!isAcceptedDocumentFile(label, file)) {
+      const message = `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
+
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`,
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
     const recommendedSize = getDocumentRecommendedSize(file);
 
     if (recommendedSize === null) {
+      const message = "Unsupported file type.";
+
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: "Unsupported file type.",
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
@@ -2211,10 +2300,13 @@ export default function FacultyUniversityPage() {
       file.size < recommendedSize.min ||
       file.size > recommendedSize.max
     ) {
+      const message = `Recommended file size is ${recommendedSize.label}.`;
+
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: `Recommended file size is ${recommendedSize.label}.`,
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
@@ -2488,7 +2580,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Personal & Academic Profile</span>
+                    <span>Academic Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2521,7 +2613,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Credentials, Career & Digital Profile</span>
+                    <span>Digital Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2652,7 +2744,7 @@ export default function FacultyUniversityPage() {
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Personal & Academic Profile"
+                title="Academic Profile"
                 iconSrc={images.academicProfessional}
                 iconTone="green"
                 editing={editingSection === "professional"}
@@ -2719,6 +2811,14 @@ export default function FacultyUniversityPage() {
                     placeholder="Enter Alternate Contact"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateContact: value }))}
                     visualIcon="edit"
+                    validate={(value) =>
+                      isValidOptionalContact(value)
+                        ? null
+                        : "Please enter a valid Alternate Contact number."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("professional", message)
+                    }
                   />
 
                   <EditField
@@ -2728,6 +2828,17 @@ export default function FacultyUniversityPage() {
                     placeholder="Enter Alternate Email"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateEmail: value }))}
                     visualIcon="edit"
+                    validate={(value) => {
+                      const trimmed = value.trim();
+                      if (!trimmed) return null;
+
+                      return isValidEmail(trimmed)
+                        ? null
+                        : "Please enter a valid Alternate Email address.";
+                    }}
+                    onValidationError={(message) =>
+                      showSectionError("professional", message)
+                    }
                   />
 
                   <SelectField
@@ -2824,7 +2935,7 @@ export default function FacultyUniversityPage() {
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Credentials, Career & Digital Profile"
+                title="Digital Profile"
                 iconSrc={images.skillsDevelopment}
                 iconTone="blue"
                 editing={editingSection === "skills"}
@@ -2876,7 +2987,20 @@ export default function FacultyUniversityPage() {
                     }
                   />
                   <EditField label="Credential ID" value={skillsDraft.credentialId} placeholder="Enter Credential ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialId: value }))} />
-                  <EditField label="Credential URL" value={skillsDraft.credentialUrl} placeholder="Enter Verification Link" onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialUrl: value }))} />
+                  <EditField
+                    label="Credential URL"
+                    value={skillsDraft.credentialUrl}
+                    placeholder="Enter Verification Link"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialUrl: value }))}
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid Credential URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                  />
 
                   <SelectField
                     label="Career Goal"
@@ -2954,11 +3078,50 @@ export default function FacultyUniversityPage() {
                     options={["Beginner", "Intermediate", "Advanced", "Expert"]}
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, selfRatedLevel: value }))}
                   />
-                  <EditField label="Portfolio Link" value={skillsDraft.portfolioLink} placeholder="Enter Portfolio Link" onChange={(value) => setSkillsDraft((c) => ({ ...c, portfolioLink: value }))} />
-                  <EditField label="LinkedIn URL" value={skillsDraft.linkedinUrl} placeholder="Enter LinkedIn URL" onChange={(value) => setSkillsDraft((c) => ({ ...c, linkedinUrl: value }))} />
+                  <EditField
+                    label="Portfolio Link"
+                    value={skillsDraft.portfolioLink}
+                    placeholder="Enter Portfolio Link"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, portfolioLink: value }))}
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid Portfolio Link."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                  />
+                  <EditField
+                    label="LinkedIn URL"
+                    value={skillsDraft.linkedinUrl}
+                    placeholder="Enter LinkedIn URL"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, linkedinUrl: value }))}
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid LinkedIn URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                  />
                   <EditField label="Instagram ID" value={skillsDraft.instagramId} placeholder="Enter Instagram ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, instagramId: value }))} />
                   <EditField label="Facebook ID / URL" value={skillsDraft.facebookUrl} placeholder="Enter Facebook URL" onChange={(value) => setSkillsDraft((c) => ({ ...c, facebookUrl: value }))} />
-                  <EditField label="GitHub URL" value={skillsDraft.githubUrl} placeholder="Enter GitHub URL" onChange={(value) => setSkillsDraft((c) => ({ ...c, githubUrl: value }))} />
+                  <EditField
+                    label="GitHub URL"
+                    value={skillsDraft.githubUrl}
+                    placeholder="Enter GitHub URL"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, githubUrl: value }))}
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid GitHub URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                  />
                   <EditField label="Twitter / X" value={skillsDraft.twitterX} placeholder="Enter Twitter / X" onChange={(value) => setSkillsDraft((c) => ({ ...c, twitterX: value }))} />
 
                   <SelectField
@@ -2981,7 +3144,20 @@ export default function FacultyUniversityPage() {
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, portfolioEvidence: value }))}
                   />
 
-                  <EditField label="Personal Website" value={skillsDraft.personalWebsite} placeholder="Enter Personal Website" onChange={(value) => setSkillsDraft((c) => ({ ...c, personalWebsite: value }))} />
+                  <EditField
+                    label="Personal Website"
+                    value={skillsDraft.personalWebsite}
+                    placeholder="Enter Personal Website"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, personalWebsite: value }))}
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid Personal Website URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                  />
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultySkillsGrid">
