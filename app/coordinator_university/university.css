@@ -9913,3 +9913,28 @@ body
   }
 }
 
+/* =========================================================
+   ALL DROPDOWN ICONS — VERTICALLY CENTER IN THE FULL FIELD
+   Only arrow position is changed. Everything else stays same.
+   ========================================================= */
+.superAdminPage.institutionAdminPage
+  .institutionSelectField
+  .institutionSelectArrow,
+.superAdminPage.institutionAdminPage
+  .institutionCustomSelectTrigger
+  .institutionSelectArrow {
+  top: calc(50% - 15px) !important;
+  transform: translateY(-50%) !important;
+}
+
+/* Keep the same centered position while dropdown is open. */
+.superAdminPage.institutionAdminPage
+  .institutionSelectField
+  .institutionSelectArrowOpen,
+.superAdminPage.institutionAdminPage
+  .institutionCustomSelectTrigger
+  .institutionSelectArrowOpen {
+  top: calc(50% - 15px) !important;
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
