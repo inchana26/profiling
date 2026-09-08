@@ -92,6 +92,39 @@ export default function LoginPage() {
       }
     }
 
+    /* Faculty navigation */
+    if (tenant === "Faculty") {
+      if (actor === "University & College") {
+        router.push("/faculty_university");
+        return;
+      }
+
+      if (actor === "Skill Academy") {
+        router.push("/faculty_skillacademy");
+        return;
+      }
+
+      if (actor === "Bootcamp") {
+        router.push("/faculty_bootcamp");
+        return;
+      }
+
+      if (actor === "Corporate") {
+        router.push("/faculty_corporate");
+        return;
+      }
+
+      if (actor === "Government") {
+        router.push("/faculty_government");
+        return;
+      }
+
+      if (actor === "NGO") {
+        router.push("/faculty_ngo");
+        return;
+      }
+    }
+
     /* Student navigation */
     if (tenant === "Student") {
       if (actor === "University & College") {
@@ -101,6 +134,21 @@ export default function LoginPage() {
 
       if (actor === "Bootcamp") {
         router.push("/student_bootcamp");
+        return;
+      }
+
+      if (actor === "Corporate") {
+        router.push("/student_corporate");
+        return;
+      }
+
+      if (actor === "Government") {
+        router.push("/student_government");
+        return;
+      }
+
+      if (actor === "NGO") {
+        router.push("/student_ngo");
         return;
       }
     }

@@ -29,7 +29,7 @@ button {
   padding: 8px;
   color: #2f3547;
   background: #dfe6e9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .dashboardLayout {
@@ -194,7 +194,7 @@ button {
   font-size: 24px;
   font-weight: 700;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 32px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -205,7 +205,7 @@ button {
   font-size: 16px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 24px;
   letter-spacing: 0.03em;}
 
@@ -220,7 +220,7 @@ button {
   border-radius: 20px;
   font-size: 14px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 22px;
   font-weight: 600;
   letter-spacing: 0.03em;}
@@ -256,7 +256,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 28px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -299,7 +299,7 @@ button {
   gap: 9px;
   font-size: 14px;
   white-space: nowrap;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 22px;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -308,21 +308,62 @@ button {
 
 .institutionCompletedCircle,
 .institutionEmptyCircle {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  border: 1px solid #aaaeb5;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  flex-shrink: 0;
+  border: 0;
   border-radius: 50%;
+  background: transparent;
+  overflow: visible;
 }
 
-.institutionCompletedCircle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  background: #487533;
-  border-color: #487533;
-  font-size: 11px;
+/* BEFORE CHECK — checkmark-circle-01 */
+.institutionEmptyCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
+}
+
+/* AFTER CHECK — checkmark-circle-02 */
+.institutionCompletedCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
+}
+
+/* Correct weighted green tick */
+.institutionCompletedCircle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: 5px;
+  height: 9px;
+  border: solid #2A7308;
+  border-width: 0 2.25px 2.25px 0;
+  transform: translate(-50%, -56%) rotate(45deg);
+  transform-origin: center;
+  z-index: 2;
 }
 
 .institutionInformationCard {
@@ -353,7 +394,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 28px;
   letter-spacing: 0.02em;
   color: #374151;}
@@ -459,7 +500,7 @@ button {
   line-height: 26px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   letter-spacing: 0.03em;}
 
 .institutionFieldValue,
@@ -470,7 +511,7 @@ button {
   font-size: 16px;
   line-height: 24px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   font-weight: 400;
   letter-spacing: 0.03em;}
 
@@ -628,16 +669,14 @@ button {
 }
 
 .institutionCompletedCircle {
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
   border: 0;
   background: transparent;
 }
 
 .institutionCompletedCircle img {
-  width: 17px !important;
-  height: 17px !important;
-  object-fit: contain;
+  display: none !important;
 }
 
 .institutionFilePicker,
@@ -836,7 +875,7 @@ button {
   align-items: center;
   justify-content: center;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1061,9 +1100,13 @@ button {
 }
 
 .institutionCompletionSteps .institutionProfileStepCheck {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  flex-shrink: 0;
 
   display: inline-flex;
   align-items: center;
@@ -1073,32 +1116,46 @@ button {
   border: 0;
   border-radius: 50%;
 
-  background: #487533;
+  background: transparent;
   box-shadow: none;
   overflow: visible;
 }
 
-.institutionProfileStepCheckMark {
-  position: relative;
-  width: 9px;
-  height: 6px;
-  display: block;
+/* AFTER CHECK — requested raised circle */
+.institutionCompletionSteps .institutionProfileStepCheck::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
 }
 
+.institutionProfileStepCheckMark {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+  display: block;
+  z-index: 2;
+}
+
+/* Correct weighted green tick */
 .institutionProfileStepCheckMark::after {
   content: "";
   position: absolute;
-
-  left: 1px;
-  top: 0px;
-
-  width: 6px;
-  height: 3px;
-
-  border-left: 1.6px solid #ffffff;
-  border-bottom: 1.6px solid #ffffff;
-
-  transform: rotate(-45deg);
+  left: 50%;
+  top: 47%;
+  width: 5px;
+  height: 9px;
+  border: solid #2A7308;
+  border-width: 0 2.25px 2.25px 0;
+  transform: translate(-50%, -56%) rotate(45deg);
   transform-origin: center;
 }
 
@@ -1759,7 +1816,7 @@ body {
   padding: 0;
   overflow: hidden;
   background: #DFE6E9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1821,7 +1878,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 @media (max-width: 767px) {
@@ -1867,7 +1924,7 @@ body {
   padding: 8px !important;
   overflow: hidden !important;
   background: #DFE6E9 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1934,7 +1991,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .institutionProgressBar {
@@ -1982,7 +2039,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -2039,7 +2096,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 @media (max-width: 700px) {
@@ -2101,7 +2158,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", Inter !important;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -2182,7 +2239,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", Inter !important;
 }
 
 @media (max-width: 700px) {
@@ -4572,6 +4629,7 @@ body {
   grid-area: choose !important;
   margin: 0 !important;
   align-self: center !important;
+  transform: translateX(-3);
 }
 
 /* No File Chosen stays directly below Choose File, inside the card */
@@ -4662,5 +4720,512 @@ body {
   .institutionGovernmentIdField.governmentIdProofField
   .institutionFileName {
   grid-area: filename !important;
+}
+
+/* =========================================================
+   PROFILE COMPLETION — 100% GREEN ONLY
+   ========================================================= */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+
+/* =========================================================
+   FINAL PROFILE CSS CORRECTIONS
+   This block changes only presentation/layout.
+   ========================================================= */
+
+/* Remove Save / Cancel buttons from EVERY individual section.
+   Keep this last in the file so older mobile/desktop rules cannot show them. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionEditActions,
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionSaveButton,
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionCancelButton,
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionInformationHeader
+  .institutionEditActions {
+  display: none !important;
+}
+
+/* Do not leave an empty action row after section Save / Cancel is removed. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeaderEditing:not(.institutionInformationHeaderHasPopup)
+  .institutionHeaderActions {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Existing validation/success popup area remains available. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeaderHasPopup
+  .institutionHeaderActions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+/* Remove Preview / Review Profile from the final action area. */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionReviewButton {
+  display: none !important;
+}
+
+/* Final action buttons — requested dimensions.
+   These apply when the corresponding final Cancel / Save Profile buttons
+   are present in the page markup. */
+.superAdminPage.institutionAdminPage .institutionBottomActions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 24px !important;
+}
+
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionBottomButton {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-family: "Segoe UI", Inter !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+}
+
+/* Final Cancel button */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionProfileCancelButton,
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionCancelButton {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  flex: 0 0 122px !important;
+  height: 48px !important;
+  color: #D65A00 !important;
+}
+
+/* cancel.svg icon sizing when the final Cancel button contains the icon */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionProfileCancelButton img,
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionCancelButton img,
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionProfileCancelIcon {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  max-width: 16px !important;
+  flex: 0 0 16px !important;
+  object-fit: contain !important;
+}
+
+/* Save Profile button */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionFinalSaveButton {
+  display: inline-flex !important;
+  width: 138px !important;
+  min-width: 138px !important;
+  max-width: 138px !important;
+  flex: 0 0 138px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  font-size: 14px !important;
+  color: #2A7308 !important;
+}
+
+/* Loader becomes green only when the existing complete class is applied. */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+
+/* Mobile: preserve the same responsive final action layout. */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 0 24px !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionBottomActions
+    .institutionProfileCancelButton,
+  .superAdminPage.institutionAdminPage
+    .institutionBottomActions
+    .institutionCancelButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+    flex: 0 0 122px !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionBottomActions
+    .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+    flex: 0 0 138px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    gap: 8px !important;
+  }
+}
+
+/* =========================================================
+   FINAL BEHAVIOR SUPPORT — AUTO COMPLETION / INLINE POPUPS
+   ========================================================= */
+
+/* Section headers no longer contain Save / Cancel actions.
+   Keep the edit icon and validation popup aligned in the same spot. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeaderHasPopup
+  .institutionHeaderActions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 14px !important;
+}
+
+/* Document validation is shown in the section popup, so no inline
+   upload error should reserve or shift field content. */
+.superAdminPage.institutionAdminPage .institutionDocumentUploadError {
+  display: none !important;
+}
+
+/* Final Cancel and Save Profile sizes — desktop and mobile. */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionProfileCancelButton {
+  display: inline-flex !important;
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  flex: 0 0 122px !important;
+  font-size: 14px !important;
+  font-family: "Segoe UI", Inter !important;
+}
+
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionFinalSaveButton {
+  display: inline-flex !important;
+  width: 138px !important;
+  min-width: 138px !important;
+  max-width: 138px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  flex: 0 0 138px !important;
+  font-size: 14px !important;
+  font-family: "Segoe UI", Inter !important;
+}
+
+.superAdminPage.institutionAdminPage
+  .institutionProfileCancelIcon {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionBottomActions
+    .institutionProfileCancelButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+    flex: 0 0 122px !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionBottomActions
+    .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+    flex: 0 0 138px !important;
+  }
+}
+
+/* =========================================================
+   GOVERNMENT ID PROOF DROPDOWN — MATCH 2ND IMAGE EXACTLY
+   Only width + attachment are corrected.
+   ========================================================= */
+
+/* Full Government ID card is the positioning parent. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 6000 !important;
+}
+
+/* Remove inner positioning parents so menu anchors to the full card. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionGovernmentIdPicker,
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact {
+  position: static !important;
+  overflow: visible !important;
+}
+
+/* Card has 13px horizontal padding.
+   Extend menu by exactly 13px left/right so its outer edges
+   match the Government ID Proof card like the 2nd reference image. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact
+  .raisedSelectMenu {
+  position: absolute !important;
+
+  left: -13px !important;
+  right: -13px !important;
+  top: 100% !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+
+  transform: none !important;
+  box-sizing: border-box !important;
+
+  border-radius: 0 0 12px 12px !important;
+  z-index: 6100 !important;
+}
+
+/* No artificial open-state gap below the card. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen) {
+  margin-bottom: 0 !important;
+  overflow: visible !important;
+  z-index: 6050 !important;
+}
+
+/* Same exact card-edge width and zero-gap attachment on mobile/tablet. */
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .institutionGovernmentIdPicker,
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .raisedSelectCompact {
+    position: static !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .raisedSelectCompact
+    .raisedSelectMenu {
+    left: -13px !important;
+    right: -13px !important;
+    top: 100% !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* =========================================================
+   GOVERNMENT ID PROOF DROPDOWN — FINAL REFERENCE WIDTH FIX
+   Only removes the transformed inner containing block and
+   anchors the dropdown to the FULL Government ID Proof card.
+   ========================================================= */
+
+/* Important:
+   the old translateX(-4) made this inner picker become the
+   dropdown containing block and reduced the menu width. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .institutionGovernmentIdPicker {
+  position: static !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+/* The small Document Type control must not position the menu. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact {
+  position: static !important;
+  overflow: visible !important;
+  transform: translateX(-4);
+}
+
+/* Full Government ID Proof card is the positioning parent. */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 7000 !important;
+}
+
+/* Match 2nd reference image:
+   - full card width
+   - same left/right edges
+   - starts directly under complete card
+   - no extra horizontal offset */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField
+  .raisedSelectCompact
+  .raisedSelectMenu {
+  position: absolute !important;
+
+  left: 0 !important;
+  right: 0 !important;
+  top: calc(100% - 1px) !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+
+  transform: none !important;
+  box-sizing: border-box !important;
+
+  border-radius: 0 0 12px 12px !important;
+  z-index: 7100 !important;
+}
+
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionGovernmentIdField.governmentIdProofField:has(.raisedSelectCompact.raisedSelectOpen) {
+  margin-bottom: 0 !important;
+  overflow: visible !important;
+  z-index: 7050 !important;
+}
+
+/* Same result on mobile/tablet */
+@media (max-width: 700px) {
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .institutionGovernmentIdPicker {
+    position: static !important;
+    transform: none !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .raisedSelectCompact {
+    position: static !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionDocumentsCard
+    .institutionGovernmentIdField.governmentIdProofField
+    .raisedSelectCompact
+    .raisedSelectMenu {
+    left: 0 !important;
+    right: 0 !important;
+    top: calc(100% - 1px) !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* =========================================================
+   CHOOSE FILE — BEFORE UPLOAD ONLY
+   No border + black icon + black text.
+   After upload, existing green style remains unchanged.
+   ========================================================= */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonEmpty {
+  color: #000000 !important;
+  border: 0 !important;
+}
+
+/* Before upload text */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonEmpty
+  > span {
+  color: #000000 !important;
+}
+
+/* Before upload upload-icon */
+.superAdminPage.institutionAdminPage
+  .institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonEmpty
+  .institutionChooseFileIcon {
+  filter: brightness(0) !important;
 }
 

@@ -29,7 +29,7 @@ button {
   padding: 8px;
   color: #2f3547;
   background: #dfe6e9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .dashboardLayout {
@@ -197,7 +197,7 @@ button {
   font-size: 24px;
   font-weight: 700;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 32px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -208,7 +208,7 @@ button {
   font-size: 16px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 24px;
   letter-spacing: 0.03em;}
 
@@ -223,7 +223,7 @@ button {
   border-radius: 20px;
   font-size: 14px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 22px;
   font-weight: 600;
   letter-spacing: 0.03em;}
@@ -259,7 +259,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 28px;
   letter-spacing: 0.03em;
   color: #374151;}
@@ -302,7 +302,7 @@ button {
   gap: 9px;
   font-size: 14px;
   white-space: nowrap;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 22px;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -356,7 +356,7 @@ button {
   font-size: 20px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   line-height: 28px;
   letter-spacing: 0.02em;
   color: #374151;}
@@ -462,7 +462,7 @@ button {
   line-height: 26px;
   font-weight: 600;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   letter-spacing: 0.03em;}
 
 .institutionFieldValue,
@@ -473,7 +473,7 @@ button {
   font-size: 16px;
   line-height: 24px;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   font-weight: 400;
   letter-spacing: 0.03em;}
 
@@ -839,7 +839,7 @@ button {
   align-items: center;
   justify-content: center;
 
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -1632,7 +1632,7 @@ body {
   padding: 0;
   overflow: hidden;
   background: #DFE6E9;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1694,7 +1694,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 @media (max-width: 767px) {
@@ -1740,7 +1740,7 @@ body {
   padding: 8px !important;
   overflow: hidden !important;
   background: #DFE6E9 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1807,7 +1807,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .institutionProgressBar {
@@ -1855,7 +1855,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -1912,7 +1912,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI";
+  font-family: "Segoe UI", Inter;
 }
 
 @media (max-width: 700px) {
@@ -1974,7 +1974,7 @@ body {
   overflow: visible !important;
   background: #DFE6E9 !important;
   color: #374151 !important;
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", Inter !important;
 }
 
 .superAdminPage.institutionAdminPage .dashboardLayout {
@@ -2055,7 +2055,7 @@ body {
 .superAdminPage.institutionAdminPage input,
 .superAdminPage.institutionAdminPage select,
 .superAdminPage.institutionAdminPage textarea {
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", Inter !important;
 }
 
 @media (max-width: 700px) {
@@ -5870,7 +5870,7 @@ body {
     -3px -3px 6px #FFFFFF,
     3px 3px 6px rgba(196, 196, 196, 0.85) !important;
 
-  font-family: "Segoe UI" !important;
+  font-family: "Segoe UI", Inter !important;
   font-size: 12px !important;
   line-height: 18px !important;
   font-weight: 500 !important;
@@ -6016,3 +6016,369 @@ body {
   width: 14px !important;
   height: 14px !important;
 }
+
+/* =========================================================
+   TOP PROFILE COMPLETION CHECKBOXES — FINAL OVERRIDE
+   Requested 20px before/after neumorphic design.
+   ========================================================= */
+
+/* Shared 20px checkbox container */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionCompletedCircle,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionEmptyCircle,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionProfileStepCheck {
+  position: relative !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  flex: none !important;
+  flex-basis: 20px !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  order: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* ---------------------------------------------------------
+   BEFORE CHECK — checkmark-circle-01
+   --------------------------------------------------------- */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionEmptyCircle::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    inset -2px -2px 2px #FFFFFF,
+    inset 2px 2px 2px #C4C4C4;
+}
+
+/* Unchecked state has no tick. */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionEmptyCircle::after {
+  content: none !important;
+}
+
+/* ---------------------------------------------------------
+   AFTER CHECK — checkmark-circle-02
+   --------------------------------------------------------- */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionCompletedCircle::before,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionProfileStepCheck::before {
+  content: "";
+  position: absolute;
+  left: 8.34%;
+  right: 8.33%;
+  top: 8.33%;
+  bottom: 8.33%;
+  background: #DFE6E9;
+  border-radius: 50%;
+  box-shadow:
+    -2px -2px 2px #FFFFFF,
+    2px 2px 2px #C4C4C4;
+}
+
+/* Correct green tick — centered classic ✓ form */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionCompletedCircle::after,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionProfileStepCheck::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid #2A7308;
+  border-bottom: 2px solid #2A7308;
+  transform: translate(-50%, -55%) rotate(45deg);
+  transform-origin: center;
+  z-index: 3;
+  box-sizing: border-box;
+}
+
+/* Hide any old image / old nested tick so only the new green tick is shown. */
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionCompletedCircle img,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionProfileStepCheck img,
+.superAdminPage.institutionAdminPage
+  .institutionCompletionSteps
+  .institutionProfileStepCheckMark {
+  display: none !important;
+}
+
+/* =========================================================
+   PROFILE COMPLETION LOADER — GREEN AT 100%
+   ========================================================= */
+
+/* Existing complete-state class */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+
+/* Also support the common exact inline 100% width form. */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar[style*="width: 100%"],
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar[style*="width:100%"] {
+  background: #2A7308 !important;
+}
+
+/* =========================================================
+   FINAL PROFILE FLOW — REQUESTED ACTIONS
+   ========================================================= */
+
+/* Section-level Save / Cancel are removed from the component.
+   Keep them hidden as a safeguard against older markup. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionEditActions,
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionSaveButton,
+.superAdminPage.institutionAdminPage
+  .institutionInformationHeader
+  .institutionCancelButton {
+  display: none !important;
+}
+
+/* Preview / Review Profile stays removed. */
+.superAdminPage.institutionAdminPage
+  .institutionBottomActions
+  .institutionReviewButton {
+  display: none !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomActions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 24px !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionBottomButton {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-family: "Segoe UI", Inter !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  flex: 0 0 122px !important;
+  color: #D65A00 !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionProfileCancelIcon,
+.superAdminPage.institutionAdminPage
+  .institutionProfileCancelButton
+  img {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  max-width: 16px !important;
+  flex: 0 0 16px !important;
+  object-fit: contain !important;
+}
+
+.superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+  width: 138px !important;
+  min-width: 138px !important;
+  max-width: 138px !important;
+  flex: 0 0 138px !important;
+  color: #2A7308 !important;
+  font-size: 14px !important;
+}
+
+/* Loader is green only at 100%. */
+.superAdminPage.institutionAdminPage
+  .institutionProgressBar.institutionProgressBarComplete {
+  background: #2A7308 !important;
+}
+
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionBottomActions {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 10px 0 24px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionProfileCancelButton {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-width: 122px !important;
+    flex: 0 0 122px !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionFinalSaveButton {
+    width: 138px !important;
+    min-width: 138px !important;
+    max-width: 138px !important;
+    flex: 0 0 138px !important;
+  }
+}
+
+/* Editing sections no longer have a Save / Cancel action row.
+   Remove only the now-empty mobile row; popup rows still remain visible. */
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderEditing:not(.institutionInformationHeaderHasPopup) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "title" !important;
+    row-gap: 0 !important;
+  }
+
+  .superAdminPage.institutionAdminPage
+    .institutionInformationHeaderEditing:not(.institutionInformationHeaderHasPopup)
+    .institutionHeaderActions {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+}
+
+/* =========================================================
+   DOCUMENT CHOOSE FILE BUTTON STATE
+   Before upload: black icon + black text, no border.
+   After upload: keep the existing green uploaded appearance.
+   ========================================================= */
+.institutionDocumentsCard .institutionChooseFileButton {
+  border: 0 !important;
+  color: #111111 !important;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton > span {
+  color: #111111 !important;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton .institutionChooseFileIcon {
+  filter: brightness(0) !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded {
+  border: 0.5px solid #2A7308 !important;
+  color: #2A7308 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  > span {
+  color: #2A7308 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  .institutionChooseFileIcon {
+  filter: none !important;
+}
+
+/* =========================================================
+   MOBILE — FACULTY BREADCRUMB FIT + SMALLER HEADING GAP
+   Only mobile breadcrumb/spacing is adjusted.
+   ========================================================= */
+@media (max-width: 700px) {
+  .mobileBreadcrumb {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    height: 42px !important;
+
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    gap: 3px !important;
+    padding: 0 5px !important;
+
+    font-size: 13px !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  .mobileBreadcrumb .breadcrumbParent,
+  .mobileBreadcrumb .breadcrumbCurrent {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .mobileBreadcrumb .breadcrumbParent {
+    color: #2F3547 !important;
+    font-weight: 400 !important;
+  }
+
+  .mobileBreadcrumb .breadcrumbCurrent {
+    color: #2D4CC8 !important;
+    font-weight: 700 !important;
+  }
+
+  .mobileBreadcrumb > img {
+    width: 14px !important;
+    height: 14px !important;
+    flex: 0 0 14px !important;
+    margin: 0 !important;
+  }
+
+  .superAdminPage.institutionAdminPage .institutionPageContent {
+    padding-top: 8px !important;
+  }
+}
+

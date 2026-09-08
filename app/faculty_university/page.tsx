@@ -625,27 +625,25 @@ type SectionHeaderProps = {
   title: string;
   iconSrc: string;
   iconTone: "purple" | "pink" | "green" | "blue" | "orange";
-  editing: boolean;
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
 };
 
 function SectionHeader({
   title,
   iconSrc,
   iconTone,
-  editing,
   popupType = null,
   popupMessage,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
-    <div className="institutionInformationHeader">
+    <div
+      className={`institutionInformationHeader ${
+        popupType ? "institutionInformationHeaderHasPopup" : ""
+      }`}
+    >
       <div className="institutionInformationTitle">
         <span
           className={`institutionSectionIcon ${
@@ -676,12 +674,10 @@ function SectionHeader({
             className={`institutionInlinePopup ${
               popupType === "saved"
                 ? "institutionInlinePopupSaved"
-                : popupType === "error"
-                  ? "institutionInlinePopupDiscarded"
-                  : "institutionInlinePopupDiscarded"
+                : "institutionInlinePopupDiscarded"
             }`}
-            role="status"
-            aria-live="polite"
+            role={popupType === "error" ? "alert" : "status"}
+            aria-live={popupType === "error" ? "assertive" : "polite"}
           >
             <IconImage
               src={popupType === "saved" ? images.clap : images.sad}
@@ -699,42 +695,20 @@ function SectionHeader({
           </div>
         )}
 
-        {editing ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton institutionSaveButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.save} width={13} height={13} />
-              <span>Save</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionActionButton institutionCancelButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={13} height={13} />
-              <span>Cancel</span>
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="institutionEditButton"
-            aria-label={`Edit ${title}`}
-            onClick={onEdit}
-          >
-            <Image
-              src={images.editBig}
-              alt=""
-              width={24}
-              height={24}
-              aria-hidden="true"
-            />
-          </button>
-        )}
+        <button
+          type="button"
+          className="institutionEditButton"
+          aria-label={`Edit ${title}`}
+          onClick={onEdit}
+        >
+          <Image
+            src={images.editBig}
+            alt=""
+            width={24}
+            height={24}
+            aria-hidden="true"
+          />
+        </button>
       </div>
     </div>
   );
@@ -875,10 +849,6 @@ export default function FacultyUniversityPage() {
   const [confirmation, setConfirmation] = useState(false);
 
   const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
-  const [registrationCompleted, setRegistrationCompleted] = useState(false);
-  const [professionalProfileCompleted, setProfessionalProfileCompleted] = useState(false);
-  const [skillsDevelopmentCompleted, setSkillsDevelopmentCompleted] = useState(false);
-  const [documentsCompleted, setDocumentsCompleted] = useState(false);
   const [flowPopup, setFlowPopup] = useState<string | null>(null);
   const [flowPopupSection, setFlowPopupSection] = useState<SectionName | "profile" | "confirmation" | null>(null);
   const flowPopupTimerRef = useRef<number | null>(null);
@@ -907,14 +877,6 @@ export default function FacultyUniversityPage() {
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
-
-  const [documentUploadErrors, setDocumentUploadErrors] = useState<
-    Record<string, string>
-  >({});
-  const documentFilesBeforeEditRef = useRef<Record<string, File | null> | null>(
-    null
-  );
-  const governmentIdDocumentTypeBeforeEditRef = useRef<string | null>(null);
 
   const [sectionPopup, setSectionPopup] = useState<{
     section: SectionName;
@@ -973,28 +935,12 @@ export default function FacultyUniversityPage() {
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
-  const registrationDraftRef = useRef(registrationDraft);
-  const professionalDraftRef = useRef(professionalDraft);
-  const skillsDraftRef = useRef(skillsDraft);
 
   useEffect(() => {
     editingSectionRef.current = editingSection;
-    registrationDraftRef.current = registrationDraft;
-    professionalDraftRef.current = professionalDraft;
-    skillsDraftRef.current = skillsDraft;
-  }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
+  }, [editingSection]);
 
   const startSectionEdit = (section: SectionName) => {
-    setSectionPopup(null);
-
-    if (editingSection && editingSection !== section) {
-      showFlowPopup(
-        "Please Save or Cancel the current section before continuing.",
-        section
-      );
-      return;
-    }
-
     if (section === "registration" && !profilePhotoCompleted) {
       showFlowPopup(
         "Please Complete Profile Photo",
@@ -1003,7 +949,7 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (section === "professional" && !registrationCompleted) {
+    if (section === "professional" && !registrationFormComplete) {
       showFlowPopup(
         "Please Complete Registration Data",
         "professional"
@@ -1011,7 +957,7 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (section === "skills" && !professionalProfileCompleted) {
+    if (section === "skills" && !professionalFormComplete) {
       showFlowPopup(
         "Please Complete Academic & Professional Profile",
         "skills"
@@ -1019,13 +965,15 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (section === "documents" && !skillsDevelopmentCompleted) {
+    if (section === "documents" && !skillsFormComplete) {
       showFlowPopup(
         "Please Complete Skills & Development",
         "documents"
       );
       return;
     }
+
+    setSectionPopup(null);
 
     if (section === "registration") {
       setRegistrationDraft({ ...registrationInfo });
@@ -1057,20 +1005,163 @@ export default function FacultyUniversityPage() {
       });
     }
 
-    if (section === "documents") {
-      documentFilesBeforeEditRef.current = { ...documentFiles };
-      governmentIdDocumentTypeBeforeEditRef.current =
-        governmentIdDocumentType;
-      setDocumentUploadErrors({});
-    }
-
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string) => /^[6-9]\d{9}$/.test(value);
+  const isValidPhoneNumber = (value: string) => /^\d{10}$/.test(value);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+
+  const registrationFormComplete = Boolean(
+    profilePhotoCompleted &&
+      isValidEmail(registrationDraft.email.trim()) &&
+      isValidPhoneNumber(registrationDraft.mobileNumber.trim()) &&
+      (!registrationDraft.alternateEmail.trim() ||
+        isValidEmail(registrationDraft.alternateEmail.trim())) &&
+      (!registrationDraft.alternatePhone.trim() ||
+        isValidPhoneNumber(registrationDraft.alternatePhone.trim())) &&
+      registrationDraft.gender &&
+      registrationDraft.department &&
+      registrationDraft.designation &&
+      registrationDraft.facultyType &&
+      registrationDraft.highestQualification &&
+      registrationDraft.specialization.length > 0 &&
+      registrationDraft.teachingExperience &&
+      registrationDraft.industryExperience &&
+      registrationDraft.coursesHandled.length > 0 &&
+      registrationDraft.reportingAuthority
+  );
+
+  const professionalFormComplete = Boolean(
+    registrationFormComplete &&
+      professionalDraft.academicDivision &&
+      professionalDraft.primaryDomain &&
+      professionalDraft.areasOfExpertise.length > 0 &&
+      professionalDraft.coursesTaught.length > 0 &&
+      professionalDraft.teachingLevel.length > 0 &&
+      professionalDraft.academicRole.length > 0 &&
+      professionalDraft.researchArea.length > 0 &&
+      professionalDraft.researchProjects.length > 0 &&
+      professionalDraft.studentGuidance.length > 0
+  );
+
+  const skillsFormComplete = Boolean(
+    professionalFormComplete &&
+      skillsDraft.coreSkills.length > 0 &&
+      skillsDraft.digitalSkills.length > 0 &&
+      skillsDraft.fdpsTraining.length > 0 &&
+      skillsDraft.naacIqacInvolvement.length > 0 &&
+      skillsDraft.nbaObeInvolvement.length > 0 &&
+      skillsDraft.studentDevelopment.length > 0 &&
+      skillsDraft.developmentAreas.length > 0 &&
+      skillsDraft.careerGoals
+  );
+
+  const documentsFormComplete = Boolean(
+    skillsFormComplete &&
+      governmentIdDocumentType.trim() !== "" &&
+      documentFiles["Government ID Proof"] !== null
+  );
+
+  const confirmationStepComplete = Boolean(
+    documentsFormComplete && confirmation
+  );
+
+  useEffect(() => {
+    if (!documentsFormComplete && confirmation) {
+      setConfirmation(false);
+    }
+  }, [documentsFormComplete, confirmation]);
+
+  /* Keep read-only values in sync automatically because section Save/Cancel
+     buttons are intentionally removed. */
+  useEffect(() => {
+    if (editingSection === "registration") {
+      setRegistrationInfo({
+        ...registrationDraft,
+        specialization: [...registrationDraft.specialization],
+        coursesHandled: [...registrationDraft.coursesHandled],
+      });
+    }
+  }, [editingSection, registrationDraft]);
+
+  useEffect(() => {
+    if (editingSection === "professional") {
+      setProfessionalInfo({
+        ...professionalDraft,
+        areasOfExpertise: [...professionalDraft.areasOfExpertise],
+        coursesTaught: [...professionalDraft.coursesTaught],
+        teachingLevel: [...professionalDraft.teachingLevel],
+        academicRole: [...professionalDraft.academicRole],
+        researchArea: [...professionalDraft.researchArea],
+        researchProjects: [...professionalDraft.researchProjects],
+        studentGuidance: [...professionalDraft.studentGuidance],
+      });
+    }
+  }, [editingSection, professionalDraft]);
+
+  useEffect(() => {
+    if (editingSection === "skills") {
+      setSkillsInfo({
+        ...skillsDraft,
+        coreSkills: [...skillsDraft.coreSkills],
+        digitalSkills: [...skillsDraft.digitalSkills],
+        fdpsTraining: [...skillsDraft.fdpsTraining],
+        naacIqacInvolvement: [...skillsDraft.naacIqacInvolvement],
+        nbaObeInvolvement: [...skillsDraft.nbaObeInvolvement],
+        studentDevelopment: [...skillsDraft.studentDevelopment],
+        developmentAreas: [...skillsDraft.developmentAreas],
+      });
+    }
+  }, [editingSection, skillsDraft]);
+
+  /* Show registration errors in the existing section popup area while the
+     user is filling the field. The popup clears automatically as soon as
+     the value becomes valid. */
+  useEffect(() => {
+    if (editingSection !== "registration") {
+      return;
+    }
+
+    const email = registrationDraft.email.trim();
+    const alternateEmail = registrationDraft.alternateEmail.trim();
+    const mobileNumber = registrationDraft.mobileNumber.trim();
+    const alternatePhone = registrationDraft.alternatePhone.trim();
+
+    let message = "";
+
+    if (email && !isValidEmail(email)) {
+      message = "Enter a valid Email";
+    } else if (mobileNumber && !isValidPhoneNumber(mobileNumber)) {
+      message = "Mobile Number must contain exactly 10 digits";
+    } else if (alternateEmail && !isValidEmail(alternateEmail)) {
+      message = "Enter a valid Alternate Email";
+    } else if (alternatePhone && !isValidPhoneNumber(alternatePhone)) {
+      message = "Alternate Phone must contain exactly 10 digits";
+    }
+
+    if (!message) {
+      setSectionPopup((current) =>
+        current?.section === "registration" && current.type === "error"
+          ? null
+          : current
+      );
+      return;
+    }
+
+    setSectionPopup({
+      section: "registration",
+      type: "error",
+      message,
+    });
+  }, [
+    editingSection,
+    registrationDraft.email,
+    registrationDraft.mobileNumber,
+    registrationDraft.alternateEmail,
+    registrationDraft.alternatePhone,
+  ]);
 
   const showSectionError = (section: SectionName, message: string) => {
     setSectionPopup({ section, type: "error", message });
@@ -1084,290 +1175,155 @@ export default function FacultyUniversityPage() {
     }, 2500);
   };
 
-  const saveSection = (section: SectionName) => {
-    if (section === "registration" && !profilePhotoCompleted) {
-      showFlowPopup(
-        "Please complete Profile Photo first.",
-        "registration"
-      );
-      return;
-    }
+  const cancelProfile = () => {
+    const resetRegistration = {
+      facultyId: "FAC-00125",
+      employeeCode: "EMP1234",
+      fullName: "Antony Thomas",
+      email: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+      gender: "",
+      department: "",
+      designation: "",
+      facultyType: "",
+      dateOfJoining: "17-05-2004",
+      highestQualification: "",
+      specialization: [] as string[],
+      teachingExperience: "",
+      industryExperience: "",
+      coursesHandled: [] as string[],
+      reportingAuthority: "",
+      status: "Active",
+    };
 
-    if (section === "professional" && !registrationCompleted) {
-      showFlowPopup(
-        "Please complete Registration Data first.",
-        "professional"
-      );
-      return;
-    }
+    const resetProfessional = {
+      academicDivision: "",
+      primaryDomain: "",
+      areasOfExpertise: [] as string[],
+      coursesTaught: [] as string[],
+      teachingLevel: [] as string[],
+      academicRole: [] as string[],
+      researchArea: [] as string[],
+      publications: "",
+      researchProjects: [] as string[],
+      studentGuidance: [] as string[],
+    };
 
-    if (section === "skills" && !professionalProfileCompleted) {
-      showFlowPopup(
-        "Please complete Academic & Professional Profile first.",
-        "skills"
-      );
-      return;
-    }
+    const resetSkills = {
+      coreSkills: [] as string[],
+      digitalSkills: [] as string[],
+      fdpsTraining: [] as string[],
+      naacIqacInvolvement: [] as string[],
+      nbaObeInvolvement: [] as string[],
+      studentDevelopment: [] as string[],
+      developmentAreas: [] as string[],
+      careerGoals: "",
+    };
 
-    if (section === "documents" && !skillsDevelopmentCompleted) {
-      showFlowPopup(
-        "Please complete Skills & Development first.",
-        "documents"
-      );
-      return;
-    }
+    setRegistrationInfo(resetRegistration);
+    setRegistrationDraft(resetRegistration);
+    setProfessionalInfo(resetProfessional);
+    setProfessionalDraft(resetProfessional);
+    setSkillsInfo(resetSkills);
+    setSkillsDraft(resetSkills);
 
-    if (section === "registration") {
-      const email = registrationDraft.email.trim();
-      const alternateEmail = registrationDraft.alternateEmail.trim();
-
-      if (!isValidEmail(email)) {
-        showSectionError("registration", "Enter a valid Email");
-        return;
-      }
-
-      if (!isValidPhoneNumber(registrationDraft.mobileNumber)) {
-        showSectionError(
-          "registration",
-          "Please Give Correct Mobile Number"
-        );
-        return;
-      }
-
-      if (alternateEmail && !isValidEmail(alternateEmail)) {
-        showSectionError("registration", "Enter a valid Alternate Email");
-        return;
-      }
-
-      if (
-        registrationDraft.alternatePhone &&
-        !isValidPhoneNumber(registrationDraft.alternatePhone)
-      ) {
-        showSectionError(
-          "registration",
-          "Alternate Phone must be 10 digits and start with 6, 7, 8, or 9"
-        );
-        return;
-      }
-
-      const requiredRegistration =
-        registrationDraft.gender &&
-        registrationDraft.department &&
-        registrationDraft.designation &&
-        registrationDraft.facultyType &&
-        registrationDraft.highestQualification &&
-        registrationDraft.specialization.length > 0 &&
-        registrationDraft.teachingExperience &&
-        registrationDraft.industryExperience &&
-        registrationDraft.coursesHandled.length > 0 &&
-        registrationDraft.reportingAuthority;
-
-      if (!requiredRegistration) {
-        showSectionError(
-          "registration",
-          "Please complete all required Registration Data fields."
-        );
-        return;
-      }
-
-      setRegistrationInfo({
-        ...registrationDraft,
-        email,
-        alternateEmail,
-      });
-      setRegistrationCompleted(true);
-    }
-
-    if (section === "professional") {
-      const professionalComplete =
-        professionalDraft.academicDivision &&
-        professionalDraft.primaryDomain &&
-        professionalDraft.areasOfExpertise.length > 0 &&
-        professionalDraft.coursesTaught.length > 0 &&
-        professionalDraft.teachingLevel.length > 0 &&
-        professionalDraft.academicRole.length > 0 &&
-        professionalDraft.researchArea.length > 0 &&
-        professionalDraft.researchProjects.length > 0 &&
-        professionalDraft.studentGuidance.length > 0;
-
-      if (!professionalComplete) {
-        showSectionError(
-          "professional",
-          "Please complete the required Academic & Professional Profile fields."
-        );
-        return;
-      }
-
-      setProfessionalInfo({
-        ...professionalDraft,
-        areasOfExpertise: [...professionalDraft.areasOfExpertise],
-        coursesTaught: [...professionalDraft.coursesTaught],
-        teachingLevel: [...professionalDraft.teachingLevel],
-        academicRole: [...professionalDraft.academicRole],
-        researchArea: [...professionalDraft.researchArea],
-        researchProjects: [...professionalDraft.researchProjects],
-        studentGuidance: [...professionalDraft.studentGuidance],
-      });
-      setProfessionalProfileCompleted(true);
-    }
-
-    if (section === "skills") {
-      const skillsComplete =
-        skillsDraft.coreSkills.length > 0 &&
-        skillsDraft.digitalSkills.length > 0 &&
-        skillsDraft.fdpsTraining.length > 0 &&
-        skillsDraft.naacIqacInvolvement.length > 0 &&
-        skillsDraft.nbaObeInvolvement.length > 0 &&
-        skillsDraft.studentDevelopment.length > 0 &&
-        skillsDraft.developmentAreas.length > 0 &&
-        skillsDraft.careerGoals;
-
-      if (!skillsComplete) {
-        showSectionError(
-          "skills",
-          "Please complete the required Skills & Development fields."
-        );
-        return;
-      }
-
-      setSkillsInfo({
-        ...skillsDraft,
-        coreSkills: [...skillsDraft.coreSkills],
-        digitalSkills: [...skillsDraft.digitalSkills],
-        fdpsTraining: [...skillsDraft.fdpsTraining],
-        naacIqacInvolvement: [...skillsDraft.naacIqacInvolvement],
-        nbaObeInvolvement: [...skillsDraft.nbaObeInvolvement],
-        studentDevelopment: [...skillsDraft.studentDevelopment],
-        developmentAreas: [...skillsDraft.developmentAreas],
-      });
-      setSkillsDevelopmentCompleted(true);
-    }
-
-    if (section === "documents") {
-      const hasGovernmentId =
-        governmentIdDocumentType.trim() !== "" &&
-        documentFiles["Government ID Proof"] !== null;
-
-      if (!hasGovernmentId) {
-        showSectionError(
-          "documents",
-          "Please select Document Type and upload Government ID Proof before saving."
-        );
-        return;
-      }
-
-      setDocumentsCompleted(true);
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
+    setProfileImage(null);
+    setProfilePhotoCompleted(false);
+    setGovernmentIdDocumentType("");
+    setDocumentFiles({
+      "Profile Photo": null,
+      "Government ID Proof": null,
+      "Supporting Documents": null,
+    });
+    setConfirmation(false);
     setEditingSection(null);
-    setSectionPopup({ section, type: "saved" });
+    setSectionPopup(null);
+    setFlowPopup(null);
+    setFlowPopupSection(null);
+    setShowDraftSaved(false);
 
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "saved"
-          ? null
-          : current
-      );
-    }, 2500);
-  };
-
-  const cancelSection = (section: SectionName) => {
-    if (section === "registration") {
-      setRegistrationDraft({ ...registrationInfo });
+    if (flowPopupTimerRef.current) {
+      window.clearTimeout(flowPopupTimerRef.current);
+      flowPopupTimerRef.current = null;
     }
 
-    if (section === "professional") {
-      setProfessionalDraft({
-        ...professionalInfo,
-        areasOfExpertise: [...professionalInfo.areasOfExpertise],
-        coursesTaught: [...professionalInfo.coursesTaught],
-        teachingLevel: [...professionalInfo.teachingLevel],
-        academicRole: [...professionalInfo.academicRole],
-        researchArea: [...professionalInfo.researchArea],
-        researchProjects: [...professionalInfo.researchProjects],
-        studentGuidance: [...professionalInfo.studentGuidance],
-      });
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
     }
-
-    if (section === "skills") {
-      setSkillsDraft({
-        ...skillsInfo,
-        coreSkills: [...skillsInfo.coreSkills],
-        digitalSkills: [...skillsInfo.digitalSkills],
-        fdpsTraining: [...skillsInfo.fdpsTraining],
-        naacIqacInvolvement: [...skillsInfo.naacIqacInvolvement],
-        nbaObeInvolvement: [...skillsInfo.nbaObeInvolvement],
-        studentDevelopment: [...skillsInfo.studentDevelopment],
-        developmentAreas: [...skillsInfo.developmentAreas],
-      });
-    }
-
-    if (section === "documents") {
-      if (documentFilesBeforeEditRef.current) {
-        setDocumentFiles({ ...documentFilesBeforeEditRef.current });
-      }
-
-      if (governmentIdDocumentTypeBeforeEditRef.current !== null) {
-        setGovernmentIdDocumentType(
-          governmentIdDocumentTypeBeforeEditRef.current
-        );
-      }
-
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "discarded" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "discarded"
-          ? null
-          : current
-      );
-    }, 2500);
   };
 
   const saveProfile = () => {
     const nextIncompleteStep =
       !profilePhotoCompleted
         ? "Profile Photo"
-        : !registrationCompleted
+        : !registrationFormComplete
           ? "Registration Data"
-          : !professionalProfileCompleted
+          : !professionalFormComplete
             ? "Academic & Professional Profile"
-            : !skillsDevelopmentCompleted
+            : !skillsFormComplete
               ? "Skills & Development"
-              : !documentsCompleted
+              : !documentsFormComplete
                 ? "Documents"
                 : !confirmation
                   ? "Confirmation"
                   : null;
 
     if (nextIncompleteStep) {
+      const popupSection:
+        | SectionName
+        | "profile"
+        | "confirmation" =
+        nextIncompleteStep === "Profile Photo"
+          ? "profile"
+          : nextIncompleteStep === "Registration Data"
+            ? "registration"
+            : nextIncompleteStep === "Academic & Professional Profile"
+              ? "professional"
+              : nextIncompleteStep === "Skills & Development"
+                ? "skills"
+                : nextIncompleteStep === "Documents"
+                  ? "documents"
+                  : "confirmation";
+
       showFlowPopup(
         `Please complete ${nextIncompleteStep} before saving the profile.`,
-        "confirmation"
+        popupSection
       );
       return;
     }
 
+    setRegistrationInfo({
+      ...registrationDraft,
+      email: registrationDraft.email.trim(),
+      alternateEmail: registrationDraft.alternateEmail.trim(),
+      specialization: [...registrationDraft.specialization],
+      coursesHandled: [...registrationDraft.coursesHandled],
+    });
+    setProfessionalInfo({
+      ...professionalDraft,
+      areasOfExpertise: [...professionalDraft.areasOfExpertise],
+      coursesTaught: [...professionalDraft.coursesTaught],
+      teachingLevel: [...professionalDraft.teachingLevel],
+      academicRole: [...professionalDraft.academicRole],
+      researchArea: [...professionalDraft.researchArea],
+      researchProjects: [...professionalDraft.researchProjects],
+      studentGuidance: [...professionalDraft.studentGuidance],
+    });
+    setSkillsInfo({
+      ...skillsDraft,
+      coreSkills: [...skillsDraft.coreSkills],
+      digitalSkills: [...skillsDraft.digitalSkills],
+      fdpsTraining: [...skillsDraft.fdpsTraining],
+      naacIqacInvolvement: [...skillsDraft.naacIqacInvolvement],
+      nbaObeInvolvement: [...skillsDraft.nbaObeInvolvement],
+      studentDevelopment: [...skillsDraft.studentDevelopment],
+      developmentAreas: [...skillsDraft.developmentAreas],
+    });
+
     setEditingSection(null);
-    setShowDraftSaved(true);
-    setDraftSavedTime(
-      new Date()
-        .toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-        .replace(" ", "")
-    );
+    window.location.assign("/sign_in");
   };
 
   const handleProfileImageSelect = (
@@ -1376,6 +1332,7 @@ export default function FacultyUniversityPage() {
     const file = event.target.files?.[0];
 
     if (!file || !file.type.startsWith("image/")) {
+      showFlowPopup("Please select a valid image file.", "profile");
       event.target.value = "";
       return;
     }
@@ -1399,20 +1356,17 @@ export default function FacultyUniversityPage() {
     if (!file) return;
 
     if (!isAcceptedDocumentFile(label, file)) {
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`,
-      }));
+      showSectionError(
+        "documents",
+        `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`
+      );
       return;
     }
 
     const recommendedSize = getDocumentRecommendedSize(file);
 
     if (recommendedSize === null) {
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: "Unsupported file type.",
-      }));
+      showSectionError("documents", "Unsupported file type.");
       return;
     }
 
@@ -1420,10 +1374,10 @@ export default function FacultyUniversityPage() {
       file.size < recommendedSize.min ||
       file.size > recommendedSize.max
     ) {
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: `Recommended file size is ${recommendedSize.label}.`,
-      }));
+      showSectionError(
+        "documents",
+        `Recommended file size is ${recommendedSize.label}.`
+      );
       return;
     }
 
@@ -1432,10 +1386,11 @@ export default function FacultyUniversityPage() {
       [label]: file,
     }));
 
-    setDocumentUploadErrors((current) => ({
-      ...current,
-      [label]: "",
-    }));
+    setSectionPopup((current) =>
+      current?.section === "documents" && current.type === "error"
+        ? null
+        : current
+    );
   };
 
   useEffect(() => {
@@ -1485,11 +1440,11 @@ export default function FacultyUniversityPage() {
 
   const completionItems = [
     profilePhotoCompleted,
-    registrationCompleted,
-    professionalProfileCompleted,
-    skillsDevelopmentCompleted,
-    documentsCompleted,
-    confirmation,
+    registrationFormComplete,
+    professionalFormComplete,
+    skillsFormComplete,
+    documentsFormComplete,
+    confirmationStepComplete,
   ];
 
   const completedItemCount = completionItems.filter(Boolean).length;
@@ -1621,7 +1576,7 @@ export default function FacultyUniversityPage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {professionalProfileCompleted ? (
+                    {professionalFormComplete ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -1632,7 +1587,7 @@ export default function FacultyUniversityPage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {documentsCompleted ? (
+                    {documentsFormComplete ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -1643,7 +1598,7 @@ export default function FacultyUniversityPage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {registrationCompleted ? (
+                    {registrationFormComplete ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -1654,7 +1609,7 @@ export default function FacultyUniversityPage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {skillsDevelopmentCompleted ? (
+                    {skillsFormComplete ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -1665,7 +1620,7 @@ export default function FacultyUniversityPage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {confirmation ? (
+                    {confirmationStepComplete ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -1678,12 +1633,27 @@ export default function FacultyUniversityPage() {
               </div>
             </section>
 
+            {flowPopup && flowPopupSection === "profile" && (
+              <div
+                className="institutionSectionFlowPopup"
+                role="alert"
+                aria-live="assertive"
+              >
+                <IconImage
+                  src={images.sad}
+                  width={18}
+                  height={18}
+                  className="institutionInlinePopupIcon"
+                />
+                <span>{flowPopup}</span>
+              </div>
+            )}
+
             <section className="institutionInformationCard">
               <SectionHeader
                 title="Registration Data"
                 iconSrc={images.registration}
                 iconTone="pink"
-                editing={editingSection === "registration"}
                 popupType={
                   sectionPopup?.section === "registration"
                     ? sectionPopup.type
@@ -1695,8 +1665,6 @@ export default function FacultyUniversityPage() {
                     : undefined
                 }
                 onEdit={() => startSectionEdit("registration")}
-                onSave={() => saveSection("registration")}
-                onCancel={() => cancelSection("registration")}
               />
 
               {flowPopup && flowPopupSection === "registration" && (
@@ -2029,7 +1997,6 @@ export default function FacultyUniversityPage() {
                 title="Academic Profile"
                 iconSrc={images.academicProfessional}
                 iconTone="green"
-                editing={editingSection === "professional"}
                 popupType={
                   sectionPopup?.section === "professional"
                     ? sectionPopup.type
@@ -2041,8 +2008,6 @@ export default function FacultyUniversityPage() {
                     : undefined
                 }
                 onEdit={() => startSectionEdit("professional")}
-                onSave={() => saveSection("professional")}
-                onCancel={() => cancelSection("professional")}
               />
 
               {flowPopup && flowPopupSection === "professional" && (
@@ -2230,7 +2195,6 @@ export default function FacultyUniversityPage() {
                 title="Skills & Growth"
                 iconSrc={images.skillsDevelopment}
                 iconTone="blue"
-                editing={editingSection === "skills"}
                 popupType={
                   sectionPopup?.section === "skills"
                     ? sectionPopup.type
@@ -2242,8 +2206,6 @@ export default function FacultyUniversityPage() {
                     : undefined
                 }
                 onEdit={() => startSectionEdit("skills")}
-                onSave={() => saveSection("skills")}
-                onCancel={() => cancelSection("skills")}
               />
 
               {flowPopup && flowPopupSection === "skills" && (
@@ -2412,11 +2374,13 @@ export default function FacultyUniversityPage() {
                 title="Documents"
                 iconSrc={images.documents}
                 iconTone="orange"
-                editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
+                popupMessage={
+                  sectionPopup?.section === "documents"
+                    ? sectionPopup.message
+                    : undefined
+                }
                 onEdit={() => startSectionEdit("documents")}
-                onSave={() => saveSection("documents")}
-                onCancel={() => cancelSection("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
                 <div
@@ -2509,7 +2473,13 @@ export default function FacultyUniversityPage() {
                                 event.target.value = "";
                               }}
                             />
-                            <span className="institutionChooseFileButton">
+                            <span
+                              className={`institutionChooseFileButton ${
+                                documentFiles[label]
+                                  ? ""
+                                  : "institutionChooseFileButtonEmpty"
+                              }`}
+                            >
                               <IconImage
                                 src={images.upload}
                                 width={14}
@@ -2523,14 +2493,6 @@ export default function FacultyUniversityPage() {
                           <span className="institutionFileName">
                             {documentFiles[label]?.name || "No File Chosen"}
                           </span>
-                          {documentUploadErrors[label] && (
-                            <span
-                              className="institutionDocumentUploadError"
-                              role="alert"
-                            >
-                              {documentUploadErrors[label]}
-                            </span>
-                          )}
                         </div>
                       ) : (
                         <div
@@ -2558,7 +2520,11 @@ export default function FacultyUniversityPage() {
 
                           <button
                             type="button"
-                            className="institutionChooseFileButton"
+                            className={`institutionChooseFileButton ${
+                              documentFiles[label]
+                                ? ""
+                                : "institutionChooseFileButtonEmpty"
+                            }`}
                             aria-label={`Choose ${label}`}
                           >
                             <IconImage
@@ -2593,6 +2559,22 @@ export default function FacultyUniversityPage() {
                 <h2>Confirmation</h2>
               </div>
 
+              {flowPopup && flowPopupSection === "confirmation" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
               <div className="institutionConfirmationInner">
                 <div className="institutionFieldLabel">
                   Self Declaration Confirmation
@@ -2617,7 +2599,7 @@ export default function FacultyUniversityPage() {
                         return;
                       }
 
-                      if (event.target.checked && !registrationCompleted) {
+                      if (event.target.checked && !registrationFormComplete) {
                         showFlowPopup(
                           "Please complete Registration Data first.",
                           "confirmation"
@@ -2625,7 +2607,7 @@ export default function FacultyUniversityPage() {
                         return;
                       }
 
-                      if (event.target.checked && !professionalProfileCompleted) {
+                      if (event.target.checked && !professionalFormComplete) {
                         showFlowPopup(
                           "Please complete Academic & Professional Profile first.",
                           "confirmation"
@@ -2633,7 +2615,7 @@ export default function FacultyUniversityPage() {
                         return;
                       }
 
-                      if (event.target.checked && !skillsDevelopmentCompleted) {
+                      if (event.target.checked && !skillsFormComplete) {
                         showFlowPopup(
                           "Please complete Skills & Development first.",
                           "confirmation"
@@ -2641,7 +2623,7 @@ export default function FacultyUniversityPage() {
                         return;
                       }
 
-                      if (event.target.checked && !documentsCompleted) {
+                      if (event.target.checked && !documentsFormComplete) {
                         showFlowPopup(
                           "Please complete Documents first.",
                           "confirmation"
@@ -2672,9 +2654,16 @@ export default function FacultyUniversityPage() {
             <div className="institutionBottomActions">
               <button
                 type="button"
-                className="institutionBottomButton institutionReviewButton"
+                className="institutionBottomButton institutionProfileCancelButton"
+                onClick={cancelProfile}
               >
-                Review Profile
+                <IconImage
+                  src={images.cancel}
+                  width={16}
+                  height={16}
+                  className="institutionProfileCancelIcon"
+                />
+                <span>Cancel</span>
               </button>
               <button
                 type="button"

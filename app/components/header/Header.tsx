@@ -97,6 +97,66 @@ const STUDENT_BOOTCAMP_ROUTES: Record<string, string> = {
   "/student_bootcamp/profile": "Profile and Identity",
 };
 
+const STUDENT_SKILLACADEMY_ROUTES: Record<string, string> = {
+  "/student_skillacademy": "Profile and Identity",
+  "/student_skillacademy_profile": "Profile and Identity",
+  "/student_skillacademy/profile": "Profile and Identity",
+};
+
+const STUDENT_CORPORATE_ROUTES: Record<string, string> = {
+  "/student_corporate": "Profile and Identity",
+  "/student_corporate_profile": "Profile and Identity",
+  "/student_corporate/profile": "Profile and Identity",
+};
+
+const STUDENT_GOVERNMENT_ROUTES: Record<string, string> = {
+  "/student_government": "Profile and Identity",
+  "/student_government_profile": "Profile and Identity",
+  "/student_government/profile": "Profile and Identity",
+};
+
+const STUDENT_NGO_ROUTES: Record<string, string> = {
+  "/student_ngo": "Profile and Identity",
+  "/student_ngo_profile": "Profile and Identity",
+  "/student_ngo/profile": "Profile and Identity",
+};
+
+const FACULTY_UNIVERSITY_ROUTES: Record<string, string> = {
+  "/faculty_university": "Profile and Identity",
+  "/faculty_university_profile": "Profile and Identity",
+  "/faculty_university/profile": "Profile and Identity",
+};
+
+const FACULTY_SKILLACADEMY_ROUTES: Record<string, string> = {
+  "/faculty_skillacademy": "Profile and Identity",
+  "/faculty_skillacademy_profile": "Profile and Identity",
+  "/faculty_skillacademy/profile": "Profile and Identity",
+};
+
+const FACULTY_BOOTCAMP_ROUTES: Record<string, string> = {
+  "/faculty_bootcamp": "Profile and Identity",
+  "/faculty_bootcamp_profile": "Profile and Identity",
+  "/faculty_bootcamp/profile": "Profile and Identity",
+};
+
+const FACULTY_CORPORATE_ROUTES: Record<string, string> = {
+  "/faculty_corporate": "Profile and Identity",
+  "/faculty_corporate_profile": "Profile and Identity",
+  "/faculty_corporate/profile": "Profile and Identity",
+};
+
+const FACULTY_GOVERNMENT_ROUTES: Record<string, string> = {
+  "/faculty_government": "Profile and Identity",
+  "/faculty_government_profile": "Profile and Identity",
+  "/faculty_government/profile": "Profile and Identity",
+};
+
+const FACULTY_NGO_ROUTES: Record<string, string> = {
+  "/faculty_ngo": "Profile and Identity",
+  "/faculty_ngo_profile": "Profile and Identity",
+  "/faculty_ngo/profile": "Profile and Identity",
+};
+
 const STUDENT_ROUTES: Record<string, string[]> = {
   "/student_profile": ["Student Profile", "Student Profile"],
   "/studentprofile": ["Student Profile", "Student Profile"],
@@ -203,9 +263,63 @@ export default function Header() {
     normalizedPath.startsWith("/student_bootcamp/") ||
     normalizedPath.startsWith("/student_bootcamp_");
 
+  const isStudentSkillAcademy =
+    normalizedPath === "/student_skillacademy" ||
+    normalizedPath.startsWith("/student_skillacademy/") ||
+    normalizedPath.startsWith("/student_skillacademy_");
+
+  const isStudentCorporate =
+    normalizedPath === "/student_corporate" ||
+    normalizedPath.startsWith("/student_corporate/") ||
+    normalizedPath.startsWith("/student_corporate_");
+
+  const isStudentGovernment =
+    normalizedPath === "/student_government" ||
+    normalizedPath.startsWith("/student_government/") ||
+    normalizedPath.startsWith("/student_government_");
+
+  const isStudentNgo =
+    normalizedPath === "/student_ngo" ||
+    normalizedPath.startsWith("/student_ngo/") ||
+    normalizedPath.startsWith("/student_ngo_");
+
+  const isFacultyUniversity =
+    normalizedPath === "/faculty_university" ||
+    normalizedPath.startsWith("/faculty_university/") ||
+    normalizedPath.startsWith("/faculty_university_");
+
+  const isFacultySkillAcademy =
+    normalizedPath === "/faculty_skillacademy" ||
+    normalizedPath.startsWith("/faculty_skillacademy/") ||
+    normalizedPath.startsWith("/faculty_skillacademy_");
+
+  const isFacultyBootcamp =
+    normalizedPath === "/faculty_bootcamp" ||
+    normalizedPath.startsWith("/faculty_bootcamp/") ||
+    normalizedPath.startsWith("/faculty_bootcamp_");
+
+  const isFacultyCorporate =
+    normalizedPath === "/faculty_corporate" ||
+    normalizedPath.startsWith("/faculty_corporate/") ||
+    normalizedPath.startsWith("/faculty_corporate_");
+
+  const isFacultyGovernment =
+    normalizedPath === "/faculty_government" ||
+    normalizedPath.startsWith("/faculty_government/") ||
+    normalizedPath.startsWith("/faculty_government_");
+
+  const isFacultyNgo =
+    normalizedPath === "/faculty_ngo" ||
+    normalizedPath.startsWith("/faculty_ngo/") ||
+    normalizedPath.startsWith("/faculty_ngo_");
+
   const isStudent =
     !isStudentUniversity &&
     !isStudentBootcamp &&
+    !isStudentSkillAcademy &&
+    !isStudentCorporate &&
+    !isStudentGovernment &&
+    !isStudentNgo &&
     (normalizedPath.startsWith("/student_profile") ||
       normalizedPath.startsWith("/studentprofile") ||
       normalizedPath.startsWith("/student_"));
@@ -224,23 +338,75 @@ export default function Header() {
           ? "studentUniversityProfileImage"
           : isStudentBootcamp
             ? "studentBootcampProfileImage"
-            : isUniversity
+            : isStudentSkillAcademy
+              ? "studentSkillAcademyProfileImage"
+              : isStudentCorporate
+              ? "studentCorporateProfileImage"
+              : isStudentGovernment
+                ? "studentGovernmentProfileImage"
+                : isStudentNgo
+                  ? "studentNgoProfileImage"
+                  : isFacultyUniversity
+                    ? "facultyUniversityProfileImage"
+                    : isFacultySkillAcademy
+                      ? "facultySkillAcademyProfileImage"
+                      : isFacultyBootcamp
+                        ? "facultyBootcampProfileImage"
+                        : isFacultyCorporate
+                          ? "facultyCorporateProfileImage"
+                          : isFacultyGovernment
+                            ? "facultyGovernmentProfileImage"
+                            : isFacultyNgo
+                              ? "facultyNgoProfileImage"
+                              : isUniversity
               ? "universityCoordinatorProfileImage"
               : isBootcamp
                 ? "bootcampCoordinatorProfileImage"
                 : isCorporate
                   ? "corporateCoordinatorProfileImage"
-                  : isCoordinatorGovernment
+                  : isGovernment
                     ? "governmentCoordinatorProfileImage"
                     : isNgo
                       ? "ngoCoordinatorProfileImage"
-                      : null;
+                      : isStudent
+                        ? "studentProfileImage"
+                        : null;
 
   const currentPage = isStudentUniversity
     ? STUDENT_UNIVERSITY_ROUTES[normalizedPath] ??
       "Profile and Identity"
     : isStudentBootcamp
     ? STUDENT_BOOTCAMP_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isStudentSkillAcademy
+    ? STUDENT_SKILLACADEMY_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isStudentCorporate
+    ? STUDENT_CORPORATE_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isStudentGovernment
+    ? STUDENT_GOVERNMENT_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isStudentNgo
+    ? STUDENT_NGO_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultyUniversity
+    ? FACULTY_UNIVERSITY_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultySkillAcademy
+    ? FACULTY_SKILLACADEMY_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultyBootcamp
+    ? FACULTY_BOOTCAMP_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultyCorporate
+    ? FACULTY_CORPORATE_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultyGovernment
+    ? FACULTY_GOVERNMENT_ROUTES[normalizedPath] ??
+      "Profile and Identity"
+    : isFacultyNgo
+    ? FACULTY_NGO_ROUTES[normalizedPath] ??
       "Profile and Identity"
     : isCorporate
     ? COORDINATOR_CORPORATE_ROUTES[normalizedPath] ??
@@ -274,6 +440,26 @@ export default function Header() {
     ? "University/ College Student Profile"
     : isStudentBootcamp
     ? "Bootcamp Learner Profile"
+    : isStudentSkillAcademy
+    ? "Skill academy Learner Profile"
+    : isStudentCorporate
+    ? "Corporate Trainee Profile"
+    : isStudentGovernment
+    ? "Government Trainee Profile"
+    : isStudentNgo
+    ? "NGO Trainee Profile"
+    : isFacultyUniversity
+    ? "University/ College Faculty Profile"
+    : isFacultySkillAcademy
+    ? "Skill Academy Faculty Profile"
+    : isFacultyBootcamp
+    ? "Bootcamp Faculty Profile"
+    : isFacultyCorporate
+    ? "Corporate Faculty Profile"
+    : isFacultyGovernment
+    ? "Government Faculty Profile"
+    : isFacultyNgo
+    ? "NGO Faculty Profile"
     : isCorporate
     ? "Corporate Coordinator Profile"
     : isNgo
@@ -293,6 +479,26 @@ export default function Header() {
   const userName = isStudentUniversity
     ? "Antony Thomas"
     : isStudentBootcamp
+    ? "Antony Thomas"
+    : isStudentSkillAcademy
+    ? "Antony Thomas"
+    : isStudentCorporate
+    ? "Antony Thomas"
+    : isStudentGovernment
+    ? "Antony Thomas"
+    : isStudentNgo
+    ? "Antony Thomas"
+    : isFacultyUniversity
+    ? "Antony Thomas"
+    : isFacultySkillAcademy
+    ? "Antony Thomas"
+    : isFacultyBootcamp
+    ? "Antony Thomas"
+    : isFacultyCorporate
+    ? "Antony Thomas"
+    : isFacultyGovernment
+    ? "Antony Thomas"
+    : isFacultyNgo
     ? "Antony Thomas"
     : isCorporate
     ? "Antony Thomas"
@@ -316,6 +522,26 @@ export default function Header() {
     ? "University Student"
     : isStudentBootcamp
     ? "Bootcamp Learner"
+    : isStudentSkillAcademy
+    ? "Skill academy Student"
+    : isStudentCorporate
+    ? "Corporate Trainee"
+    : isStudentGovernment
+    ? "Government Trainee"
+    : isStudentNgo
+    ? "NGO Trainee"
+    : isFacultyUniversity
+    ? "University/ College Faculty"
+    : isFacultySkillAcademy
+    ? "Skill Academy Faculty"
+    : isFacultyBootcamp
+    ? "Bootcamp Faculty"
+    : isFacultyCorporate
+    ? "Corporate Faculty"
+    : isFacultyGovernment
+    ? "Government Faculty"
+    : isFacultyNgo
+    ? "NGO Faculty"
     : isCorporate
     ? "Corporate Coordinator"
     : isNgo
@@ -366,11 +592,31 @@ export default function Header() {
     ? headerProfileImage || "/assets/studenticons/profile.png"
     : isStudentBootcamp
     ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isStudentSkillAcademy
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isStudentCorporate
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isStudentGovernment
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isStudentNgo
+    ? headerProfileImage || "/assets/studenticons/profile.png"
+    : isFacultyUniversity
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
+    : isFacultySkillAcademy
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
+    : isFacultyBootcamp
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
+    : isFacultyCorporate
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
+    : isFacultyGovernment
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
+    : isFacultyNgo
+    ? headerProfileImage || "/assets/funiversityimages/profile.png"
     : isCorporate
     ? headerProfileImage || "/assets/institutionimages/profile.png"
     : isNgo
     ? headerProfileImage || "/assets/institutionimages/profile.png"
-    : isCoordinatorGovernment
+    : isGovernment
     ? headerProfileImage || "/assets/institutionimages/profile.png"
     : isUniversity
     ? headerProfileImage || "/assets/institutionimages/profile.png"
@@ -382,7 +628,9 @@ export default function Header() {
           ? headerProfileImage || "/assets/platformadmin.imagesandicons/profile.png"
           : isSuperAdmin
             ? headerProfileImage || "/assets/superadminimages/profile.png"
-            : "/assets/superadminimages/profile.png";
+            : isStudent
+              ? headerProfileImage || "/assets/studenticons/profile.png"
+              : "/assets/superadminimages/profile.png";
 
   useEffect(() => {
     if (!profileStorageKey) {
@@ -390,42 +638,103 @@ export default function Header() {
       return;
     }
 
-    const loadHeaderProfileImage = () => {
-      const savedImage = localStorage.getItem(profileStorageKey);
-      setHeaderProfileImage(savedImage);
+    const readSavedHeaderProfileImage = () => {
+      try {
+        return (
+          localStorage.getItem(profileStorageKey) ||
+          sessionStorage.getItem(profileStorageKey)
+        );
+      } catch {
+        return null;
+      }
     };
 
-    loadHeaderProfileImage();
+    /* Initial page load:
+       use the image previously saved for this exact profile route. */
+    setHeaderProfileImage(readSavedHeaderProfileImage());
+
+    /* profileImageUpdated supports both:
+       1) the new direct-image event used below, and
+       2) older pages that only dispatch a normal event after saving. */
+    const handleProfileImageUpdated = (event: Event) => {
+      if (event instanceof CustomEvent) {
+        const detail = event.detail as
+          | {
+              storageKey?: string;
+              image?: string;
+            }
+          | undefined;
+
+        if (
+          detail?.storageKey === profileStorageKey &&
+          typeof detail.image === "string" &&
+          detail.image
+        ) {
+          setHeaderProfileImage(detail.image);
+          return;
+        }
+      }
+
+      const savedImage = readSavedHeaderProfileImage();
+
+      /* Do not erase a freshly uploaded in-memory image when browser
+         storage could not save it. Only replace when a saved image exists. */
+      if (savedImage) {
+        setHeaderProfileImage(savedImage);
+      }
+    };
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key !== profileStorageKey) {
+        return;
+      }
+
+      setHeaderProfileImage(event.newValue);
+    };
 
     window.addEventListener(
       "profileImageUpdated",
-      loadHeaderProfileImage
+      handleProfileImageUpdated
     );
     window.addEventListener(
       "storage",
-      loadHeaderProfileImage
+      handleStorageChange
     );
 
     return () => {
       window.removeEventListener(
         "profileImageUpdated",
-        loadHeaderProfileImage
+        handleProfileImageUpdated
       );
       window.removeEventListener(
         "storage",
-        loadHeaderProfileImage
+        handleStorageChange
       );
     };
   }, [profileStorageKey]);
 
   useEffect(() => {
     const isCoordinatorPage =
+      isSuperAdmin ||
+      isPlatformAdmin ||
+      isInstitutionAdmin ||
+      isStudent ||
       isStudentUniversity ||
       isStudentBootcamp ||
+      isStudentSkillAcademy ||
+      isStudentCorporate ||
+      isStudentGovernment ||
+      isStudentNgo ||
+      isFacultyUniversity ||
+      isFacultySkillAcademy ||
+      isFacultyBootcamp ||
+      isFacultyCorporate ||
+      isFacultyGovernment ||
+      isFacultyNgo ||
       isUniversity ||
       isBootcamp ||
       isCorporate ||
-      isCoordinatorGovernment ||
+      isGovernment ||
       isNgo;
 
     if (!isCoordinatorPage || !profileStorageKey) {
@@ -439,9 +748,15 @@ export default function Header() {
         return;
       }
 
+      const isProfileImageInput =
+        input.classList.contains("institutionProfileImageInput") ||
+        input.classList.contains("profileImageInput") ||
+        input.name === "profileImage" ||
+        input.getAttribute("aria-label")?.toLowerCase().includes("profile image");
+
       if (
         input.type !== "file" ||
-        !input.classList.contains("institutionProfileImageInput")
+        !isProfileImageInput
       ) {
         return;
       }
@@ -459,18 +774,40 @@ export default function Header() {
           return;
         }
 
-        // IMPORTANT:
-        // profileStorageKey belongs ONLY to the coordinator page
-        // currently being used. No other coordinator key is changed.
-        localStorage.setItem(
-          profileStorageKey,
-          reader.result
-        );
+        const uploadedProfileImage = reader.result;
 
-        setHeaderProfileImage(reader.result);
+        /* Update the shared header immediately.
+           This does not depend on localStorage succeeding. */
+        setHeaderProfileImage(uploadedProfileImage);
 
+        /* Save separately for this page/profile.
+           sessionStorage is used as a fallback if localStorage is full. */
+        try {
+          localStorage.setItem(
+            profileStorageKey,
+            uploadedProfileImage
+          );
+        } catch {
+          try {
+            sessionStorage.setItem(
+              profileStorageKey,
+              uploadedProfileImage
+            );
+          } catch {
+            // The live header image still remains updated in memory.
+          }
+        }
+
+        /* Send the actual uploaded image with the event.
+           This prevents the Header from immediately replacing it with
+           an empty/old storage value. */
         window.dispatchEvent(
-          new Event("profileImageUpdated")
+          new CustomEvent("profileImageUpdated", {
+            detail: {
+              storageKey: profileStorageKey,
+              image: uploadedProfileImage,
+            },
+          })
         );
       };
 
@@ -491,12 +828,26 @@ export default function Header() {
       );
     };
   }, [
+    isSuperAdmin,
+    isPlatformAdmin,
+    isInstitutionAdmin,
+    isStudent,
     isStudentUniversity,
     isStudentBootcamp,
+    isStudentSkillAcademy,
+    isStudentCorporate,
+    isStudentGovernment,
+    isStudentNgo,
+    isFacultyUniversity,
+    isFacultySkillAcademy,
+    isFacultyBootcamp,
+    isFacultyCorporate,
+    isFacultyGovernment,
+    isFacultyNgo,
     isUniversity,
     isBootcamp,
     isCorporate,
-    isCoordinatorGovernment,
+    isGovernment,
     isNgo,
     profileStorageKey,
   ]);
@@ -614,6 +965,7 @@ export default function Header() {
                 fill
                 sizes="36px"
                 className="avatarImage"
+                unoptimized={profileImage.startsWith("data:")}
               />
             </div>
 

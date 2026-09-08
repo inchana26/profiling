@@ -2,17 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import {
-  getCountries,
-  getCountryCallingCode,
-  type Country,
-} from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
-import {
-  getExampleNumber,
-  validatePhoneNumberLength,
-} from "libphonenumber-js/max";
-import examples from "libphonenumber-js/examples.mobile.json";
 import "./fskillacademy.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
@@ -45,16 +34,18 @@ const MB = 1024 * 1024;
 const DOCUMENT_UPLOAD_LIMITS = {
   "Profile Photo": {
     accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
+    label: "Images: within 2 MB",
   },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
-    label: "Use the recommended LMS upload size for the selected file type",
+    label:
+      "Images: within 2 MB | PDF: within 25 MB | DOC/DOCX: within 10 MB",
   },
   "Supporting Documents": {
     accept:
       "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.ppt,.pptx,.mp3,.aac,.mp4,.zip,.xlsx,.vtt,.srt",
-    label: "Use the recommended LMS upload size for the selected file type",
+    label:
+      "Images: within 2 MB | PDF: within 25 MB | DOC/DOCX: within 10 MB | PPT/PPTX: within 30 MB | Audio: within 20 MB | Video: within 500 MB | SCORM ZIP: within 300 MB | ZIP: within 100 MB | XLSX: within 5 MB | VTT/SRT: within 500 KB",
   },
 } as const;
 
@@ -65,19 +56,39 @@ const getDocumentRecommendedSize = (file: File) => {
   const type = file.type.toLowerCase();
 
   if (type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(name)) {
-    return { min: 200 * KB, max: 2 * MB, label: "200 KB – 2 MB" };
+    return {
+      min: 0,
+      max: 2 * MB,
+      label: "2 MB",
+      typeLabel: "Image",
+    };
   }
 
   if (type === "application/pdf" || name.endsWith(".pdf")) {
-    return { min: 5 * MB, max: 25 * MB, label: "5 – 25 MB" };
+    return {
+      min: 0,
+      max: 25 * MB,
+      label: "25 MB",
+      typeLabel: "PDF",
+    };
   }
 
   if (name.endsWith(".doc") || name.endsWith(".docx")) {
-    return { min: 1 * MB, max: 10 * MB, label: "1 – 10 MB" };
+    return {
+      min: 0,
+      max: 10 * MB,
+      label: "10 MB",
+      typeLabel: "DOC/DOCX",
+    };
   }
 
   if (name.endsWith(".ppt") || name.endsWith(".pptx")) {
-    return { min: 5 * MB, max: 30 * MB, label: "5 – 30 MB" };
+    return {
+      min: 0,
+      max: 30 * MB,
+      label: "30 MB",
+      typeLabel: "PPT/PPTX",
+    };
   }
 
   if (
@@ -85,23 +96,57 @@ const getDocumentRecommendedSize = (file: File) => {
     name.endsWith(".mp3") ||
     name.endsWith(".aac")
   ) {
-    return { min: 2 * MB, max: 20 * MB, label: "2 – 20 MB" };
+    return {
+      min: 0,
+      max: 20 * MB,
+      label: "20 MB",
+      typeLabel: "Audio",
+    };
   }
 
   if (type.startsWith("video/") || name.endsWith(".mp4")) {
-    return { min: 50 * MB, max: 500 * MB, label: "50 – 500 MB" };
+    return {
+      min: 0,
+      max: 500 * MB,
+      label: "500 MB",
+      typeLabel: "Video",
+    };
   }
 
   if (name.endsWith(".zip")) {
-    return { min: 10 * MB, max: 100 * MB, label: "10 – 100 MB" };
+    const isScormZip = name.includes("scorm");
+
+    return isScormZip
+      ? {
+          min: 0,
+          max: 300 * MB,
+          label: "300 MB",
+          typeLabel: "SCORM ZIP",
+        }
+      : {
+          min: 0,
+          max: 100 * MB,
+          label: "100 MB",
+          typeLabel: "ZIP",
+        };
   }
 
   if (name.endsWith(".xlsx")) {
-    return { min: 0, max: 5 * MB, label: "< 5 MB" };
+    return {
+      min: 0,
+      max: 5 * MB,
+      label: "5 MB",
+      typeLabel: "XLSX",
+    };
   }
 
   if (name.endsWith(".vtt") || name.endsWith(".srt")) {
-    return { min: 0, max: 500 * KB, label: "< 500 KB" };
+    return {
+      min: 0,
+      max: 500 * KB,
+      label: "500 KB",
+      typeLabel: "VTT/SRT",
+    };
   }
 
   return null;
@@ -197,6 +242,7 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onBlur?: (value: string) => void;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -208,6 +254,7 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onBlur,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -237,6 +284,7 @@ function EditField({
             value={value}
             placeholder={placeholder}
             onChange={(event) => onChange?.(event.target.value)}
+            onBlur={(event) => onBlur?.(event.target.value)}
           />
         )}
       </div>
@@ -629,415 +677,6 @@ function MultiSelectField({
 }
 
 
-type PhoneCountrySelectProps = {
-  label: string;
-  country: Country | null;
-  value: string;
-  onCountryChange: (country: Country) => void;
-  onChange: (value: string) => void;
-};
-
-const PHONE_COUNTRIES = getCountries();
-const countryNames =
-  typeof Intl !== "undefined" && "DisplayNames" in Intl
-    ? new Intl.DisplayNames(["en"], { type: "region" })
-    : null;
-
-const getCountryName = (country: Country) =>
-  countryNames?.of(country) || country;
-
-const getCountryMaxDigits = (country: Country) => {
-  const example = getExampleNumber(country, examples);
-
-  if (example?.nationalNumber) {
-    return example.nationalNumber.length;
-  }
-
-  // Safe fallback only when the library has no mobile example.
-  return 15 - getCountryCallingCode(country).length;
-};
-
-function PhoneCountrySelect({
-  label,
-  country,
-  value,
-  onCountryChange,
-  onChange,
-}: PhoneCountrySelectProps) {
-  const [open, setOpen] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [search, setSearch] = useState("");
-
-  /* Keep edits local until Apply is clicked. */
-  const [pendingCountry, setPendingCountry] = useState<Country | null>(country);
-  const [pendingValue, setPendingValue] = useState(value);
-
-  const rootRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const selectId = useId();
-
-  /* Value shown in the CLOSED top field = last applied value only. */
-  const callingCode = country
-    ? `+${getCountryCallingCode(country)}`
-    : "";
-
-  /* Values used inside the OPEN editor. */
-  const pendingCallingCode = pendingCountry
-    ? `+${getCountryCallingCode(pendingCountry)}`
-    : "";
-
-  const pendingMaxDigits = pendingCountry
-    ? getCountryMaxDigits(pendingCountry)
-    : 15;
-
-  const filteredCountries = PHONE_COUNTRIES.filter((item) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-
-    const name = getCountryName(item).toLowerCase();
-    const code = `+${getCountryCallingCode(item)}`;
-
-    return (
-      name.includes(q) ||
-      item.toLowerCase().includes(q) ||
-      code.includes(q)
-    );
-  });
-
-  /* If the saved parent value changes while closed, keep draft in sync. */
-  useEffect(() => {
-    if (!open) {
-      setPendingCountry(country);
-      setPendingValue(value);
-    }
-  }, [country, value, open]);
-
-  const discardPendingChanges = () => {
-    setPendingCountry(country);
-    setPendingValue(value);
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        rootRef.current &&
-        !rootRef.current.contains(event.target as Node)
-      ) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    const closeOtherDropdown = (event: Event) => {
-      const customEvent = event as CustomEvent<string>;
-
-      if (customEvent.detail !== selectId) {
-        setPendingCountry(country);
-        setPendingValue(value);
-        setOpen(false);
-        setCountryOpen(false);
-        setSearch("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    window.addEventListener(
-      "faculty-profile-dropdown-open",
-      closeOtherDropdown as EventListener
-    );
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      window.removeEventListener(
-        "faculty-profile-dropdown-open",
-        closeOtherDropdown as EventListener
-      );
-    };
-  }, [selectId, country, value]);
-
-  useEffect(() => {
-    if (countryOpen) {
-      window.setTimeout(() => searchRef.current?.focus(), 0);
-    }
-  }, [countryOpen]);
-
-  const openMainField = () => {
-    const nextOpen = !open;
-
-    if (nextOpen) {
-      /* Every new open starts from the last applied values. */
-      setPendingCountry(country);
-      setPendingValue(value);
-
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    } else {
-      /* Closing with the top arrow works like Cancel. */
-      setPendingCountry(country);
-      setPendingValue(value);
-      setCountryOpen(false);
-      setSearch("");
-    }
-
-    setOpen(nextOpen);
-  };
-
-  const openCountryList = () => {
-    if (!countryOpen) {
-      window.dispatchEvent(
-        new CustomEvent("faculty-profile-dropdown-open", {
-          detail: selectId,
-        })
-      );
-    }
-
-    setCountryOpen(true);
-  };
-
-  const handleNumberChange = (rawValue: string) => {
-    const digits = rawValue.replace(/\D/g, "");
-
-    if (!pendingCountry) {
-      setPendingValue("");
-      return;
-    }
-
-    setPendingValue(digits.slice(0, pendingMaxDigits));
-  };
-
-  const selectCountry = (nextCountry: Country) => {
-    setPendingCountry(nextCountry);
-
-    const nextMaxDigits = getCountryMaxDigits(nextCountry);
-    setPendingValue((current) =>
-      current.replace(/\D/g, "").slice(0, nextMaxDigits)
-    );
-
-    setCountryOpen(false);
-    setSearch("");
-  };
-
-  const applyPhoneChanges = () => {
-    if (pendingCountry) {
-      onCountryChange(pendingCountry);
-    }
-
-    onChange(pendingValue);
-
-    setCountryOpen(false);
-    setSearch("");
-    setOpen(false);
-  };
-
-  return (
-    <div
-      ref={rootRef}
-      className={`institutionPhoneAccordion ${
-        open ? "institutionPhoneAccordionOpen" : ""
-      }`}
-    >
-      <button
-        type="button"
-        className="institutionField institutionPhoneMainTrigger"
-        aria-expanded={open}
-        onClick={openMainField}
-      >
-        <span className="institutionPhoneMainText">
-          <span className="institutionFieldLabel">{label}</span>
-
-          <span
-            className={
-              country && value
-                ? "institutionPhoneMainSavedValue"
-                : "institutionSelectPlaceholderValue"
-            }
-          >
-            {country && value ? `${callingCode} ${value}` : "Select"}
-          </span>
-        </span>
-
-        <IconImage
-          src={images.arrowDown}
-          width={30}
-          height={30}
-          className={`institutionSelectArrow institutionPhoneMainArrow ${
-            open ? "institutionSelectArrowOpen" : ""
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="institutionPhonePanel">
-          <div className="institutionPhonePanelLabel">Country Code</div>
-
-          <div className="institutionPhoneCountryBox">
-            <div
-              className={`institutionPhoneCountryTrigger ${
-                countryOpen ? "institutionPhoneCountryTriggerOpen" : ""
-              }`}
-              onClick={openCountryList}
-            >
-              <span
-                className="institutionPhoneSearchMini"
-                aria-hidden="true"
-              />
-
-              <input
-                ref={searchRef}
-                type="text"
-                value={
-                  countryOpen
-                    ? search
-                    : pendingCountry
-                      ? `${getCountryName(pendingCountry)}`
-                      : ""
-                }
-                onFocus={openCountryList}
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setCountryOpen(true);
-                }}
-                className="institutionPhoneCountrySearchInput"
-                placeholder="Search Country"
-                aria-label="Search Country"
-                autoComplete="off"
-              />
-
-              {pendingCountry && !countryOpen && (
-                <span className="institutionPhoneSelectedCountryCode">
-                  {pendingCountry} ({pendingCallingCode})
-                </span>
-              )}
-
-              <IconImage
-                src={images.arrowDown}
-                width={24}
-                height={24}
-                className={`institutionPhoneArrow ${
-                  countryOpen ? "institutionPhoneArrowOpen" : ""
-                }`}
-              />
-            </div>
-
-            {countryOpen && (
-              <div className="institutionPhoneCountryMenu">
-                <div
-                  className="institutionPhoneCountryList institutionRadioSelectListScrollable"
-                  role="listbox"
-                >
-                  {filteredCountries.map((item) => {
-                    const selected = pendingCountry === item;
-                    const ItemFlag = flags[item];
-                    const itemCallingCode =
-                      `+${getCountryCallingCode(item)}`;
-
-                    return (
-                      <button
-                        type="button"
-                        key={item}
-                        className={`institutionCustomSelectOption institutionRadioSelectOption institutionPhoneCountryOption ${
-                          selected
-                            ? "institutionCustomSelectOptionActive institutionPhoneCountryOptionSelected"
-                            : ""
-                        }`}
-                        role="option"
-                        aria-selected={selected}
-                        onClick={() => selectCountry(item)}
-                      >
-                        <span className="institutionPhoneCountryName">
-                          <span className="institutionPhoneFlag">
-                            {ItemFlag ? (
-                              <ItemFlag
-                                title={getCountryName(item)}
-                              />
-                            ) : null}
-                          </span>
-
-                          <span className="institutionPhoneCountryText">
-                            {item} ({itemCallingCode}) - {getCountryName(item)}
-                          </span>
-                        </span>
-
-                        <span
-                          className={`institutionRadioSelectCircle ${
-                            selected
-                              ? "institutionRadioSelectCircleActive"
-                              : ""
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {selected && (
-                            <span className="institutionRadioSelectCheck">
-                              ✓
-                            </span>
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="institutionPhonePanelLabel institutionPhoneNumberTitle">
-            {label}
-          </div>
-
-          <div
-            className={`institutionPhoneNumberInputWrap ${
-              !pendingCountry ? "institutionPhoneNumberInputDisabled" : ""
-            }`}
-          >
-            <input
-              type="tel"
-              inputMode="numeric"
-              className="institutionPhoneNumberInput"
-              value={pendingValue}
-              disabled={!pendingCountry}
-              maxLength={pendingMaxDigits}
-              placeholder={
-                pendingCountry
-                  ? `Enter ${pendingMaxDigits} Digit Mobile number`
-                  : "Select Country First"
-              }
-              onChange={(event) =>
-                handleNumberChange(event.target.value)
-              }
-            />
-          </div>
-
-          <div className="institutionPhonePanelActions">
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelCancel"
-              onClick={discardPendingChanges}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="institutionPhonePanelAction institutionPhonePanelApply"
-              onClick={applyPhoneChanges}
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 type SectionHeaderProps = {
   title: string;
@@ -1047,8 +686,6 @@ type SectionHeaderProps = {
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
   onEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
 };
 
 function SectionHeader({
@@ -1059,8 +696,6 @@ function SectionHeader({
   popupType = null,
   popupMessage,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
     <div className={`institutionInformationHeader ${popupType ? "institutionInformationHeaderHasPopup" : ""} ${editing ? "institutionInformationHeaderEditing" : ""}`}>
@@ -1111,33 +746,13 @@ function SectionHeader({
               {popupType === "saved"
                 ? "Changes Saved"
                 : popupType === "error"
-                  ? popupMessage || "Please enter valid information"
+                  ? popupMessage || "Please upload the file within the allowed size range"
                   : "Changes Discarded"}
             </span>
           </div>
         )}
 
-        {editing ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton institutionSaveButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.save} width={13} height={13} />
-              <span>Save</span>
-            </button>
-
-            <button
-              type="button"
-              className="institutionActionButton institutionCancelButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={13} height={13} />
-              <span>Cancel</span>
-            </button>
-          </div>
-        ) : !popupType ? (
+        {!editing && !popupType ? (
           <button
             type="button"
             className="institutionEditButton"
@@ -1329,10 +944,6 @@ export default function FacultyUniversityPage() {
   const [documentUploadErrors, setDocumentUploadErrors] = useState<
     Record<string, string>
   >({});
-  const documentFilesBeforeEditRef = useRef<Record<string, File | null> | null>(
-    null
-  );
-  const governmentIdDocumentTypeBeforeEditRef = useRef<string | null>(null);
 
   const [sectionPopup, setSectionPopup] = useState<{
     section: SectionName;
@@ -1378,34 +989,18 @@ export default function FacultyUniversityPage() {
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
-  const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
-  const [alternatePhoneCountry, setAlternatePhoneCountry] =
-    useState<Country | null>(null);
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
-  const registrationDraftRef = useRef(registrationDraft);
-  const professionalDraftRef = useRef(professionalDraft);
-  const skillsDraftRef = useRef(skillsDraft);
 
   useEffect(() => {
     editingSectionRef.current = editingSection;
-    registrationDraftRef.current = registrationDraft;
-    professionalDraftRef.current = professionalDraft;
-    skillsDraftRef.current = skillsDraft;
-  }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
+  }, [editingSection]);
 
   const startSectionEdit = (section: SectionName) => {
     setSectionPopup(null);
 
-    if (editingSection && editingSection !== section) {
-      showFlowPopup(
-        "Please Save or Cancel the current section before continuing.",
-        section
-      );
-      return;
-    }
 
     if (section === "registration" && !profilePhotoCompleted) {
       showFlowPopup(
@@ -1439,291 +1034,143 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (section === "registration") {
-      setRegistrationDraft({ ...registrationInfo });
-    }
-
-    if (section === "professional") {
-      setProfessionalDraft({
-        ...professionalInfo,
-        trainingMethod: [...professionalInfo.trainingMethod],
-        practicalExperience: [...professionalInfo.practicalExperience],
-        expertise: [...professionalInfo.expertise],
-        subjectsTools: [...professionalInfo.subjectsTools],
-      });
-    }
-
-    if (section === "skills") {
-      setSkillsDraft({
-        ...skillsInfo,
-        coreSkills: [...skillsInfo.coreSkills],
-        digitalSkills: [...skillsInfo.digitalSkills],
-        developmentAreas: [...skillsInfo.developmentAreas],
-        otherCertifications: [...skillsInfo.otherCertifications],
-      });
-    }
-
-    if (section === "documents") {
-      documentFilesBeforeEditRef.current = { ...documentFiles };
-      governmentIdDocumentTypeBeforeEditRef.current =
-        governmentIdDocumentType;
-      setDocumentUploadErrors({});
-    }
-
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string, country: Country | null) => {
-    if (!value || !country) return false;
-
-    const digits = value.replace(/\D/g, "");
-    const requiredDigits = getCountryMaxDigits(country);
-
-    return digits.length === requiredDigits;
-  };
+  const isValidPhoneNumber = (value: string) =>
+    /^\d{10}$/.test(value.replace(/\D/g, ""));
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+
+  const clearSectionError = (section: SectionName, message?: string) => {
+    setSectionPopup((current) => {
+      if (
+        current?.section !== section ||
+        current.type !== "error" ||
+        (message && current.message !== message)
+      ) {
+        return current;
+      }
+
+      return null;
+    });
+  };
+
+  /* Live field validation popup:
+     stays visible while the current value is invalid and disappears
+     immediately when the user corrects it. */
+  const showLiveSectionError = (section: SectionName, message: string) => {
+    setSectionPopup({
+      section,
+      type: "error",
+      message,
+    });
+  };
+
+  /* Section completion is automatic. A check appears only when the
+     current step is fully filled and valid, and previous steps are complete. */
+  useEffect(() => {
+    setRegistrationInfo({
+      ...registrationDraft,
+      email: registrationDraft.email.trim(),
+      alternateEmail: registrationDraft.alternateEmail.trim(),
+    });
+
+    const email = registrationDraft.email.trim();
+    const alternateEmail = registrationDraft.alternateEmail.trim();
+
+    const registrationFormComplete = Boolean(
+      isValidEmail(email) &&
+      isValidPhoneNumber(registrationDraft.mobileNumber) &&
+      (!alternateEmail || isValidEmail(alternateEmail)) &&
+      (!registrationDraft.alternatePhone ||
+        isValidPhoneNumber(registrationDraft.alternatePhone)) &&
+      registrationDraft.gender &&
+      registrationDraft.sector &&
+      registrationDraft.designation &&
+      registrationDraft.jobRole &&
+      registrationDraft.highestQualification &&
+      registrationDraft.trainingExperience &&
+      registrationDraft.totalExperience &&
+      registrationDraft.totCertified
+    );
+
+    setRegistrationCompleted(
+      Boolean(profilePhotoCompleted && registrationFormComplete)
+    );
+  }, [registrationDraft, profilePhotoCompleted]);
+
+  useEffect(() => {
+    setProfessionalInfo({
+      ...professionalDraft,
+      trainingMethod: [...professionalDraft.trainingMethod],
+      practicalExperience: [...professionalDraft.practicalExperience],
+      expertise: [...professionalDraft.expertise],
+      subjectsTools: [...professionalDraft.subjectsTools],
+    });
+
+    const professionalFormComplete = Boolean(
+      professionalDraft.trainerType &&
+      professionalDraft.trainingMethod.length > 0 &&
+      professionalDraft.practicalExperience.length > 0 &&
+      professionalDraft.expertise.length > 0 &&
+      professionalDraft.subjectsTools.length > 0
+    );
+
+    setProfessionalProfileCompleted(
+      Boolean(registrationCompleted && professionalFormComplete)
+    );
+  }, [professionalDraft, registrationCompleted]);
+
+  useEffect(() => {
+    setSkillsInfo({
+      ...skillsDraft,
+      coreSkills: [...skillsDraft.coreSkills],
+      digitalSkills: [...skillsDraft.digitalSkills],
+      developmentAreas: [...skillsDraft.developmentAreas],
+      otherCertifications: [...skillsDraft.otherCertifications],
+    });
+
+    const skillsFormComplete = Boolean(
+      skillsDraft.coreSkills.length > 0 &&
+      skillsDraft.digitalSkills.length > 0 &&
+      skillsDraft.proficiency &&
+      skillsDraft.developmentAreas.length > 0 &&
+      skillsDraft.otherCertifications.length > 0 &&
+      skillsDraft.careerGoals
+    );
+
+    setSkillsDevelopmentCompleted(
+      Boolean(professionalProfileCompleted && skillsFormComplete)
+    );
+  }, [skillsDraft, professionalProfileCompleted]);
+
+  useEffect(() => {
+    const documentsFormComplete = Boolean(
+      governmentIdDocumentType.trim() &&
+      documentFiles["Government ID Proof"]
+    );
+
+    setDocumentsCompleted(
+      Boolean(skillsDevelopmentCompleted && documentsFormComplete)
+    );
+  }, [governmentIdDocumentType, documentFiles, skillsDevelopmentCompleted]);
+
+  useEffect(() => {
+    if (!documentsCompleted && confirmation) {
+      setConfirmation(false);
+    }
+  }, [documentsCompleted, confirmation]);
 
   const showSectionError = (section: SectionName, message: string) => {
     setSectionPopup({ section, type: "error", message });
 
     window.setTimeout(() => {
       setSectionPopup((current) =>
-        current?.section === section && current.type === "error"
-          ? null
-          : current
-      );
-    }, 2500);
-  };
-
-  const saveSection = (section: SectionName) => {
-    if (section === "registration" && !profilePhotoCompleted) {
-      showFlowPopup(
-        "Please complete Profile Photo first.",
-        "registration"
-      );
-      return;
-    }
-
-    if (section === "professional" && !registrationCompleted) {
-      showFlowPopup(
-        "Please complete Registration Data first.",
-        "professional"
-      );
-      return;
-    }
-
-    if (section === "skills" && !professionalProfileCompleted) {
-      showFlowPopup(
-        "Please complete Trainer Profile",
-        "skills"
-      );
-      return;
-    }
-
-    if (section === "documents" && !skillsDevelopmentCompleted) {
-      showFlowPopup(
-        "Please complete Skills & Development first.",
-        "documents"
-      );
-      return;
-    }
-
-    if (section === "registration") {
-      const email = registrationDraft.email.trim();
-      const alternateEmail = registrationDraft.alternateEmail.trim();
-
-      if (!isValidEmail(email)) {
-        showSectionError("registration", "Enter a valid Email");
-        return;
-      }
-
-      if (!isValidPhoneNumber(registrationDraft.mobileNumber, mobileCountry)) {
-        showSectionError(
-          "registration",
-          mobileCountry
-            ? `Mobile Number must be ${getCountryMaxDigits(mobileCountry)} digits`
-            : "Please select country code for Mobile Number"
-        );
-        return;
-      }
-
-      if (alternateEmail && !isValidEmail(alternateEmail)) {
-        showSectionError("registration", "Enter a valid Alternate Email");
-        return;
-      }
-
-      if (
-        registrationDraft.alternatePhone &&
-        !isValidPhoneNumber(registrationDraft.alternatePhone, alternatePhoneCountry)
-      ) {
-        showSectionError(
-          "registration",
-          alternatePhoneCountry
-            ? `Alternate Phone must be ${getCountryMaxDigits(alternatePhoneCountry)} digits`
-            : "Please select country code for Alternate Phone"
-        );
-        return;
-      }
-
-      const requiredRegistration =
-        registrationDraft.gender &&
-        registrationDraft.sector &&
-        registrationDraft.designation &&
-        registrationDraft.jobRole &&
-        registrationDraft.highestQualification &&
-        registrationDraft.trainingExperience &&
-        registrationDraft.totalExperience &&
-        registrationDraft.totCertified;
-
-      if (!requiredRegistration) {
-        showSectionError(
-          "registration",
-          "Please complete all required Registration Data fields."
-        );
-        return;
-      }
-
-      setRegistrationInfo({
-        ...registrationDraft,
-        email,
-        alternateEmail,
-      });
-      setRegistrationCompleted(true);
-    }
-
-    if (section === "professional") {
-      const professionalComplete =
-        professionalDraft.trainerType &&
-        professionalDraft.trainingMethod.length > 0 &&
-        professionalDraft.practicalExperience.length > 0 &&
-        professionalDraft.expertise.length > 0 &&
-        professionalDraft.subjectsTools.length > 0;
-
-      if (!professionalComplete) {
-        showSectionError(
-          "professional",
-          "Please complete the required Trainer Profile fields."
-        );
-        return;
-      }
-
-      setProfessionalInfo({
-        ...professionalDraft,
-        trainingMethod: [...professionalDraft.trainingMethod],
-        practicalExperience: [...professionalDraft.practicalExperience],
-        expertise: [...professionalDraft.expertise],
-        subjectsTools: [...professionalDraft.subjectsTools],
-      });
-      setProfessionalProfileCompleted(true);
-    }
-
-    if (section === "skills") {
-      const skillsComplete =
-        skillsDraft.coreSkills.length > 0 &&
-        skillsDraft.digitalSkills.length > 0 &&
-        skillsDraft.proficiency &&
-        skillsDraft.developmentAreas.length > 0 &&
-        skillsDraft.otherCertifications.length > 0 &&
-        skillsDraft.careerGoals;
-
-      if (!skillsComplete) {
-        showSectionError(
-          "skills",
-          "Please complete the required Skills & Development fields."
-        );
-        return;
-      }
-
-      setSkillsInfo({
-        ...skillsDraft,
-        coreSkills: [...skillsDraft.coreSkills],
-        digitalSkills: [...skillsDraft.digitalSkills],
-        developmentAreas: [...skillsDraft.developmentAreas],
-        otherCertifications: [...skillsDraft.otherCertifications],
-      });
-      setSkillsDevelopmentCompleted(true);
-    }
-
-    if (section === "documents") {
-      const hasGovernmentId =
-        governmentIdDocumentType.trim() !== "" &&
-        documentFiles["Government ID Proof"] !== null;
-
-      if (!hasGovernmentId) {
-        showSectionError(
-          "documents",
-          "Please select Document Type and upload Government ID Proof before saving."
-        );
-        return;
-      }
-
-      setDocumentsCompleted(true);
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "saved" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "saved"
-          ? null
-          : current
-      );
-    }, 2500);
-  };
-
-  const cancelSection = (section: SectionName) => {
-    if (section === "registration") {
-      setRegistrationDraft({ ...registrationInfo });
-    }
-
-    if (section === "professional") {
-      setProfessionalDraft({
-        ...professionalInfo,
-        trainingMethod: [...professionalInfo.trainingMethod],
-        practicalExperience: [...professionalInfo.practicalExperience],
-        expertise: [...professionalInfo.expertise],
-        subjectsTools: [...professionalInfo.subjectsTools],
-      });
-    }
-
-    if (section === "skills") {
-      setSkillsDraft({
-        ...skillsInfo,
-        coreSkills: [...skillsInfo.coreSkills],
-        digitalSkills: [...skillsInfo.digitalSkills],
-        developmentAreas: [...skillsInfo.developmentAreas],
-        otherCertifications: [...skillsInfo.otherCertifications],
-      });
-    }
-
-    if (section === "documents") {
-      if (documentFilesBeforeEditRef.current) {
-        setDocumentFiles({ ...documentFilesBeforeEditRef.current });
-      }
-
-      if (governmentIdDocumentTypeBeforeEditRef.current !== null) {
-        setGovernmentIdDocumentType(
-          governmentIdDocumentTypeBeforeEditRef.current
-        );
-      }
-
-      documentFilesBeforeEditRef.current = null;
-      governmentIdDocumentTypeBeforeEditRef.current = null;
-      setDocumentUploadErrors({});
-    }
-
-    setEditingSection(null);
-    setSectionPopup({ section, type: "discarded" });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === "discarded"
+        current?.section === section &&
+        current.type === "error" &&
+        current.message === message
           ? null
           : current
       );
@@ -1747,12 +1194,45 @@ export default function FacultyUniversityPage() {
                   : null;
 
     if (nextIncompleteStep) {
+      const targetSection =
+        nextIncompleteStep === "Profile Photo"
+          ? "profile"
+          : nextIncompleteStep === "Registration Data"
+            ? "registration"
+            : nextIncompleteStep === "Trainer Profile"
+              ? "professional"
+              : nextIncompleteStep === "Skills & Development"
+                ? "skills"
+                : nextIncompleteStep === "Documents"
+                  ? "documents"
+                  : "confirmation";
+
       showFlowPopup(
         `Please complete ${nextIncompleteStep} before saving the profile.`,
-        "confirmation"
+        targetSection
       );
       return;
     }
+
+    setRegistrationInfo({
+      ...registrationDraft,
+      email: registrationDraft.email.trim(),
+      alternateEmail: registrationDraft.alternateEmail.trim(),
+    });
+    setProfessionalInfo({
+      ...professionalDraft,
+      trainingMethod: [...professionalDraft.trainingMethod],
+      practicalExperience: [...professionalDraft.practicalExperience],
+      expertise: [...professionalDraft.expertise],
+      subjectsTools: [...professionalDraft.subjectsTools],
+    });
+    setSkillsInfo({
+      ...skillsDraft,
+      coreSkills: [...skillsDraft.coreSkills],
+      digitalSkills: [...skillsDraft.digitalSkills],
+      developmentAreas: [...skillsDraft.developmentAreas],
+      otherCertifications: [...skillsDraft.otherCertifications],
+    });
 
     setEditingSection(null);
     setShowDraftSaved(true);
@@ -1765,6 +1245,77 @@ export default function FacultyUniversityPage() {
         })
         .replace(" ", "")
     );
+
+    window.location.assign("/sign_in");
+  };
+
+  const cancelProfile = () => {
+    const initialRegistration = {
+      trainerId: "TRN-00125",
+      employeeCode: "EMP1234",
+      fullName: "Antony Thomas",
+      email: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+      gender: "",
+      sector: "",
+      designation: "",
+      jobRole: "",
+      dateOfJoining: "17-05-2004",
+      highestQualification: "",
+      trainingExperience: "",
+      totalExperience: "",
+      totCertified: "",
+      status: "Active",
+    };
+
+    const initialProfessional = {
+      trainerType: "",
+      trainingMethod: [] as string[],
+      practicalExperience: [] as string[],
+      expertise: [] as string[],
+      subjectsTools: [] as string[],
+    };
+
+    const initialSkills = {
+      coreSkills: [] as string[],
+      digitalSkills: [] as string[],
+      proficiency: "",
+      developmentAreas: [] as string[],
+      otherCertifications: [] as string[],
+      careerGoals: "",
+    };
+
+    setProfileImage(null);
+    setProfilePhotoCompleted(false);
+    setRegistrationInfo(initialRegistration);
+    setRegistrationDraft(initialRegistration);
+    setProfessionalInfo(initialProfessional);
+    setProfessionalDraft(initialProfessional);
+    setSkillsInfo(initialSkills);
+    setSkillsDraft(initialSkills);
+    setGovernmentIdDocumentType("");
+    setDocumentFiles({
+      "Profile Photo": null,
+      "Government ID Proof": null,
+      "Supporting Documents": null,
+    });
+    setDocumentUploadErrors({});
+    setRegistrationCompleted(false);
+    setProfessionalProfileCompleted(false);
+    setSkillsDevelopmentCompleted(false);
+    setDocumentsCompleted(false);
+    setConfirmation(false);
+    setEditingSection(null);
+    setSectionPopup(null);
+    setFlowPopup(null);
+    setFlowPopupSection(null);
+    setShowDraftSaved(false);
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
   };
 
   const handleProfileImageSelect = (
@@ -1796,31 +1347,34 @@ export default function FacultyUniversityPage() {
     if (!file) return;
 
     if (!isAcceptedDocumentFile(label, file)) {
+      const message = `Please upload within: ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`,
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
     const recommendedSize = getDocumentRecommendedSize(file);
 
     if (recommendedSize === null) {
+      const message = `Please upload within: ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: "Unsupported file type.",
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
-    if (
-      file.size < recommendedSize.min ||
-      file.size > recommendedSize.max
-    ) {
+    if (file.size > recommendedSize.max) {
+      const message = `Please upload ${recommendedSize.typeLabel} within ${recommendedSize.label}.`;
       setDocumentUploadErrors((current) => ({
         ...current,
-        [label]: `Recommended file size is ${recommendedSize.label}.`,
+        [label]: message,
       }));
+      showSectionError("documents", message);
       return;
     }
 
@@ -2075,6 +1629,22 @@ export default function FacultyUniversityPage() {
               </div>
             </section>
 
+            {flowPopup && flowPopupSection === "profile" && (
+              <div
+                className="institutionSectionFlowPopup"
+                role="alert"
+                aria-live="assertive"
+              >
+                <IconImage
+                  src={images.sad}
+                  width={18}
+                  height={18}
+                  className="institutionInlinePopupIcon"
+                />
+                <span>{flowPopup}</span>
+              </div>
+            )}
+
             <section className="institutionInformationCard">
               <SectionHeader
                 title="Registration Data"
@@ -2092,8 +1662,6 @@ export default function FacultyUniversityPage() {
                     : undefined
                 }
                 onEdit={() => startSectionEdit("registration")}
-                onSave={() => saveSection("registration")}
-                onCancel={() => cancelSection("registration")}
               />
 
               {flowPopup && flowPopupSection === "registration" && (
@@ -2115,7 +1683,33 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.email}
                     placeholder="Enter Email"
                     visualIcon="edit"
-                    onChange={(value) => setRegistrationDraft((current) => ({ ...current, email: value }))}
+                    onChange={(value) => {
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        email: value,
+                      }));
+
+                      const trimmedValue = value.trim();
+
+                      if (!trimmedValue) {
+                        clearSectionError("registration", "Enter a valid Email");
+                      } else if (!isValidEmail(trimmedValue)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Enter a valid Email"
+                        );
+                      } else {
+                        clearSectionError("registration", "Enter a valid Email");
+                      }
+                    }}
+                    onBlur={(value) => {
+                      if (!isValidEmail(value.trim())) {
+                        showLiveSectionError(
+                          "registration",
+                          "Enter a valid Email"
+                        );
+                      }
+                    }}
                   />
                   <EditField
                     label="Alternate Email"
@@ -2123,32 +1717,118 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     visualIcon="edit"
-                    onChange={(value) => setRegistrationDraft((current) => ({ ...current, alternateEmail: value }))}
-                  />
-                  <PhoneCountrySelect
-                    label="Mobile Number"
-                    country={mobileCountry}
-                    value={registrationDraft.mobileNumber}
-                    onCountryChange={setMobileCountry}
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value,
-                      }))
-                    }
+                        alternateEmail: value,
+                      }));
+
+                      const trimmedValue = value.trim();
+
+                      if (!trimmedValue) {
+                        clearSectionError(
+                          "registration",
+                          "Enter a valid Alternate Email"
+                        );
+                      } else if (!isValidEmail(trimmedValue)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Enter a valid Alternate Email"
+                        );
+                      } else {
+                        clearSectionError(
+                          "registration",
+                          "Enter a valid Alternate Email"
+                        );
+                      }
+                    }}
+                    onBlur={(value) => {
+                      if (value.trim() && !isValidEmail(value.trim())) {
+                        showLiveSectionError(
+                          "registration",
+                          "Enter a valid Alternate Email"
+                        );
+                      }
+                    }}
+                  />
+                  <EditField
+                    label="Mobile Number"
+                    type="tel"
+                    value={registrationDraft.mobileNumber}
+                    placeholder="Enter Mobile Number"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "").slice(0, 10);
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        mobileNumber: digits,
+                      }));
+
+                      if (!digits) {
+                        clearSectionError(
+                          "registration",
+                          "Mobile Number must be 10 digits"
+                        );
+                      } else if (!isValidPhoneNumber(digits)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Mobile Number must be 10 digits"
+                        );
+                      } else {
+                        clearSectionError(
+                          "registration",
+                          "Mobile Number must be 10 digits"
+                        );
+                      }
+                    }}
+                    onBlur={(value) => {
+                      if (!isValidPhoneNumber(value)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Mobile Number must be 10 digits"
+                        );
+                      }
+                    }}
                   />
 
-                  <PhoneCountrySelect
+                  <EditField
                     label="Alternate Phone"
-                    country={alternatePhoneCountry}
+                    type="tel"
                     value={registrationDraft.alternatePhone}
-                    onCountryChange={setAlternatePhoneCountry}
-                    onChange={(value) =>
+                    placeholder="Enter Alternate Phone"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "").slice(0, 10);
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value,
-                      }))
-                    }
+                        alternatePhone: digits,
+                      }));
+
+                      if (!digits) {
+                        clearSectionError(
+                          "registration",
+                          "Alternate Phone must be 10 digits"
+                        );
+                      } else if (!isValidPhoneNumber(digits)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Alternate Phone must be 10 digits"
+                        );
+                      } else {
+                        clearSectionError(
+                          "registration",
+                          "Alternate Phone must be 10 digits"
+                        );
+                      }
+                    }}
+                    onBlur={(value) => {
+                      if (value && !isValidPhoneNumber(value)) {
+                        showLiveSectionError(
+                          "registration",
+                          "Alternate Phone must be 10 digits"
+                        );
+                      }
+                    }}
                   />
                   <SelectField
                     label="Gender"
@@ -2266,9 +1946,9 @@ export default function FacultyUniversityPage() {
 
                   <DisplayField label="Email" value={registrationInfo.email} placeholder="Enter Email" />
                   <DisplayField label="Alternate Email" value={registrationInfo.alternateEmail} placeholder="Enter Alternate Email" />
-                  <DisplayField label="Mobile Number" value={registrationInfo.mobileNumber && mobileCountry ? `+${getCountryCallingCode(mobileCountry)} ${registrationInfo.mobileNumber}` : ""} placeholder="Select" />
+                  <DisplayField label="Mobile Number" value={registrationInfo.mobileNumber} placeholder="Enter Mobile Number" />
 
-                  <DisplayField label="Alternate Phone" value={registrationInfo.alternatePhone && alternatePhoneCountry ? `+${getCountryCallingCode(alternatePhoneCountry)} ${registrationInfo.alternatePhone}` : ""} placeholder="Select" />
+                  <DisplayField label="Alternate Phone" value={registrationInfo.alternatePhone} placeholder="Enter Alternate Phone" />
                   <DisplayField label="Gender" value={registrationInfo.gender} placeholder="Select" />
                   <DisplayField label="Sector" value={registrationInfo.sector} placeholder="Select" />
 
@@ -2295,8 +1975,6 @@ export default function FacultyUniversityPage() {
                 popupType={sectionPopup?.section === "professional" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "professional" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("professional")}
-                onSave={() => saveSection("professional")}
-                onCancel={() => cancelSection("professional")}
               />
 
               {flowPopup && flowPopupSection === "professional" && (
@@ -2372,8 +2050,6 @@ export default function FacultyUniversityPage() {
                 popupType={sectionPopup?.section === "skills" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "skills" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("skills")}
-                onSave={() => saveSection("skills")}
-                onCancel={() => cancelSection("skills")}
               />
 
               {flowPopup && flowPopupSection === "skills" && (
@@ -2450,8 +2126,6 @@ export default function FacultyUniversityPage() {
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
                 onEdit={() => startSectionEdit("documents")}
-                onSave={() => saveSection("documents")}
-                onCancel={() => cancelSection("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
                 <div
@@ -2544,7 +2218,13 @@ export default function FacultyUniversityPage() {
                                 event.target.value = "";
                               }}
                             />
-                            <span className="institutionChooseFileButton">
+                            <span
+                              className={`institutionChooseFileButton ${
+                                documentFiles[label]
+                                  ? "institutionChooseFileButtonUploaded"
+                                  : ""
+                              }`}
+                            >
                               <IconImage
                                 src={images.upload}
                                 width={14}
@@ -2558,14 +2238,6 @@ export default function FacultyUniversityPage() {
                           <span className="institutionFileName">
                             {documentFiles[label]?.name || "No File Chosen"}
                           </span>
-                          {documentUploadErrors[label] && (
-                            <span
-                              className="institutionDocumentUploadError"
-                              role="alert"
-                            >
-                              {documentUploadErrors[label]}
-                            </span>
-                          )}
                         </div>
                       ) : (
                         <div
@@ -2593,7 +2265,11 @@ export default function FacultyUniversityPage() {
 
                           <button
                             type="button"
-                            className="institutionChooseFileButton"
+                            className={`institutionChooseFileButton ${
+                              documentFiles[label]
+                                ? "institutionChooseFileButtonUploaded"
+                                : ""
+                            }`}
                             aria-label={`Choose ${label}`}
                           >
                             <IconImage
@@ -2627,6 +2303,22 @@ export default function FacultyUniversityPage() {
                 </span>
                 <h2>Confirmation</h2>
               </div>
+
+              {flowPopup && flowPopupSection === "confirmation" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
 
               <div className="institutionConfirmationInner">
                 <div className="institutionFieldLabel">
@@ -2707,10 +2399,18 @@ export default function FacultyUniversityPage() {
             <div className="institutionBottomActions">
               <button
                 type="button"
-                className="institutionBottomButton institutionReviewButton"
+                className="institutionBottomButton institutionProfileCancelButton"
+                onClick={cancelProfile}
               >
-                Review Profile
+                <IconImage
+                  src={images.cancel}
+                  width={16}
+                  height={16}
+                  className="institutionProfileCancelIcon"
+                />
+                <span>Cancel</span>
               </button>
+
               <button
                 type="button"
                 className="institutionBottomButton institutionFinalSaveButton"

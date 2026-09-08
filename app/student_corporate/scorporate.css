@@ -5264,46 +5264,30 @@ body {
 }
 
 /* =========================================================
-   MOBILE HEADER BREADCRUMB — EXACT TWO-LINE LAYOUT
+   MOBILE HEADER BREADCRUMB — ONE-LINE LAYOUT
    Mobile only. Desktop/tablet remain unchanged.
-   Line 1: Parent profile title
-   Line 2: Arrow + current page
    ========================================================= */
 @media (max-width: 700px) {
   .mobileBreadcrumb {
     width: 100% !important;
     min-width: 0 !important;
-    min-height: 64px !important;
-    height: auto !important;
+    min-height: 44px !important;
+    height: 44px !important;
 
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    align-content: center !important;
     justify-content: flex-start !important;
 
-    column-gap: 6px !important;
-    row-gap: 5px !important;
+    gap: 4px !important;
+    padding: 0 10px !important;
 
-    padding: 8px 16px !important;
-
-    white-space: normal !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-  }
-
-  /* Parent heading always occupies the complete first line. */
-  .mobileBreadcrumb > .breadcrumbParent {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-
-    display: block !important;
     white-space: nowrap !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
   }
 
-  /* Arrow + current page remain together on the second line. */
-  .mobileBreadcrumb > img,
+  .mobileBreadcrumb > .breadcrumbParent,
   .mobileBreadcrumb > .breadcrumbCurrent {
     flex: 0 0 auto !important;
     width: auto !important;
@@ -5311,8 +5295,15 @@ body {
     white-space: nowrap !important;
   }
 
+  .mobileBreadcrumb > img {
+    flex: 0 0 15px !important;
+    width: 15px !important;
+    height: 15px !important;
+    margin: 0 !important;
+  }
+
   .mobileBreadcrumb > .breadcrumbCurrent {
-    max-width: calc(100% - 24px) !important;
+    max-width: none !important;
     overflow: visible !important;
     text-overflow: clip !important;
   }
@@ -5322,3 +5313,152 @@ body {
     padding-top: 6px !important;
   }
 }
+
+/* =========================================================
+   SECTION EDIT ACTIONS
+   Remove section-level Save / Cancel buttons only.
+   Bottom Cancel / Save Profile buttons remain unchanged.
+   ========================================================= */
+.institutionInformationHeader .institutionEditActions {
+  display: none !important;
+}
+
+/* =========================================================
+   CORPORATE STUDENT — DESCRIPTION
+   Remove textarea drag handle and allow automatic growth.
+   ========================================================= */
+.institutionDescriptionTextarea {
+  width: 100% !important;
+  min-height: 48px !important;
+  height: auto;
+  resize: none !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+/* =========================================================
+   CORPORATE STUDENT — CHOOSE FILE STATE
+   Before upload: no border, black icon and black text.
+   After upload: keep the existing green uploaded state.
+   ========================================================= */
+.institutionDocumentsCard .institutionChooseFileButton {
+  border: 0 !important;
+  color: #000000 !important;
+}
+
+.institutionDocumentsCard .institutionChooseFileButton > span {
+  color: #000000 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton
+  .institutionChooseFileIcon {
+  color: #000000 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded {
+  border: 0.5px solid #2A7308 !important;
+  color: #2A7308 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  > span {
+  color: #2A7308 !important;
+}
+
+.institutionDocumentsCard
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  .institutionChooseFileIcon {
+  color: #2A7308 !important;
+}
+
+/* =========================================================
+   CORPORATE STUDENT — RESUME FILE UPLOAD
+   Remove locked Resume field and use Choose File instead.
+   Before file: black/no border.
+   After file: same green uploaded state.
+   ========================================================= */
+.institutionResumeUploadField {
+  position: relative;
+}
+
+.institutionResumeUploadField .institutionFilePicker {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin-top: 4px;
+}
+
+.institutionResumeUploadField .institutionFilePickerControl {
+  flex: 0 0 auto;
+}
+
+.institutionResumeUploadField .institutionChooseFileButton {
+  box-sizing: border-box;
+  width: 124px;
+  height: 36px;
+  padding: 0 12px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: #DFE6E9;
+  border: 0;
+  border-radius: 8px;
+  box-shadow:
+    -4px -4px 4px #FFFFFF,
+    4px 4px 8px #C4C4C4;
+
+  color: #000000;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.institutionResumeUploadField .institutionChooseFileIcon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  display: block;
+  color: #000000;
+}
+
+.institutionResumeUploadField .institutionChooseFileButton > span {
+  font-family: "Segoe UI", Inter;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.institutionResumeUploadField
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded {
+  border: 0.5px solid #2A7308;
+  color: #2A7308;
+}
+
+.institutionResumeUploadField
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  > span,
+.institutionResumeUploadField
+  .institutionChooseFileButton.institutionChooseFileButtonUploaded
+  .institutionChooseFileIcon {
+  color: #2A7308;
+}
+
+.institutionResumeUploadField .institutionFileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

@@ -13,7 +13,7 @@ import {
   validatePhoneNumberLength,
 } from "libphonenumber-js/max";
 import examples from "libphonenumber-js/examples.mobile.json";
-import "./scorporate.css";
+import "./sngo.css";
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
 const images = {
@@ -36,7 +36,7 @@ const images = {
   confirmation: "/assets/studenticons/checkmark-circlewhite.svg",
 };
 
-type SectionName = "registration" | "professional" | "experience" | "skills" | "documents";
+type SectionName = "registration" | "professional" | "skills" | "documents";
 
 const MB = 1024 * 1024;
 
@@ -1493,8 +1493,6 @@ type SectionHeaderProps = {
   popupType?: "saved" | "discarded" | "error" | null;
   popupMessage?: string;
   onEdit: () => void;
-  onSave?: () => void;
-  onCancel?: () => void;
 };
 
 function SectionHeader({
@@ -1505,8 +1503,6 @@ function SectionHeader({
   popupType = null,
   popupMessage,
   onEdit,
-  onSave,
-  onCancel,
 }: SectionHeaderProps) {
   return (
     <div className={`institutionInformationHeader ${popupType ? "institutionInformationHeaderHasPopup" : ""} ${editing ? "institutionInformationHeaderEditing" : ""}`}>
@@ -1578,25 +1574,6 @@ function SectionHeader({
               aria-hidden="true"
             />
           </button>
-        ) : editing && onSave && onCancel ? (
-          <div className="institutionEditActions">
-            <button
-              type="button"
-              className="institutionActionButton"
-              onClick={onSave}
-            >
-              <IconImage src={images.completed} width={14} height={14} />
-              <span>Save</span>
-            </button>
-            <button
-              type="button"
-              className="institutionActionButton"
-              onClick={onCancel}
-            >
-              <IconImage src={images.cancel} width={14} height={14} />
-              <span>Cancel</span>
-            </button>
-          </div>
         ) : !editing && !popupType ? (
           <button
             type="button"
@@ -1743,7 +1720,7 @@ const GovernmentIdRaisedDropdown = ({
   );
 };
 
-export default function CorporateTraineePage() {
+export default function StudentNgoPage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   const [showDraftSaved, setShowDraftSaved] = useState(false);
@@ -1756,7 +1733,6 @@ export default function CorporateTraineePage() {
   const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
   const [registrationCompleted, setRegistrationCompleted] = useState(true);
   const [professionalProfileCompleted, setProfessionalProfileCompleted] = useState(false);
-  const [workExperienceCompleted, setWorkExperienceCompleted] = useState(false);
   const [skillsDevelopmentCompleted, setSkillsDevelopmentCompleted] = useState(false);
   const [documentsCompleted, setDocumentsCompleted] = useState(false);
   const [flowPopup, setFlowPopup] = useState<string | null>(null);
@@ -1803,184 +1779,183 @@ export default function CorporateTraineePage() {
   } | null>(null);
 
   const [registrationInfo, setRegistrationInfo] = useState({
-    employeeId: "EMP-2026-0148",
+    employeeId: "LRN-2026-0145",
     fullName: "Antony Thomas",
-    corporateEmail: "antony.thomas@example.com",
-    mobileNumber: "9521221322",
     gender: "Male",
     dateOfBirth: "17-05-2004",
-    businessUnit: "Digital Services",
-    department: "Learning & Development",
-    team: "Employee Development",
-    designation: "Learning Coordinator",
-    reportingManager: "Rahul Mehta",
-    officeLocation: "Bengaluru",
-    employmentType: "Full-Time",
-    employmentStatus: "Active",
-    employeeGrade: "Grade B2",
-    dateOfJoining: "10 Jun 2022",
-    currentRole: "Program Coordinator",
-    assignedLearningPath: "Leadership Skills",
+    mobileNumber: "+91 98765 43210",
+    email: "antony.thomas@gov.in",
+    address: "Bengaluru, Karnataka",
+    programmeName: "Youth Skill Development",
+    projectName: "Digital Employability",
+    batchName: "YSD-2026-A",
+    batchId: "BTH-0261",
+    courseName: "Data Analytics",
+    enrollmentDate: "15 Jun 2026",
+    trainerName: "Rahul Kumar",
+    centerName: "Bengaluru Skill Centre",
+    qualification: "B.Com",
+    occupation: "Student",
+    annualIncome: "₹2.4 Lakh",
+    socialCategory: "General",
+    organizationName: "ABC Technologies",
+    employmentStatus: "Unemployed",
   });
 
   const [professionalInfo, setProfessionalInfo] = useState({
-    careerGoals: "",
-    careerAspirations: "",
-    preferredRole: [] as string[],
-    preferredIndustry: [] as string[],
-    preferredLocation: [] as string[],
-    expectedSalary: "",
-  });
-
-  const [experienceInfo, setExperienceInfo] = useState({
-    employmentStatus: "",
-    company: "",
-    role: "",
-    from: "",
-    to: "",
-    achievements: "",
-    description: "",
+    nationality: "",
+    language: [] as string[],
+    location: "",
+    education: "",
+    learning: [] as string[],
+    learningMode: [] as string[],
+    onlineExperience: "",
+    devices: [] as string[],
+    internetAccess: "",
+    learningTime: "",
+    hoursPerWeek: "",
+    contentFormat: [] as string[],
+    accessibilityNeeds: [] as string[],
   });
 
   const [skillsInfo, setSkillsInfo] = useState({
-    learningGoals: [] as string[],
-    skillInterests: [] as string[],
-    learningMode: [] as string[],
-    certifications: "",
-    issuer: "",
-    year: "",
-    credentialId: "",
-    skillName: "",
-    category: "",
-    domain: "",
-    proficiency: "",
-    resume: "",
+    careerSkills: "",
+    skillsToAcquire: [] as string[],
+    industry: [] as string[],
+    workDomain: "",
+    workExperience: "",
+    digitalLiteracy: "",
+    technicalSkills: [] as string[],
+    softSkills: [] as string[],
+    skillGaps: [] as string[],
+    certifications: [] as string[],
+    careerGoal: "",
+    preferredRole: [] as string[],
+    workLocation: [] as string[],
+    salaryRange: "",
+    workMode: "",
+    trainingMotivation: [] as string[],
+    portfolioEvidence: [] as string[],
     portfolio: "",
-    linkedinUrl: "",
-    githubUrl: "",
     instagramId: "",
     facebookUrl: "",
     twitterX: "",
-    portfolioEvidence: "",
+    githubUrl: "",
+    linkedinUrl: "",
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  const [mobileCountry, setMobileCountry] = useState<Country | null>(null);
+  const [alternatePhoneCountry, setAlternatePhoneCountry] =
+    useState<Country | null>(null);
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
-  const [experienceDraft, setExperienceDraft] = useState(experienceInfo);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
+  const [careerResumeFile, setCareerResumeFile] = useState<File | null>(null);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
   const registrationDraftRef = useRef(registrationDraft);
   const professionalDraftRef = useRef(professionalDraft);
-  const experienceDraftRef = useRef(experienceDraft);
   const skillsDraftRef = useRef(skillsDraft);
 
   useEffect(() => {
     editingSectionRef.current = editingSection;
     registrationDraftRef.current = registrationDraft;
     professionalDraftRef.current = professionalDraft;
-    experienceDraftRef.current = experienceDraft;
     skillsDraftRef.current = skillsDraft;
-  }, [
-    editingSection,
-    registrationDraft,
-    professionalDraft,
-    experienceDraft,
-    skillsDraft,
-  ]);
-
-  const isCareerGoalsComplete = (source: typeof professionalInfo) =>
-    Boolean(
-      source.careerGoals &&
-        source.careerAspirations &&
-        source.preferredRole.length > 0 &&
-        source.preferredIndustry.length > 0 &&
-        source.preferredLocation.length > 0 &&
-        source.expectedSalary
-    );
-
-  const isWorkExperienceComplete = (source: typeof experienceInfo) =>
-    Boolean(
-      source.employmentStatus &&
-        source.company &&
-        source.role &&
-        source.from
-    );
-
-  const isSkillsProfileComplete = (source: typeof skillsInfo) =>
-    Boolean(
-      source.learningGoals.length > 0 &&
-        source.skillInterests.length > 0 &&
-        source.learningMode.length > 0 &&
-        source.certifications &&
-        source.issuer &&
-        source.year &&
-        source.skillName &&
-        source.category &&
-        source.domain &&
-        source.proficiency &&
-        source.portfolioEvidence
-    );
+  }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
 
   const startSectionEdit = (section: SectionName) => {
     setSectionPopup(null);
     setRegistrationLockedView(false);
 
-    let careerReady = professionalProfileCompleted;
-    let experienceReady = workExperienceCompleted;
-    let skillsReady = skillsDevelopmentCompleted;
+    let personalLearningReady = professionalProfileCompleted;
+    let careerSkillsReady = skillsDevelopmentCompleted;
 
     if (editingSection && editingSection !== section) {
       if (editingSection === "professional") {
-        if (!isCareerGoalsComplete(professionalDraft)) {
+        const complete = Boolean(
+          professionalDraft.nationality &&
+          professionalDraft.language.length > 0 &&
+          professionalDraft.location &&
+          professionalDraft.education &&
+          professionalDraft.learning.length > 0 &&
+          professionalDraft.learningMode.length > 0 &&
+          professionalDraft.onlineExperience &&
+          professionalDraft.devices.length > 0 &&
+          professionalDraft.internetAccess &&
+          professionalDraft.learningTime &&
+          professionalDraft.hoursPerWeek &&
+          professionalDraft.contentFormat.length > 0 &&
+          professionalDraft.accessibilityNeeds.length > 0
+        );
+
+        if (!complete) {
           showSectionError(
             "professional",
-            "Please complete the required Career Goals fields."
+            "Please complete Personal & Learning."
           );
           return;
         }
 
         setProfessionalInfo({
           ...professionalDraft,
-          preferredRole: [...professionalDraft.preferredRole],
-          preferredIndustry: [...professionalDraft.preferredIndustry],
-          preferredLocation: [...professionalDraft.preferredLocation],
+          language: [...professionalDraft.language],
+          learning: [...professionalDraft.learning],
+          learningMode: [...professionalDraft.learningMode],
+          devices: [...professionalDraft.devices],
+          contentFormat: [...professionalDraft.contentFormat],
+          accessibilityNeeds: [...professionalDraft.accessibilityNeeds],
         });
+
         setProfessionalProfileCompleted(true);
-        careerReady = true;
-      }
-
-      if (editingSection === "experience") {
-        if (!isWorkExperienceComplete(experienceDraft)) {
-          showSectionError(
-            "experience",
-            "Please complete the required Work Experience fields."
-          );
-          return;
-        }
-
-        setExperienceInfo({ ...experienceDraft });
-        setWorkExperienceCompleted(true);
-        experienceReady = true;
+        personalLearningReady = true;
       }
 
       if (editingSection === "skills") {
-        if (!isSkillsProfileComplete(skillsDraft)) {
+        const complete = Boolean(
+          skillsDraft.careerSkills &&
+          skillsDraft.skillsToAcquire.length > 0 &&
+          skillsDraft.industry.length > 0 &&
+          skillsDraft.workDomain &&
+          skillsDraft.workExperience &&
+          skillsDraft.digitalLiteracy &&
+          skillsDraft.technicalSkills.length > 0 &&
+          skillsDraft.softSkills.length > 0 &&
+          skillsDraft.skillGaps.length > 0 &&
+          skillsDraft.certifications.length > 0 &&
+          skillsDraft.careerGoal &&
+          skillsDraft.preferredRole.length > 0 &&
+          skillsDraft.workLocation.length > 0 &&
+          skillsDraft.salaryRange &&
+          skillsDraft.workMode &&
+          skillsDraft.trainingMotivation.length > 0 &&
+          skillsDraft.portfolioEvidence.length > 0
+        );
+
+        if (!complete) {
           showSectionError(
             "skills",
-            "Please complete the required Skills Profile fields."
+            "Please complete Career & Skills."
           );
           return;
         }
 
         setSkillsInfo({
           ...skillsDraft,
-          learningGoals: [...skillsDraft.learningGoals],
-          skillInterests: [...skillsDraft.skillInterests],
-          learningMode: [...skillsDraft.learningMode],
+          skillsToAcquire: [...skillsDraft.skillsToAcquire],
+          industry: [...skillsDraft.industry],
+          technicalSkills: [...skillsDraft.technicalSkills],
+          softSkills: [...skillsDraft.softSkills],
+          skillGaps: [...skillsDraft.skillGaps],
+          certifications: [...skillsDraft.certifications],
+          preferredRole: [...skillsDraft.preferredRole],
+          workLocation: [...skillsDraft.workLocation],
+          trainingMotivation: [...skillsDraft.trainingMotivation],
+          portfolioEvidence: [...skillsDraft.portfolioEvidence],
         });
+
         setSkillsDevelopmentCompleted(true);
-        skillsReady = true;
+        careerSkillsReady = true;
       }
 
       if (editingSection === "documents") {
@@ -2002,40 +1977,47 @@ export default function CorporateTraineePage() {
       }
     }
 
-    if (section === "experience" && !careerReady) {
-      showFlowPopup("Please Complete Career Goals", "experience");
+    if (section === "skills" && !personalLearningReady) {
+      showFlowPopup(
+        "Please Complete Personal & Learning",
+        "professional"
+      );
       return;
     }
 
-    if (section === "skills" && !experienceReady) {
-      showFlowPopup("Please Complete Work Experience", "skills");
-      return;
-    }
-
-    if (section === "documents" && !skillsReady) {
-      showFlowPopup("Please Complete Skills Profile", "documents");
+    if (section === "documents" && !careerSkillsReady) {
+      showFlowPopup(
+        "Please Complete Career & Skills",
+        "skills"
+      );
       return;
     }
 
     if (section === "professional") {
       setProfessionalDraft({
         ...professionalInfo,
-        preferredRole: [...professionalInfo.preferredRole],
-        preferredIndustry: [...professionalInfo.preferredIndustry],
-        preferredLocation: [...professionalInfo.preferredLocation],
+        language: [...professionalInfo.language],
+        learning: [...professionalInfo.learning],
+        learningMode: [...professionalInfo.learningMode],
+        devices: [...professionalInfo.devices],
+        contentFormat: [...professionalInfo.contentFormat],
+        accessibilityNeeds: [...professionalInfo.accessibilityNeeds],
       });
-    }
-
-    if (section === "experience") {
-      setExperienceDraft({ ...experienceInfo });
     }
 
     if (section === "skills") {
       setSkillsDraft({
         ...skillsInfo,
-        learningGoals: [...skillsInfo.learningGoals],
-        skillInterests: [...skillsInfo.skillInterests],
-        learningMode: [...skillsInfo.learningMode],
+        skillsToAcquire: [...skillsInfo.skillsToAcquire],
+        industry: [...skillsInfo.industry],
+        technicalSkills: [...skillsInfo.technicalSkills],
+        softSkills: [...skillsInfo.softSkills],
+        skillGaps: [...skillsInfo.skillGaps],
+        certifications: [...skillsInfo.certifications],
+        preferredRole: [...skillsInfo.preferredRole],
+        workLocation: [...skillsInfo.workLocation],
+        trainingMotivation: [...skillsInfo.trainingMotivation],
+        portfolioEvidence: [...skillsInfo.portfolioEvidence],
       });
     }
 
@@ -2102,113 +2084,48 @@ export default function CorporateTraineePage() {
     }, 2500);
   };
 
-  const showSectionStatus = (
-    section: SectionName,
-    type: "saved" | "discarded"
-  ) => {
-    setSectionPopup({ section, type });
-
-    window.setTimeout(() => {
-      setSectionPopup((current) =>
-        current?.section === section && current.type === type ? null : current
-      );
-    }, 2500);
-  };
-
-  const saveSectionEdit = (section: SectionName) => {
-    if (section === "professional") {
-      if (!isCareerGoalsComplete(professionalDraft)) {
-        showSectionError(
-          "professional",
-          "Please complete the required Career Goals fields."
-        );
-        return;
-      }
-
-      setProfessionalInfo({
-        ...professionalDraft,
-        preferredRole: [...professionalDraft.preferredRole],
-        preferredIndustry: [...professionalDraft.preferredIndustry],
-        preferredLocation: [...professionalDraft.preferredLocation],
-      });
-      setProfessionalProfileCompleted(true);
-    }
-
-    if (section === "experience") {
-      if (!isWorkExperienceComplete(experienceDraft)) {
-        showSectionError(
-          "experience",
-          "Please complete the required Work Experience fields."
-        );
-        return;
-      }
-
-      setExperienceInfo({ ...experienceDraft });
-      setWorkExperienceCompleted(true);
-    }
-
-    if (section === "skills") {
-      if (!isSkillsProfileComplete(skillsDraft)) {
-        showSectionError(
-          "skills",
-          "Please complete the required Skills Profile fields."
-        );
-        return;
-      }
-
-      setSkillsInfo({
-        ...skillsDraft,
-        learningGoals: [...skillsDraft.learningGoals],
-        skillInterests: [...skillsDraft.skillInterests],
-        learningMode: [...skillsDraft.learningMode],
-      });
-      setSkillsDevelopmentCompleted(true);
-    }
-
-    setEditingSection(null);
-    showSectionStatus(section, "saved");
-  };
-
-  const cancelSectionEdit = (section: SectionName) => {
-    if (section === "professional") {
-      setProfessionalDraft({
-        ...professionalInfo,
-        preferredRole: [...professionalInfo.preferredRole],
-        preferredIndustry: [...professionalInfo.preferredIndustry],
-        preferredLocation: [...professionalInfo.preferredLocation],
-      });
-    }
-
-    if (section === "experience") {
-      setExperienceDraft({ ...experienceInfo });
-    }
-
-    if (section === "skills") {
-      setSkillsDraft({
-        ...skillsInfo,
-        learningGoals: [...skillsInfo.learningGoals],
-        skillInterests: [...skillsInfo.skillInterests],
-        learningMode: [...skillsInfo.learningMode],
-      });
-    }
-
-    setEditingSection(null);
-    showSectionStatus(section, "discarded");
-  };
-
   const saveProfile = () => {
     const professionalSource =
       editingSection === "professional" ? professionalDraft : professionalInfo;
 
-    const experienceSource =
-      editingSection === "experience" ? experienceDraft : experienceInfo;
-
     const skillsSource =
       editingSection === "skills" ? skillsDraft : skillsInfo;
 
-    const careerComplete = isCareerGoalsComplete(professionalSource);
-    const experienceComplete = isWorkExperienceComplete(experienceSource);
-    const skillsComplete = isSkillsProfileComplete(skillsSource);
+    const professionalComplete = Boolean(
+      professionalSource.nationality &&
+      professionalSource.language.length > 0 &&
+      professionalSource.location &&
+      professionalSource.education &&
+      professionalSource.learning.length > 0 &&
+      professionalSource.learningMode.length > 0 &&
+      professionalSource.onlineExperience &&
+      professionalSource.devices.length > 0 &&
+      professionalSource.internetAccess &&
+      professionalSource.learningTime &&
+      professionalSource.hoursPerWeek &&
+      professionalSource.contentFormat.length > 0 &&
+      professionalSource.accessibilityNeeds.length > 0
+    );
+
+    const skillsComplete = Boolean(
+      skillsSource.careerSkills &&
+      skillsSource.skillsToAcquire.length > 0 &&
+      skillsSource.industry.length > 0 &&
+      skillsSource.workDomain &&
+      skillsSource.workExperience &&
+      skillsSource.digitalLiteracy &&
+      skillsSource.technicalSkills.length > 0 &&
+      skillsSource.softSkills.length > 0 &&
+      skillsSource.skillGaps.length > 0 &&
+      skillsSource.certifications.length > 0 &&
+      skillsSource.careerGoal &&
+      skillsSource.preferredRole.length > 0 &&
+      skillsSource.workLocation.length > 0 &&
+      skillsSource.salaryRange &&
+      skillsSource.workMode &&
+      skillsSource.trainingMotivation.length > 0 &&
+      skillsSource.portfolioEvidence.length > 0
+    );
 
     const documentsComplete =
       governmentIdDocumentType.trim() !== "" &&
@@ -2221,31 +2138,23 @@ export default function CorporateTraineePage() {
     if (!profilePhotoCompleted) {
       showFlowPopup(
         "Please complete Profile Photo before saving the profile.",
-        "confirmation"
+        "profile"
       );
       return;
     }
 
-    if (!careerComplete) {
+    if (!professionalComplete) {
       showFlowPopup(
-        "Please complete Career Goals before saving the profile.",
-        "confirmation"
-      );
-      return;
-    }
-
-    if (!experienceComplete) {
-      showFlowPopup(
-        "Please complete Work Experience before saving the profile.",
-        "confirmation"
+        "Please complete Personal & Learning before saving the profile.",
+        "professional"
       );
       return;
     }
 
     if (!skillsComplete) {
       showFlowPopup(
-        "Please complete Skills Profile before saving the profile.",
-        "confirmation"
+        "Please complete Career & Skills before saving the profile.",
+        "skills"
       );
       return;
     }
@@ -2253,7 +2162,7 @@ export default function CorporateTraineePage() {
     if (hasDocumentError) {
       showFlowPopup(
         "Please correct the document upload error before saving the profile.",
-        "confirmation"
+        "documents"
       );
       return;
     }
@@ -2261,7 +2170,7 @@ export default function CorporateTraineePage() {
     if (!documentsComplete) {
       showFlowPopup(
         "Please complete Documents before saving the profile.",
-        "confirmation"
+        "documents"
       );
       return;
     }
@@ -2277,27 +2186,32 @@ export default function CorporateTraineePage() {
     if (editingSection === "professional") {
       setProfessionalInfo({
         ...professionalDraft,
-        preferredRole: [...professionalDraft.preferredRole],
-        preferredIndustry: [...professionalDraft.preferredIndustry],
-        preferredLocation: [...professionalDraft.preferredLocation],
+        language: [...professionalDraft.language],
+        learning: [...professionalDraft.learning],
+        learningMode: [...professionalDraft.learningMode],
+        devices: [...professionalDraft.devices],
+        contentFormat: [...professionalDraft.contentFormat],
+        accessibilityNeeds: [...professionalDraft.accessibilityNeeds],
       });
-    }
-
-    if (editingSection === "experience") {
-      setExperienceInfo({ ...experienceDraft });
     }
 
     if (editingSection === "skills") {
       setSkillsInfo({
         ...skillsDraft,
-        learningGoals: [...skillsDraft.learningGoals],
-        skillInterests: [...skillsDraft.skillInterests],
-        learningMode: [...skillsDraft.learningMode],
+        skillsToAcquire: [...skillsDraft.skillsToAcquire],
+        industry: [...skillsDraft.industry],
+        technicalSkills: [...skillsDraft.technicalSkills],
+        softSkills: [...skillsDraft.softSkills],
+        skillGaps: [...skillsDraft.skillGaps],
+        certifications: [...skillsDraft.certifications],
+        preferredRole: [...skillsDraft.preferredRole],
+        workLocation: [...skillsDraft.workLocation],
+        trainingMotivation: [...skillsDraft.trainingMotivation],
+        portfolioEvidence: [...skillsDraft.portfolioEvidence],
       });
     }
 
     setProfessionalProfileCompleted(true);
-    setWorkExperienceCompleted(true);
     setSkillsDevelopmentCompleted(true);
     setDocumentsCompleted(true);
     setEditingSection(null);
@@ -2318,44 +2232,45 @@ export default function CorporateTraineePage() {
 
   const cancelProfile = () => {
     const emptyProfessionalInfo = {
-      careerGoals: "",
-      careerAspirations: "",
-      preferredRole: [] as string[],
-      preferredIndustry: [] as string[],
-      preferredLocation: [] as string[],
-      expectedSalary: "",
-    };
-
-    const emptyExperienceInfo = {
-      employmentStatus: "",
-      company: "",
-      role: "",
-      from: "",
-      to: "",
-      achievements: "",
-      description: "",
+      nationality: "",
+      language: [] as string[],
+      location: "",
+      education: "",
+      learning: [] as string[],
+      learningMode: [] as string[],
+      onlineExperience: "",
+      devices: [] as string[],
+      internetAccess: "",
+      learningTime: "",
+      hoursPerWeek: "",
+      contentFormat: [] as string[],
+      accessibilityNeeds: [] as string[],
     };
 
     const emptySkillsInfo = {
-      learningGoals: [] as string[],
-      skillInterests: [] as string[],
-      learningMode: [] as string[],
-      certifications: "",
-      issuer: "",
-      year: "",
-      credentialId: "",
-      skillName: "",
-      category: "",
-      domain: "",
-      proficiency: "",
-      resume: "",
+      careerSkills: "",
+      skillsToAcquire: [] as string[],
+      industry: [] as string[],
+      workDomain: "",
+      workExperience: "",
+      digitalLiteracy: "",
+      technicalSkills: [] as string[],
+      softSkills: [] as string[],
+      skillGaps: [] as string[],
+      certifications: [] as string[],
+      careerGoal: "",
+      preferredRole: [] as string[],
+      workLocation: [] as string[],
+      salaryRange: "",
+      workMode: "",
+      trainingMotivation: [] as string[],
+      portfolioEvidence: [] as string[],
       portfolio: "",
-      linkedinUrl: "",
-      githubUrl: "",
       instagramId: "",
       facebookUrl: "",
       twitterX: "",
-      portfolioEvidence: "",
+      githubUrl: "",
+      linkedinUrl: "",
     };
 
     setProfileImage(null);
@@ -2368,11 +2283,9 @@ export default function CorporateTraineePage() {
     setProfessionalInfo(emptyProfessionalInfo);
     setProfessionalDraft(emptyProfessionalInfo);
 
-    setExperienceInfo(emptyExperienceInfo);
-    setExperienceDraft(emptyExperienceInfo);
-
     setSkillsInfo(emptySkillsInfo);
     setSkillsDraft(emptySkillsInfo);
+    setCareerResumeFile(null);
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
@@ -2392,11 +2305,9 @@ export default function CorporateTraineePage() {
       });
 
     setProfessionalProfileCompleted(false);
-    setWorkExperienceCompleted(false);
     setSkillsDevelopmentCompleted(false);
     setDocumentsCompleted(false);
     setConfirmation(false);
-
     setEditingSection(null);
     setRegistrationLockedView(false);
     setSectionPopup(null);
@@ -2531,20 +2442,48 @@ export default function CorporateTraineePage() {
     const source =
       editingSection === "professional" ? professionalDraft : professionalInfo;
 
-    setProfessionalProfileCompleted(isCareerGoalsComplete(source));
+    const complete = Boolean(
+      source.nationality &&
+      source.language.length > 0 &&
+      source.location &&
+      source.education &&
+      source.learning.length > 0 &&
+      source.onlineExperience &&
+      source.devices.length > 0 &&
+      source.internetAccess &&
+      source.learningTime &&
+      source.hoursPerWeek &&
+      source.contentFormat.length > 0 &&
+      source.accessibilityNeeds.length > 0
+    );
+
+    setProfessionalProfileCompleted(complete);
   }, [editingSection, professionalDraft, professionalInfo]);
-
-  useEffect(() => {
-    const source =
-      editingSection === "experience" ? experienceDraft : experienceInfo;
-
-    setWorkExperienceCompleted(isWorkExperienceComplete(source));
-  }, [editingSection, experienceDraft, experienceInfo]);
 
   useEffect(() => {
     const source = editingSection === "skills" ? skillsDraft : skillsInfo;
 
-    setSkillsDevelopmentCompleted(isSkillsProfileComplete(source));
+    const complete = Boolean(
+      source.careerSkills &&
+      source.skillsToAcquire.length > 0 &&
+      source.industry.length > 0 &&
+      source.workDomain &&
+      source.workExperience &&
+      source.digitalLiteracy &&
+      source.technicalSkills.length > 0 &&
+      source.softSkills.length > 0 &&
+      source.skillGaps.length > 0 &&
+      source.certifications.length > 0 &&
+      source.careerGoal &&
+      source.preferredRole.length > 0 &&
+      source.workLocation.length > 0 &&
+      source.salaryRange &&
+      source.workMode &&
+      source.trainingMotivation.length > 0 &&
+      source.portfolioEvidence.length > 0
+    );
+
+    setSkillsDevelopmentCompleted(complete);
   }, [editingSection, skillsDraft, skillsInfo]);
 
   useEffect(() => {
@@ -2560,7 +2499,7 @@ export default function CorporateTraineePage() {
     profilePhotoCompleted,
     registrationCompleted,
     professionalProfileCompleted,
-    workExperienceCompleted && skillsDevelopmentCompleted,
+    skillsDevelopmentCompleted,
     documentsCompleted,
     confirmation,
   ];
@@ -2572,7 +2511,7 @@ export default function CorporateTraineePage() {
   );
 
   useEffect(() => {
-    document.title = "Corporate Trainee Profile | Neuro LXP";
+    document.title = "NGO Trainee Profile | Neuro LXP";
   }, []);
 
   useEffect(() => {
@@ -2606,7 +2545,7 @@ export default function CorporateTraineePage() {
             <div className="pageContent institutionPageContent">
             <div className="institutionHeadingRow">
               <div>
-                <h1>Corporate Trainee Profile</h1>
+                <h1>NGO Trainee Profile</h1>
                 <p>
                   Manage Your Identity, Access, Preferences, And Activity With Ease.
                 </p>
@@ -2664,7 +2603,7 @@ export default function CorporateTraineePage() {
 
                 <div className="institutionIdentityText">
                   <h2>Antony Thomas</h2>
-                  <div className="institutionRole">Corporate Trainee</div>
+                  <div className="institutionRole">NGO Trainee</div>
 
                   <div className="institutionActiveBadge">
                     <span className="institutionActiveDot" />
@@ -2720,7 +2659,7 @@ export default function CorporateTraineePage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Career Goals</span>
+                    <span>Personal &amp; Learning</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2746,14 +2685,14 @@ export default function CorporateTraineePage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {workExperienceCompleted && skillsDevelopmentCompleted ? (
+                    {skillsDevelopmentCompleted ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Work Experience</span>
+                    <span>Career &amp; Skills</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -2782,71 +2721,65 @@ export default function CorporateTraineePage() {
               />
 
               {registrationLockedView ? (
-                <div className="institutionGrid institutionFacultyRegistrationGrid">
+                <div className="institutionGrid">
                   <EditField label="Employee ID" value={registrationInfo.employeeId} locked />
                   <EditField label="Full Name" value={registrationInfo.fullName} locked />
-                  <EditField label="Corporate Email" value={registrationInfo.corporateEmail} locked />
-
-                  <EditField label="Mobile Number" value={registrationInfo.mobileNumber} locked />
                   <EditField label="Gender" value={registrationInfo.gender} locked />
                   <EditField label="Date of Birth" value={registrationInfo.dateOfBirth} locked />
-
-                  <EditField label="Business Unit" value={registrationInfo.businessUnit} locked />
-                  <EditField label="Department" value={registrationInfo.department} locked />
-                  <EditField label="Team" value={registrationInfo.team} locked />
-
-                  <EditField label="Designation" value={registrationInfo.designation} locked />
-                  <EditField label="Reporting Manager" value={registrationInfo.reportingManager} locked />
-                  <EditField label="Office Location" value={registrationInfo.officeLocation} locked />
-
-                  <EditField label="Employment Type" value={registrationInfo.employmentType} locked />
+                  <EditField label="Mobile Number" value={registrationInfo.mobileNumber} locked />
+                  <EditField label="Email" value={registrationInfo.email} locked />
+                  <EditField label="Address" value={registrationInfo.address} locked />
+                  <EditField label="Programme Name" value={registrationInfo.programmeName} locked />
+                  <EditField label="Project Name" value={registrationInfo.projectName} locked />
+                  <EditField label="Batch Name" value={registrationInfo.batchName} locked />
+                  <EditField label="Batch ID" value={registrationInfo.batchId} locked />
+                  <EditField label="Course Name" value={registrationInfo.courseName} locked />
+                  <EditField label="Enrollment Date" value={registrationInfo.enrollmentDate} locked />
+                  <EditField label="Trainer Name" value={registrationInfo.trainerName} locked />
+                  <EditField label="Center Name" value={registrationInfo.centerName} locked />
+                  <EditField label="Qualification" value={registrationInfo.qualification} locked />
+                  <EditField label="Occupation" value={registrationInfo.occupation} locked />
+                  <EditField label="Annual Income" value={registrationInfo.annualIncome} locked />
+                  <EditField label="Social Category" value={registrationInfo.socialCategory} locked />
+                  <EditField label="Organization Name" value={registrationInfo.organizationName} locked />
                   <EditField label="Employment Status" value={registrationInfo.employmentStatus} locked />
-                  <EditField label="Employee Grade" value={registrationInfo.employeeGrade} locked />
-
-                  <EditField label="Date of Joining" value={registrationInfo.dateOfJoining} locked />
-                  <EditField label="Current Role" value={registrationInfo.currentRole} locked />
-                  <EditField label="Assigned Learning Path" value={registrationInfo.assignedLearningPath} locked />
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultyRegistrationGrid">
+                <div className="institutionGrid">
                   <DisplayField label="Employee ID" value={registrationInfo.employeeId} />
                   <DisplayField label="Full Name" value={registrationInfo.fullName} />
-                  <DisplayField label="Corporate Email" value={registrationInfo.corporateEmail} />
-
-                  <DisplayField label="Mobile Number" value={registrationInfo.mobileNumber} />
                   <DisplayField label="Gender" value={registrationInfo.gender} />
                   <DisplayField label="Date of Birth" value={registrationInfo.dateOfBirth} />
-
-                  <DisplayField label="Business Unit" value={registrationInfo.businessUnit} />
-                  <DisplayField label="Department" value={registrationInfo.department} />
-                  <DisplayField label="Team" value={registrationInfo.team} />
-
-                  <DisplayField label="Designation" value={registrationInfo.designation} />
-                  <DisplayField label="Reporting Manager" value={registrationInfo.reportingManager} />
-                  <DisplayField label="Office Location" value={registrationInfo.officeLocation} />
-
-                  <DisplayField label="Employment Type" value={registrationInfo.employmentType} />
+                  <DisplayField label="Mobile Number" value={registrationInfo.mobileNumber} />
+                  <DisplayField label="Email" value={registrationInfo.email} />
+                  <DisplayField label="Address" value={registrationInfo.address} />
+                  <DisplayField label="Programme Name" value={registrationInfo.programmeName} />
+                  <DisplayField label="Project Name" value={registrationInfo.projectName} />
+                  <DisplayField label="Batch Name" value={registrationInfo.batchName} />
+                  <DisplayField label="Batch ID" value={registrationInfo.batchId} />
+                  <DisplayField label="Course Name" value={registrationInfo.courseName} />
+                  <DisplayField label="Enrollment Date" value={registrationInfo.enrollmentDate} />
+                  <DisplayField label="Trainer Name" value={registrationInfo.trainerName} />
+                  <DisplayField label="Center Name" value={registrationInfo.centerName} />
+                  <DisplayField label="Qualification" value={registrationInfo.qualification} />
+                  <DisplayField label="Occupation" value={registrationInfo.occupation} />
+                  <DisplayField label="Annual Income" value={registrationInfo.annualIncome} />
+                  <DisplayField label="Social Category" value={registrationInfo.socialCategory} />
+                  <DisplayField label="Organization Name" value={registrationInfo.organizationName} />
                   <DisplayField label="Employment Status" value={registrationInfo.employmentStatus} />
-                  <DisplayField label="Employee Grade" value={registrationInfo.employeeGrade} />
-
-                  <DisplayField label="Date of Joining" value={registrationInfo.dateOfJoining} />
-                  <DisplayField label="Current Role" value={registrationInfo.currentRole} />
-                  <DisplayField label="Assigned Learning Path" value={registrationInfo.assignedLearningPath} />
                 </div>
               )}
             </section>
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Career Goals"
-                iconSrc={images.skillsDevelopment}
+                title="Personal & Learning"
+                iconSrc={images.academicProfessional}
                 iconTone="green"
                 editing={editingSection === "professional"}
                 popupType={sectionPopup?.section === "professional" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "professional" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("professional")}
-                onSave={() => saveSectionEdit("professional")}
-                onCancel={() => cancelSectionEdit("professional")}
               />
 
               {flowPopup && flowPopupSection === "professional" && (
@@ -2857,401 +2790,172 @@ export default function CorporateTraineePage() {
               )}
 
               {editingSection === "professional" ? (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
+                <div className="institutionGrid">
                   <SelectField
-                    label="Career Goals"
-                    value={professionalDraft.careerGoals}
+                    label="Nationality"
+                    value={professionalDraft.nationality}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={[
-                      "Career Advancement",
-                      "Career Change",
-                      "First Job",
-                      "Higher Studies",
-                      "Entrepreneurship",
-                      "Leadership",
-                      "Freelancing",
-                      "Government Career",
-                    ]}
+                    options={["Indian", "American", "British", "Canadian", "Australian", "Other"]}
                     onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        careerGoals: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Career Aspirations"
-                    value={professionalDraft.careerAspirations}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Senior Data Analyst",
-                      "Data Scientist",
-                      "AI Engineer",
-                      "Technical Lead",
-                      "Product Manager",
-                      "Program Manager",
-                      "Entrepreneur",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        careerAspirations: value,
-                      }))
+                      setProfessionalDraft((current) => ({ ...current, nationality: value }))
                     }
                   />
 
                   <MultiSelectField
-                    label="Preferred Role"
-                    value={professionalDraft.preferredRole}
+                    label="Language"
+                    value={professionalDraft.language}
                     placeholder="Select"
-                    options={[
-                      "Data Analyst",
-                      "Data Scientist",
-                      "Business Analyst",
-                      "AI Engineer",
-                      "ML Engineer",
-                      "Software Developer",
-                      "Project Manager",
-                      "Product Manager",
-                    ]}
+                    options={["English", "Kannada", "Hindi", "Tamil", "Telugu", "Malayalam", "Marathi", "Other"]}
                     onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        preferredRole: value,
-                      }))
-                    }
-                  />
-
-                  <MultiSelectField
-                    label="Preferred Industry"
-                    value={professionalDraft.preferredIndustry}
-                    placeholder="Select"
-                    options={[
-                      "IT & Technology",
-                      "Banking & Finance",
-                      "Healthcare",
-                      "Education",
-                      "E-Commerce",
-                      "Manufacturing",
-                      "Consulting",
-                      "Government",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        preferredIndustry: value,
-                      }))
-                    }
-                  />
-
-                  <MultiSelectField
-                    label="Preferred Location"
-                    value={professionalDraft.preferredLocation}
-                    placeholder="Select"
-                    options={[
-                      "Bengaluru",
-                      "Hyderabad",
-                      "Chennai",
-                      "Mumbai",
-                      "Pune",
-                      "Delhi NCR",
-                      "Remote",
-                      "Anywhere in India",
-                    ]}
-                    onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        preferredLocation: value,
-                      }))
+                      setProfessionalDraft((current) => ({ ...current, language: value }))
                     }
                   />
 
                   <SelectField
-                    label="Expected Salary"
-                    value={professionalDraft.expectedSalary}
+                    label="Location"
+                    value={professionalDraft.location}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={[
-                      "Below ₹3 LPA",
-                      "₹3–5 LPA",
-                      "₹5–8 LPA",
-                      "₹8–12 LPA",
-                      "₹12–20 LPA",
-                      "₹20+ LPA",
-                    ]}
+                    options={["Bengaluru", "Mysuru", "Hubballi", "Mangaluru", "Chennai", "Hyderabad", "Mumbai", "Delhi NCR", "Other"]}
                     onChange={(value) =>
-                      setProfessionalDraft((current) => ({
-                        ...current,
-                        expectedSalary: value,
-                      }))
+                      setProfessionalDraft((current) => ({ ...current, location: value }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Education"
+                    value={professionalDraft.education}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["10th", "12th", "Diploma", "Undergraduate", "Postgraduate", "Doctoral", "Professional Certification"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, education: value }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Learning"
+                    value={professionalDraft.learning}
+                    placeholder="Select"
+                    options={["Commerce", "Finance", "Management", "HR", "IT", "Data Analytics", "AI & ML", "Leadership", "Entrepreneurship"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, learning: value }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Learning Mode"
+                    value={professionalDraft.learningMode}
+                    placeholder="Select"
+                    options={["Online", "Classroom", "Blended", "Self-paced", "Instructor-led", "Hands-on"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, learningMode: value }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Online Experience"
+                    value={professionalDraft.onlineExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Beginner", "Some Experience", "Experienced", "Advanced"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, onlineExperience: value }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Devices"
+                    value={professionalDraft.devices}
+                    placeholder="Select"
+                    options={["Laptop", "Desktop", "Tablet", "Mobile", "Shared Device"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, devices: value }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Internet Access"
+                    value={professionalDraft.internetAccess}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Broadband", "Wi-Fi", "Mobile Data", "Limited Connectivity", "No Reliable Access"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, internetAccess: value }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Learning Time"
+                    value={professionalDraft.learningTime}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Morning", "Afternoon", "Evening", "Night", "Flexible"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, learningTime: value }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Hours / Week"
+                    value={professionalDraft.hoursPerWeek}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Less than 2 Hours", "2–5 Hours", "6–10 Hours", "11–15 Hours", "16+ Hours"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, hoursPerWeek: value }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Content Format"
+                    value={professionalDraft.contentFormat}
+                    placeholder="Select"
+                    options={["Video", "PDF", "Presentation", "Interactive Course", "Quiz", "Webinar", "Audio", "Hands-on"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, contentFormat: value }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Accessibility Needs"
+                    value={professionalDraft.accessibilityNeeds}
+                    placeholder="Select"
+                    options={["None", "Visual Support", "Hearing Support", "Mobility Support", "Learning Support", "Assistive Technology", "Other"]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({ ...current, accessibilityNeeds: value }))
                     }
                   />
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
-                  <DisplayField
-                    label="Career Goals"
-                    value={professionalInfo.careerGoals}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Career Aspirations"
-                    value={professionalInfo.careerAspirations}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Preferred Role"
-                    value={professionalInfo.preferredRole.join(", ")}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Preferred Industry"
-                    value={professionalInfo.preferredIndustry.join(", ")}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Preferred Location"
-                    value={professionalInfo.preferredLocation.join(", ")}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Expected Salary"
-                    value={professionalInfo.expectedSalary}
-                    placeholder="Select"
-                  />
+                <div className="institutionGrid">
+                  <DisplayField label="Nationality" value={professionalInfo.nationality} placeholder="Select" />
+                  <DisplayField label="Language" value={professionalInfo.language.join(", ")} placeholder="Select" />
+                  <DisplayField label="Location" value={professionalInfo.location} placeholder="Select" />
+                  <DisplayField label="Education" value={professionalInfo.education} placeholder="Select" />
+                  <DisplayField label="Learning" value={professionalInfo.learning.join(", ")} placeholder="Select" />
+                  <DisplayField label="Learning Mode" value={professionalInfo.learningMode.join(", ")} placeholder="Select" />
+                  <DisplayField label="Online Experience" value={professionalInfo.onlineExperience} placeholder="Select" />
+                  <DisplayField label="Devices" value={professionalInfo.devices.join(", ")} placeholder="Select" />
+                  <DisplayField label="Internet Access" value={professionalInfo.internetAccess} placeholder="Select" />
+                  <DisplayField label="Learning Time" value={professionalInfo.learningTime} placeholder="Select" />
+                  <DisplayField label="Hours / Week" value={professionalInfo.hoursPerWeek} placeholder="Select" />
+                  <DisplayField label="Content Format" value={professionalInfo.contentFormat.join(", ")} placeholder="Select" />
+                  <DisplayField label="Accessibility Needs" value={professionalInfo.accessibilityNeeds.join(", ")} placeholder="Select" />
                 </div>
               )}
             </section>
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Work Experience"
-                iconSrc={images.academicProfessional}
-                iconTone="green"
-                editing={editingSection === "experience"}
-                popupType={sectionPopup?.section === "experience" ? sectionPopup.type : null}
-                popupMessage={sectionPopup?.section === "experience" ? sectionPopup.message : undefined}
-                onEdit={() => startSectionEdit("experience")}
-                onSave={() => saveSectionEdit("experience")}
-                onCancel={() => cancelSectionEdit("experience")}
-              />
-
-              {flowPopup && flowPopupSection === "experience" && (
-                <div className="institutionSectionFlowPopup" role="alert" aria-live="assertive">
-                  <IconImage src={images.sad} width={18} height={18} className="institutionInlinePopupIcon" />
-                  <span>{flowPopup}</span>
-                </div>
-              )}
-
-              {editingSection === "experience" ? (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
-                  <SelectField
-                    label="Employment Status"
-                    value={experienceDraft.employmentStatus}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Currently Employed",
-                      "Previously Employed",
-                      "Self-Employed",
-                      "Freelancing",
-                      "Internship",
-                      "Not Employed",
-                    ]}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        employmentStatus: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Company"
-                    value={experienceDraft.company}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Infosys",
-                      "TCS",
-                      "Wipro",
-                      "Accenture",
-                      "Deloitte",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        company: value,
-                      }))
-                    }
-                  />
-
-                  <SelectField
-                    label="Role"
-                    value={experienceDraft.role}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Junior Data Analyst",
-                      "Data Analyst",
-                      "Senior Data Analyst",
-                      "Software Developer",
-                      "Business Analyst",
-                      "Project Coordinator",
-                    ]}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        role: value,
-                      }))
-                    }
-                  />
-
-                  <CalendarDateField
-                    label="From"
-                    value={experienceDraft.from}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        from: value,
-                      }))
-                    }
-                  />
-
-                  <CalendarDateField
-                    label="To"
-                    value={experienceDraft.to}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        to: value,
-                      }))
-                    }
-                  />
-
-                  <EditField
-                    label="Achievements"
-                    value={experienceDraft.achievements}
-                    placeholder="Enter Achievements"
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        achievements: value,
-                      }))
-                    }
-                    visualIcon="edit"
-                  />
-
-                  <div
-                    className="institutionField institutionEditableField"
-                    style={{ gridColumn: "1 / -1", minHeight: "92px" }}
-                  >
-                    <div className="institutionFieldText">
-                      <label
-                        htmlFor="corporate-work-description"
-                        className="institutionFieldLabel"
-                      >
-                        Description (max 250 words)
-                      </label>
-                      <textarea
-                        id="corporate-work-description"
-                        className="institutionFieldInput institutionDescriptionTextarea"
-                        value={experienceDraft.description}
-                        placeholder="Enter Description"
-                        maxLength={250}
-                        rows={1}
-                        onInput={(event) => {
-                          const target = event.currentTarget;
-                          target.style.height = "auto";
-                          target.style.height = `${target.scrollHeight}px`;
-                        }}
-                        onChange={(event) =>
-                          setExperienceDraft((current) => ({
-                            ...current,
-                            description: event.target.value,
-                          }))
-                        }
-                        style={{
-                          minHeight: "48px",
-                          resize: "none",
-                          overflowY: "hidden",
-                        }}
-                      />
-                    </div>
-                    <span
-                      className="institutionFieldAction institutionFieldPencil"
-                      aria-hidden="true"
-                    >
-                      <IconImage src={images.edit} width={18} height={18} />
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
-                  <DisplayField
-                    label="Employment Status"
-                    value={experienceInfo.employmentStatus}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Company"
-                    value={experienceInfo.company}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="Role"
-                    value={experienceInfo.role}
-                    placeholder="Select"
-                  />
-                  <DisplayField
-                    label="From"
-                    value={experienceInfo.from}
-                    placeholder="dd/mm/yyyy"
-                  />
-                  <DisplayField
-                    label="To"
-                    value={experienceInfo.to}
-                    placeholder="dd/mm/yyyy"
-                  />
-                  <DisplayField
-                    label="Achievements"
-                    value={experienceInfo.achievements}
-                    placeholder="Enter Achievements"
-                  />
-                  <div
-                    className="institutionField"
-                    style={{ gridColumn: "1 / -1", minHeight: "92px" }}
-                  >
-                    <div className="institutionFieldLabel">
-                      Description (max 250 words)
-                    </div>
-                    <div
-                      className={`institutionFieldValue ${
-                        !experienceInfo.description ? "institutionPlaceholder" : ""
-                      }`}
-                    >
-                      {experienceInfo.description || "Enter Description"}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
-
-            <section className="institutionInformationCard">
-              <SectionHeader
-                title="Skills Profile"
+                title="Career & Skills"
                 iconSrc={images.skillsDevelopment}
                 iconTone="blue"
                 editing={editingSection === "skills"}
                 popupType={sectionPopup?.section === "skills" ? sectionPopup.type : null}
                 popupMessage={sectionPopup?.section === "skills" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("skills")}
-                onSave={() => saveSectionEdit("skills")}
-                onCancel={() => cancelSectionEdit("skills")}
               />
 
               {flowPopup && flowPopupSection === "skills" && (
@@ -3262,82 +2966,133 @@ export default function CorporateTraineePage() {
               )}
 
               {editingSection === "skills" ? (
-                <div className="institutionGrid institutionFacultySkillsGrid">
-                  <MultiSelectField
-                    label="Learning Goals"
-                    value={skillsDraft.learningGoals}
+                <div className="institutionGrid">
+                  <SelectField
+                    label="Career & Skills"
+                    value={skillsDraft.careerSkills}
                     placeholder="Select"
-                    options={[
-                      "Advance Data Analytics",
-                      "Learn AI/ML",
-                      "Improve Programming",
-                      "Develop Leadership",
-                      "Improve Communication",
-                      "Learn Cloud",
-                      "Prepare for Certification",
-                    ]}
+                    menuStyle="radio"
+                    options={["Postgraduate"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        learningGoals: value,
+                        careerSkills: value,
                       }))
                     }
                   />
 
                   <MultiSelectField
-                    label="Skill Interests"
-                    value={skillsDraft.skillInterests}
+                    label="Skills to Acquire"
+                    value={skillsDraft.skillsToAcquire}
                     placeholder="Select"
-                    options={[
-                      "Data Analytics",
-                      "AI",
-                      "Machine Learning",
-                      "Python",
-                      "Cloud Computing",
-                      "Cybersecurity",
-                      "Power BI",
-                      "SQL",
-                    ]}
+                    options={["Python", "Data Analytics", "AI/ML", "Cloud Computing", "Cybersecurity", "Power BI", "Leadership", "Communication"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        skillInterests: value,
+                        skillsToAcquire: value,
                       }))
                     }
                   />
 
                   <MultiSelectField
-                    label="Learning Mode"
-                    value={skillsDraft.learningMode}
+                    label="Industry"
+                    value={skillsDraft.industry}
                     placeholder="Select"
-                    options={[
-                      "Online",
-                      "Classroom",
-                      "Blended",
-                      "Self-paced",
-                      "Instructor-led",
-                      "Hands-on",
-                    ]}
+                    options={["IT & Technology", "Banking & Finance", "Healthcare", "Education", "Manufacturing", "E-Commerce", "Consulting", "Government"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        learningMode: value,
+                        industry: value,
                       }))
                     }
                   />
 
                   <SelectField
+                    label="Work Domain"
+                    value={skillsDraft.workDomain}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Software Development", "Data Analytics", "AI & ML", "HR", "Finance", "Marketing", "Training & L&D", "Operations", "Administration"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        workDomain: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Work Experience"
+                    value={skillsDraft.workExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["No Experience", "0–2 Years", "3–5 Years", "6–10 Years", "11–15 Years", "15+ Years"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        workExperience: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Digital Literacy"
+                    value={skillsDraft.digitalLiteracy}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Basic", "Intermediate", "Advanced", "Expert"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        digitalLiteracy: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Technical Skills"
+                    value={skillsDraft.technicalSkills}
+                    placeholder="Select"
+                    options={["Python", "Java", "SQL", "Excel", "Power BI", "JavaScript", "React", "Cloud", "LMS"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        technicalSkills: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Soft Skills"
+                    value={skillsDraft.softSkills}
+                    placeholder="Select"
+                    options={["Communication", "Leadership", "Teamwork", "Problem Solving", "Time Management", "Presentation", "Adaptability"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        softSkills: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Skill Gaps"
+                    value={skillsDraft.skillGaps}
+                    placeholder="Select"
+                    options={["Technical Skills", "Digital Skills", "Communication", "Leadership", "Domain Knowledge", "Project Management"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        skillGaps: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
                     label="Certifications"
                     value={skillsDraft.certifications}
                     placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Google Data Analytics",
-                      "AWS Cloud Practitioner",
-                      "Microsoft Azure Fundamentals",
-                      "Python for Data Science",
-                      "Machine Learning",
-                    ]}
+                    options={["PMP", "Google Data Analytics", "AWS", "Microsoft", "NPTEL", "TOT", "Scrum Master"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
@@ -3347,132 +3102,87 @@ export default function CorporateTraineePage() {
                   />
 
                   <SelectField
-                    label="Issuer"
-                    value={skillsDraft.issuer}
+                    label="Career Goal"
+                    value={skillsDraft.careerGoal}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={[
-                      "Google",
-                      "AWS",
-                      "Microsoft",
-                      "NPTEL",
-                      "IBM",
-                      "Coursera",
-                      "Udemy",
-                      "Cisco",
-                    ]}
+                    options={["Get First Job", "Career Advancement", "Career Change", "Become a Specialist", "Become a Manager", "Entrepreneurship", "Higher Studies"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        issuer: value,
+                        careerGoal: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Preferred Role"
+                    value={skillsDraft.preferredRole}
+                    placeholder="Select"
+                    options={["Data Analyst", "Software Developer", "Data Scientist", "AI Engineer", "HR Manager", "Project Manager", "Trainer"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        preferredRole: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Work Location"
+                    value={skillsDraft.workLocation}
+                    placeholder="Select"
+                    options={["Bengaluru", "Hyderabad", "Chennai", "Mumbai", "Pune", "Delhi NCR", "Remote", "Anywhere in India"]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        workLocation: value,
                       }))
                     }
                   />
 
                   <SelectField
-                    label="Year"
-                    value={skillsDraft.year}
+                    label="Salary Range"
+                    value={skillsDraft.salaryRange}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={["2026", "2025", "2024", "2023", "2022"]}
+                    options={["Below ₹3 LPA", "₹3–5 LPA", "₹5–8 LPA", "₹8–12 LPA", "₹12–20 LPA", "₹20+ LPA"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        year: value,
-                      }))
-                    }
-                  />
-
-                  <EditField
-                    label="Credential ID"
-                    value={skillsDraft.credentialId}
-                    placeholder="Enter Credential ID"
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        credentialId: value,
-                      }))
-                    }
-                    visualIcon="edit"
-                  />
-
-                  <SelectField
-                    label="Skill Name"
-                    value={skillsDraft.skillName}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Python",
-                      "SQL",
-                      "Power BI",
-                      "Excel",
-                      "Machine Learning",
-                      "Communication",
-                    ]}
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        skillName: value,
+                        salaryRange: value,
                       }))
                     }
                   />
 
                   <SelectField
-                    label="Category"
-                    value={skillsDraft.category}
+                    label="Work Mode"
+                    value={skillsDraft.workMode}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={[
-                      "Technical",
-                      "Digital",
-                      "Soft Skill",
-                      "Domain",
-                      "Leadership",
-                    ]}
+                    options={["On-site", "Hybrid", "Remote", "Flexible"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        category: value,
+                        workMode: value,
                       }))
                     }
                   />
 
-                  <SelectField
-                    label="Domain"
-                    value={skillsDraft.domain}
+                  <MultiSelectField
+                    label="Training Motivation"
+                    value={skillsDraft.trainingMotivation}
                     placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Data Analytics",
-                      "Data Science",
-                      "AI & ML",
-                      "Software Development",
-                      "Cloud Computing",
-                      "Business",
-                    ]}
+                    options={["Career Growth", "Job Placement", "Skill Improvement", "Certification", "Promotion", "Career Change", "Personal Development"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
-                        domain: value,
+                        trainingMotivation: value,
                       }))
                     }
                   />
 
-                  <SelectField
-                    label="Proficiency"
-                    value={skillsDraft.proficiency}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={["Beginner", "Intermediate", "Advanced", "Expert"]}
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        proficiency: value,
-                      }))
-                    }
-                  />
-
-                  <div className="institutionField institutionResumeUploadField">
+                  <div className="institutionField institutionCareerResumeField">
                     <div className="institutionFieldLabel">Resume</div>
 
                     <div className="institutionFilePicker">
@@ -3480,36 +3190,33 @@ export default function CorporateTraineePage() {
                         <input
                           className="institutionNativeFileInput"
                           type="file"
-                          name="resume"
+                          name="career-skills-resume"
                           aria-label="Resume"
                           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           onChange={(event) => {
-                            const file = event.target.files?.[0] ?? null;
-
-                            setSkillsDraft((current) => ({
-                              ...current,
-                              resume: file?.name ?? "",
-                            }));
-
+                            setCareerResumeFile(event.target.files?.[0] ?? null);
                             event.target.value = "";
                           }}
                         />
 
                         <span
                           className={`institutionChooseFileButton ${
-                            skillsDraft.resume
+                            careerResumeFile
                               ? "institutionChooseFileButtonUploaded"
                               : ""
                           }`}
                         >
                           <svg
                             className="institutionChooseFileIcon"
+                            width="14"
+                            height="14"
                             viewBox="0 0 24 24"
                             fill="none"
                             aria-hidden="true"
+                            focusable="false"
                           >
                             <path
-                              d="M12 16V4M12 4L7.5 8.5M12 4L16.5 8.5M5 14.5V19H19V14.5"
+                              d="M12 15V4M12 4L7.5 8.5M12 4L16.5 8.5M5 14.5V19H19V14.5"
                               stroke="currentColor"
                               strokeWidth="2"
                               strokeLinecap="round"
@@ -3521,7 +3228,7 @@ export default function CorporateTraineePage() {
                       </label>
 
                       <span className="institutionFileName">
-                        {skillsDraft.resume || "No File Chosen"}
+                        {careerResumeFile?.name || "No File Chosen"}
                       </span>
                     </div>
                   </div>
@@ -3536,7 +3243,6 @@ export default function CorporateTraineePage() {
                         portfolio: value,
                       }))
                     }
-                    visualIcon="edit"
                     validate={(value) =>
                       isValidWebAddress(value)
                         ? null
@@ -3545,48 +3251,7 @@ export default function CorporateTraineePage() {
                     onValidationError={(message) =>
                       showSectionError("skills", message)
                     }
-                  />
-
-                  <EditField
-                    label="LinkedIn"
-                    value={skillsDraft.linkedinUrl}
-                    placeholder="Enter LinkedIn"
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        linkedinUrl: value,
-                      }))
-                    }
                     visualIcon="edit"
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
-                  />
-
-                  <EditField
-                    label="GitHub URL"
-                    value={skillsDraft.githubUrl}
-                    placeholder="Enter GitHub URL"
-                    onChange={(value) =>
-                      setSkillsDraft((current) => ({
-                        ...current,
-                        githubUrl: value,
-                      }))
-                    }
-                    visualIcon="edit"
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
                   />
 
                   <EditField
@@ -3628,23 +3293,53 @@ export default function CorporateTraineePage() {
                     visualIcon="edit"
                   />
 
-                  <SelectField
+                  <EditField
+                    label="GitHub URL"
+                    value={skillsDraft.githubUrl}
+                    placeholder="Enter GitHub URL"
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        githubUrl: value,
+                      }))
+                    }
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid GitHub URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                    visualIcon="edit"
+                  />
+
+                  <EditField
+                    label="LinkedIn"
+                    value={skillsDraft.linkedinUrl}
+                    placeholder="Enter LinkedIn"
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        linkedinUrl: value,
+                      }))
+                    }
+                    validate={(value) =>
+                      isValidWebAddress(value)
+                        ? null
+                        : "Please enter a valid LinkedIn URL."
+                    }
+                    onValidationError={(message) =>
+                      showSectionError("skills", message)
+                    }
+                    visualIcon="edit"
+                  />
+
+                  <MultiSelectField
                     label="Portfolio Evidence"
                     value={skillsDraft.portfolioEvidence}
                     placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Academic Project",
-                      "Personal Project",
-                      "Internship Project",
-                      "Industry Project",
-                      "Hackathon Project",
-                      "Research Project",
-                      "Open Source Contribution",
-                      "Certification Project",
-                      "Case Study",
-                      "Freelance Project",
-                    ]}
+                    options={["Training Dashboard", "Academic Project", "Industry Project", "Hackathon", "Research Project", "Case Study", "Certification Project"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
@@ -3654,87 +3349,97 @@ export default function CorporateTraineePage() {
                   />
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultySkillsGrid">
+                <div className="institutionGrid">
                   <DisplayField
-                    label="Learning Goals"
-                    value={skillsInfo.learningGoals.join(", ")}
+                    label="Career & Skills"
+                    value={skillsInfo.careerSkills}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Skill Interests"
-                    value={skillsInfo.skillInterests.join(", ")}
+                    label="Skills to Acquire"
+                    value={skillsInfo.skillsToAcquire.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Learning Mode"
-                    value={skillsInfo.learningMode.join(", ")}
+                    label="Industry"
+                    value={skillsInfo.industry.join(", ")}
                     placeholder="Select"
                   />
-
+                  <DisplayField
+                    label="Work Domain"
+                    value={skillsInfo.workDomain}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Work Experience"
+                    value={skillsInfo.workExperience}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Digital Literacy"
+                    value={skillsInfo.digitalLiteracy}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Technical Skills"
+                    value={skillsInfo.technicalSkills.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Soft Skills"
+                    value={skillsInfo.softSkills.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Skill Gaps"
+                    value={skillsInfo.skillGaps.join(", ")}
+                    placeholder="Select"
+                  />
                   <DisplayField
                     label="Certifications"
-                    value={skillsInfo.certifications}
+                    value={skillsInfo.certifications.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Issuer"
-                    value={skillsInfo.issuer}
+                    label="Career Goal"
+                    value={skillsInfo.careerGoal}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Year"
-                    value={skillsInfo.year}
-                    placeholder="Select"
-                  />
-
-                  <DisplayField
-                    label="Credential ID"
-                    value={skillsInfo.credentialId}
-                    placeholder="Enter Credential ID"
-                  />
-                  <DisplayField
-                    label="Skill Name"
-                    value={skillsInfo.skillName}
+                    label="Preferred Role"
+                    value={skillsInfo.preferredRole.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Category"
-                    value={skillsInfo.category}
-                    placeholder="Select"
-                  />
-
-                  <DisplayField
-                    label="Domain"
-                    value={skillsInfo.domain}
+                    label="Work Location"
+                    value={skillsInfo.workLocation.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
-                    label="Proficiency"
-                    value={skillsInfo.proficiency}
+                    label="Salary Range"
+                    value={skillsInfo.salaryRange}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Work Mode"
+                    value={skillsInfo.workMode}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Motivation"
+                    value={skillsInfo.trainingMotivation.join(", ")}
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Resume"
-                    value={skillsInfo.resume}
-                    placeholder="No File Chosen"
+                    value={careerResumeFile?.name || ""}
+                    placeholder="Choose File"
                   />
-
                   <DisplayField
                     label="Portfolio"
                     value={skillsInfo.portfolio}
                     placeholder="Enter Portfolio"
                   />
-                  <DisplayField
-                    label="LinkedIn"
-                    value={skillsInfo.linkedinUrl}
-                    placeholder="Enter LinkedIn"
-                  />
-                  <DisplayField
-                    label="GitHub URL"
-                    value={skillsInfo.githubUrl}
-                    placeholder="Enter GitHub URL"
-                  />
-
                   <DisplayField
                     label="Instagram ID"
                     value={skillsInfo.instagramId}
@@ -3750,10 +3455,19 @@ export default function CorporateTraineePage() {
                     value={skillsInfo.twitterX}
                     placeholder="Enter Twitter / X"
                   />
-
+                  <DisplayField
+                    label="GitHub URL"
+                    value={skillsInfo.githubUrl}
+                    placeholder="Enter GitHub URL"
+                  />
+                  <DisplayField
+                    label="LinkedIn"
+                    value={skillsInfo.linkedinUrl}
+                    placeholder="Enter LinkedIn"
+                  />
                   <DisplayField
                     label="Portfolio Evidence"
-                    value={skillsInfo.portfolioEvidence}
+                    value={skillsInfo.portfolioEvidence.join(", ")}
                     placeholder="Select"
                   />
                 </div>
@@ -4002,15 +3716,7 @@ export default function CorporateTraineePage() {
 
                       if (event.target.checked && !professionalProfileCompleted) {
                         showFlowPopup(
-                          "Please complete Career Goals",
-                          "confirmation"
-                        );
-                        return;
-                      }
-
-                      if (event.target.checked && !workExperienceCompleted) {
-                        showFlowPopup(
-                          "Please complete Work Experience",
+                          "Please complete Trainer Profile",
                           "confirmation"
                         );
                         return;
@@ -4018,7 +3724,7 @@ export default function CorporateTraineePage() {
 
                       if (event.target.checked && !skillsDevelopmentCompleted) {
                         showFlowPopup(
-                          "Please complete Skills Profile",
+                          "Please complete Skills & Growth",
                           "confirmation"
                         );
                         return;
