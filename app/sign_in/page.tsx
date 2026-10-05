@@ -31,16 +31,14 @@ export default function LoginPage() {
 
   const actorOnly =
     actor === "Super Admin" ||
-    actor === "Platform Admin" ||
-    actor === "Institute Admin";
+    actor === "Platform Admin";
 
   const handleActorChange = (value: string) => {
     setActor(value);
 
     if (
       value === "Super Admin" ||
-      value === "Platform Admin" ||
-      value === "Institute Admin"
+      value === "Platform Admin"
     ) {
       setTenant("");
     }
