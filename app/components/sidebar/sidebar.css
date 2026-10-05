@@ -372,240 +372,6 @@
 
 
 /* =========================================================
-   MOBILE
-   Kept exactly as drawer behaviour.
-========================================================= */
-
-@media (max-width: 700px) {
-  .sidebar,
-  .dashboardLayout > .sidebar {
-    position: fixed;
-
-    top: 0;
-    right: 0;
-    left: auto;
-
-    width: 205px;
-    min-width: 205px;
-    max-width: 205px;
-
-    height: auto;
-    min-height: auto;
-
-    max-height: calc(100vh - 18px);
-    max-height: calc(100dvh - 18px);
-
-    padding: 0 0 12px;
-
-    display: block;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    background: transparent;
-
-    box-shadow: none;
-
-    pointer-events: none;
-
-    z-index: 2000;
-  }
-
-
-  .logoArea {
-    position: fixed;
-
-    top: 12px;
-    left: 16px;
-
-    width: 135px;
-    height: 55px;
-    min-height: 55px;
-
-    margin-bottom: 0;
-
-    padding-left: 0;
-
-    display: flex;
-    align-items: center;
-
-    pointer-events: none;
-
-    z-index: 2001;
-  }
-
-
-  .mainLogo {
-    width: 120px;
-    max-width: 120px;
-    height: auto;
-
-    object-fit: contain;
-
-    transform: none;
-  }
-
-
-  .sidebarNav,
-  .sidebarBottom {
-    display: none;
-  }
-
-
-  body.mobileSidebarOpen .sidebar,
-  body.mobileSidebarOpen .dashboardLayout > .sidebar {
-    top: 76px;
-    right: 10px;
-
-    width: 205px;
-    min-width: 205px;
-    max-width: 205px;
-
-    padding: 0 0 12px;
-
-    background: #DFE6E9;
-
-    border-radius: 7px;
-
-    box-shadow:
-      -8px -8px 16px #FFFFFF,
-      8px 8px 16px #C4C4C4;
-
-    pointer-events: auto;
-  }
-
-
-  body.mobileSidebarOpen .sidebarNav {
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 6px;
-
-    padding: 0;
-
-    overflow: visible;
-  }
-
-
-  body.mobileSidebarOpen .sidebarItem {
-    width: 100%;
-
-    height: 42px;
-    min-height: 42px;
-
-    flex: none;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    gap: 12px;
-
-    padding: 0 14px;
-
-    border-radius: 0;
-  }
-
-
-  body.mobileSidebarOpen .sidebarItem span {
-    display: inline;
-
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-
-  body.mobileSidebarOpen .dashboardItem {
-    color: #374151 !important;
-    background: #DFE6E9 !important;
-
-    box-shadow:
-      -4px -4px 8px #FFFFFF,
-      4px 4px 8px #C4C4C4 !important;
-  }
-
-
-  body.mobileSidebarOpen .dashboardItem span {
-    color: #374151 !important;
-  }
-
-
-  body.mobileSidebarOpen .sidebarBottom {
-    display: block;
-
-    margin-top: 60px;
-    margin-bottom: 0;
-
-    padding: 0 24px;
-  }
-
-
-  body.mobileSidebarOpen .logoutButton {
-    width: 100%;
-
-    height: 42px;
-    min-height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    gap: 12px;
-
-    padding: 0 14px;
-  }
-
-
-  body.mobileSidebarOpen .logoutButton span {
-    display: inline;
-
-    font-size: 14px;
-    font-weight: 500;
-  }
-}
-
-
-/* =========================================================
-   MOBILE CLOSED / OPEN
-========================================================= */
-
-@media (max-width: 700px) {
-  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar .sidebarNav,
-  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar .sidebarBottom,
-  body:not(.mobileSidebarOpen) .sidebar .sidebarNav,
-  body:not(.mobileSidebarOpen) .sidebar .sidebarBottom {
-    display: none !important;
-  }
-
-
-  body:not(.mobileSidebarOpen) .dashboardLayout > .sidebar,
-  body:not(.mobileSidebarOpen) .sidebar {
-    background: transparent !important;
-
-    box-shadow: none !important;
-
-    pointer-events: none !important;
-  }
-
-
-  body.mobileSidebarOpen .dashboardLayout > .sidebar .sidebarNav,
-  body.mobileSidebarOpen .sidebar .sidebarNav {
-    display: flex !important;
-
-    flex-direction: column !important;
-  }
-
-
-  body.mobileSidebarOpen .dashboardLayout > .sidebar .sidebarBottom,
-  body.mobileSidebarOpen .sidebar .sidebarBottom {
-    display: block !important;
-  }
-}
-
-
-/* =========================================================
    FINAL FORCE OVERRIDE
    This block is intentionally last so older sidebar rules
    cannot override the desktop / tablet spacing.
@@ -809,3 +575,129 @@
 
 /* Cursor leaves: existing normal raised shadow automatically returns */
 
+
+/* Shared mobile dropdown. Used by Sidebar.tsx on every tenant/actor page. */
+@media (max-width: 700px) {
+  /* The mobile logo is a separate portal, so menu scrolling never moves it. */
+  body > .logoArea[data-mobile-sidebar-logo] {
+    position: fixed !important;
+    top: 12px !important;
+    left: 16px !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 135px !important;
+    height: 55px !important;
+    min-height: 55px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    pointer-events: none;
+    transform: none !important;
+    z-index: 2001;
+  }
+
+  body > .logoArea[data-mobile-sidebar-logo] .mainLogo {
+    width: 120px !important;
+    max-width: 120px !important;
+    height: auto !important;
+    object-fit: contain;
+    transform: none !important;
+  }
+
+  /* Hide the server-rendered sidebar until its mobile portal is ready. */
+  body .sidebar[data-shared-sidebar]:not([data-mobile-sidebar]) {
+    display: none !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] {
+    position: fixed !important;
+    top: var(--mobile-sidebar-top, 80px) !important;
+    right: 10px !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 205px !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 20px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - var(--mobile-sidebar-top, 80px) - 12px) !important;
+    max-height: calc(100dvh - var(--mobile-sidebar-top, 80px) - 12px) !important;
+    flex: none !important;
+    margin: 0 !important;
+    padding: 0 0 12px !important;
+    box-sizing: border-box;
+    display: none !important;
+    background: #DFE6E9 !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    box-shadow: -8px -8px 16px #FFFFFF, 8px 8px 16px #C4C4C4 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 2000 !important;
+  }
+
+  body.mobileSidebarOpen > .sidebar[data-mobile-sidebar] {
+    display: block !important;
+    pointer-events: auto !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarNav {
+    position: static !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarItem,
+  body > .sidebar[data-mobile-sidebar] .logoutButton {
+    position: static !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    flex: 0 0 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    box-sizing: border-box;
+    transform: none !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarItem {
+    border-radius: 0 !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarItem span,
+  body > .sidebar[data-mobile-sidebar] .logoutButton span {
+    display: inline !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    white-space: nowrap;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarBottom {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 12px 0 0 !important;
+    padding: 0 24px !important;
+    box-sizing: border-box;
+    transform: none !important;
+  }
+}

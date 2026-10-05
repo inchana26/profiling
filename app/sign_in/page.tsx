@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "./signin.css";
 
-const TENANT_OPTIONS = [
+const ACTOR_OPTIONS = [
   "Super Admin",
   "Platform Admin",
   "Institute Admin",
@@ -14,7 +14,7 @@ const TENANT_OPTIONS = [
   "Student",
 ];
 
-const ACTOR_OPTIONS = [
+const TENANT_OPTIONS = [
   "University & College",
   "Skill Academy",
   "Bootcamp",
@@ -26,139 +26,135 @@ const ACTOR_OPTIONS = [
 export default function LoginPage() {
   const router = useRouter();
 
-  const [tenant, setTenant] = useState("");
   const [actor, setActor] = useState("");
+  const [tenant, setTenant] = useState("");
 
-  const tenantOnly =
-    tenant === "Super Admin" ||
-    tenant === "Platform Admin" ||
-    tenant === "Institute Admin";
+  const actorOnly =
+    actor === "Super Admin" ||
+    actor === "Platform Admin" ||
+    actor === "Institute Admin";
 
-  const handleTenantChange = (value: string) => {
-    setTenant(value);
+  const handleActorChange = (value: string) => {
+    setActor(value);
 
     if (
       value === "Super Admin" ||
       value === "Platform Admin" ||
       value === "Institute Admin"
     ) {
-      setActor("");
+      setTenant("");
     }
   };
 
   const handleLogin = () => {
-    if (!tenant) return;
-    if (!tenantOnly && !actor) return;
+    if (!actor) return;
+    if (!actorOnly && !tenant) return;
 
-    if (tenant === "Super Admin") {
+    if (actor === "Super Admin") {
       router.push("/super_admin");
       return;
     }
 
-    if (tenant === "Platform Admin") {
+    if (actor === "Platform Admin") {
       router.push("/platform_admin");
       return;
     }
 
-    if (tenant === "Institute Admin") {
+    if (actor === "Institute Admin") {
       router.push("/institution_admin");
       return;
     }
 
-    if (tenant === "Coordinator") {
-      if (actor === "University & College") {
+    if (actor === "Coordinator") {
+      if (tenant === "University & College") {
         router.push("/coordinator_university");
         return;
       }
 
-      if (actor === "Bootcamp") {
+      if (tenant === "Bootcamp") {
         router.push("/coordinator_bootcamp");
         return;
       }
 
-      if (actor === "Corporate") {
+      if (tenant === "Corporate") {
         router.push("/coordinator_corporate");
         return;
       }
 
-      if (actor === "Government") {
+      if (tenant === "Government") {
         router.push("/coordinator_government");
         return;
       }
 
-      if (actor === "NGO") {
+      if (tenant === "NGO") {
         router.push("/coordinator_ngo");
         return;
       }
     }
 
     /* Faculty navigation */
-    if (tenant === "Faculty") {
-      if (actor === "University & College") {
+    if (actor === "Faculty") {
+      if (tenant === "University & College") {
         router.push("/faculty_university");
         return;
       }
 
-      if (actor === "Skill Academy") {
+      if (tenant === "Skill Academy") {
         router.push("/faculty_skillacademy");
         return;
       }
 
-      if (actor === "Bootcamp") {
+      if (tenant === "Bootcamp") {
         router.push("/faculty_bootcamp");
         return;
       }
 
-      if (actor === "Corporate") {
+      if (tenant === "Corporate") {
         router.push("/faculty_corporate");
         return;
       }
 
-      if (actor === "Government") {
+      if (tenant === "Government") {
         router.push("/faculty_government");
         return;
       }
 
-      if (actor === "NGO") {
+      if (tenant === "NGO") {
         router.push("/faculty_ngo");
         return;
       }
     }
 
     /* Student navigation */
-    if (tenant === "Student") {
-      if (actor === "University & College") {
+    if (actor === "Student") {
+      if (tenant === "University & College") {
         router.push("/student_university");
         return;
       }
 
-      if (actor === "Bootcamp") {
+      if (tenant === "Bootcamp") {
         router.push("/student_bootcamp");
         return;
       }
 
-      if (actor === "Corporate") {
+      if (tenant === "Corporate") {
         router.push("/student_corporate");
         return;
       }
 
-      if (actor === "Government") {
+      if (tenant === "Government") {
         router.push("/student_government");
         return;
       }
 
-      if (actor === "NGO") {
+      if (tenant === "NGO") {
         router.push("/student_ngo");
         return;
       }
     }
 
-    // Add navigation for remaining Coordinator actors,
-    // Faculty and Student here.
-    console.log({
-      tenant,
-      actor,
-    });
+    // Existing fallback for combinations without a configured route.
+    console.log({ actor, tenant });
   };
 
   return (
@@ -180,62 +176,52 @@ export default function LoginPage() {
         </h1>
 
         <p className="loginSubtitle">
-          Select your tenant{tenantOnly ? "" : " and actor"}
+          Select your actor{actorOnly ? "" : " and tenant"}
         </p>
 
         <div className="loginForm">
           <div className="loginField">
-            <label htmlFor="tenant">Tenant</label>
+            <label htmlFor="actor">Actor</label>
 
             <div className="loginSelectWrap">
               <select
-                id="tenant"
-                value={tenant}
-                onChange={(event) =>
-                  handleTenantChange(event.target.value)
-                }
+                id="actor"
+                value={actor}
+                onChange={(event) => handleActorChange(event.target.value)}
               >
-                <option value="">Select Tenant</option>
+                <option value="">Select Actor</option>
 
-                {TENANT_OPTIONS.map((option) => (
+                {ACTOR_OPTIONS.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
                 ))}
               </select>
 
-              <span
-                className="loginSelectArrow"
-                aria-hidden="true"
-              />
+              <span className="loginSelectArrow" aria-hidden="true" />
             </div>
           </div>
 
-          {!tenantOnly && (
+          {!actorOnly && (
             <div className="loginField">
-              <label htmlFor="actor">Actor</label>
+              <label htmlFor="tenant">Tenant</label>
 
               <div className="loginSelectWrap">
                 <select
-                  id="actor"
-                  value={actor}
-                  onChange={(event) =>
-                    setActor(event.target.value)
-                  }
+                  id="tenant"
+                  value={tenant}
+                  onChange={(event) => setTenant(event.target.value)}
                 >
-                  <option value="">Select Actor</option>
+                  <option value="">Select Tenant</option>
 
-                  {ACTOR_OPTIONS.map((option) => (
+                  {TENANT_OPTIONS.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
                   ))}
                 </select>
 
-                <span
-                  className="loginSelectArrow"
-                  aria-hidden="true"
-                />
+                <span className="loginSelectArrow" aria-hidden="true" />
               </div>
             </div>
           )}
@@ -243,7 +229,7 @@ export default function LoginPage() {
           <button
             type="button"
             className="loginButton"
-            disabled={!tenant || (!tenantOnly && !actor)}
+            disabled={!actor || (!actorOnly && !tenant)}
             onClick={handleLogin}
           >
             Login
