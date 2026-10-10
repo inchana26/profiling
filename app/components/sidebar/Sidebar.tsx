@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import "./sidebar.css";
 
 const sidebarItems = [
@@ -21,6 +21,12 @@ const sidebarItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    document.body.classList.remove("mobileSidebarOpen");
+    router.replace("/sign_in");
+  };
 
   return (
     <aside className="sidebar">
@@ -63,7 +69,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebarBottom">
-        <button type="button" className="logoutButton">
+        <button type="button" className="logoutButton" onClick={handleLogout}>
           <Image
             src="/assets/superadminicons/log-out.svg"
             alt=""
