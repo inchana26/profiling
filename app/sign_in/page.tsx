@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -29,20 +30,37 @@ export default function LoginPage() {
   const [actor, setActor] = useState("");
   const [tenant, setTenant] = useState("");
 
+  // These roles do not need tenant selection.
   const actorOnly =
     actor === "Super Admin" ||
-    actor === "Platform Admin";
+    actor === "Platform Admin" ||
+    actor === "Institute Admin";
 
   const handleActorChange = (value: string) => {
     setActor(value);
 
     if (
       value === "Super Admin" ||
-      value === "Platform Admin"
+      value === "Platform Admin" ||
+      value === "Institute Admin"
     ) {
       setTenant("");
     }
   };
+
+  const handleTenantChange = (value: string) => {
+    setTenant(value);
+
+    // Coordinator is not available for Skill Academy.
+    if (value === "Skill Academy" && actor === "Coordinator") {
+      setActor("");
+    }
+  };
+
+  const availableActors =
+    tenant === "Skill Academy"
+      ? ACTOR_OPTIONS.filter((option) => option !== "Coordinator")
+      : ACTOR_OPTIONS;
 
   const handleLogin = () => {
     if (!actor) return;
@@ -130,6 +148,11 @@ export default function LoginPage() {
         return;
       }
 
+      if (tenant === "Skill Academy") {
+        router.push("/student_skillacademy");
+        return;
+      }
+
       if (tenant === "Bootcamp") {
         router.push("/student_bootcamp");
         return;
@@ -174,32 +197,11 @@ export default function LoginPage() {
         </h1>
 
         <p className="loginSubtitle">
-          Select your actor{actorOnly ? "" : " and tenant"}
+          Select your {actorOnly ? "actor" : "tenant and actor"}
         </p>
 
         <div className="loginForm">
-          <div className="loginField">
-            <label htmlFor="actor">Actor</label>
-
-            <div className="loginSelectWrap">
-              <select
-                id="actor"
-                value={actor}
-                onChange={(event) => handleActorChange(event.target.value)}
-              >
-                <option value="">Select Actor</option>
-
-                {ACTOR_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-
-              <span className="loginSelectArrow" aria-hidden="true" />
-            </div>
-          </div>
-
+          {/* Tenant dropdown - FIRST */}
           {!actorOnly && (
             <div className="loginField">
               <label htmlFor="tenant">Tenant</label>
@@ -208,7 +210,9 @@ export default function LoginPage() {
                 <select
                   id="tenant"
                   value={tenant}
-                  onChange={(event) => setTenant(event.target.value)}
+                  onChange={(event) =>
+                    handleTenantChange(event.target.value)
+                  }
                 >
                   <option value="">Select Tenant</option>
 
@@ -219,10 +223,41 @@ export default function LoginPage() {
                   ))}
                 </select>
 
-                <span className="loginSelectArrow" aria-hidden="true" />
+                <span
+                  className="loginSelectArrow"
+                  aria-hidden="true"
+                />
               </div>
             </div>
           )}
+
+          {/* Actor dropdown - SECOND */}
+          <div className="loginField">
+            <label htmlFor="actor">Actor</label>
+
+            <div className="loginSelectWrap">
+              <select
+                id="actor"
+                value={actor}
+                onChange={(event) =>
+                  handleActorChange(event.target.value)
+                }
+              >
+                <option value="">Select Actor</option>
+
+                {availableActors.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <span
+                className="loginSelectArrow"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
 
           <button
             type="button"
