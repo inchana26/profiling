@@ -5374,3 +5374,113 @@ body {
   }
 }
 
+
+/* SGVT multi-select values: display every selected item without truncation. */
+.institutionMultiSelectField {
+  height: auto !important;
+  min-height: 68px;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionSelectWrap {
+  width: 100%;
+  min-width: 0;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px !important;
+  max-height: none !important;
+  align-items: flex-start !important;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionMultiSelectSelectedText {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 24px;
+  text-align: left;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectArrow {
+  top: 12px !important;
+  right: 1px !important;
+  transform: translateY(-50%) !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectArrowOpen {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+.institutionMultiSelectSavedField {
+  height: auto !important;
+  min-height: 68px;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.institutionMultiSelectSavedField .institutionFieldValue {
+  display: block !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  max-height: none !important;
+}
+
+
+/* Government Student Profile — Documents only.
+   Two cards fill the full available row; no blank Profile Photo column.
+   All other page layouts and neumorphic styling remain unchanged. */
+.institutionDocumentsCard .institutionDocumentsGrid {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px;
+}
+.institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-column: auto !important;
+}
+
+/* Tablet and smaller laptop: each upload takes its own full-width row. */
+@media (max-width: 1180px) {
+  .institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Narrow mobile: keep dropdown, upload button, filename, and errors inside the card. */
+@media (max-width: 700px) {
+  .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+    max-width: 100% !important;
+  }
+  .institutionDocumentsCard .institutionGovernmentIdField.governmentIdProofField .institutionGovernmentIdPicker {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .institutionDocumentsCard .institutionDocumentUploadError {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-overflow: clip !important;
+  }
+}
+@media (max-width: 420px) {
+  .institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField) .institutionFilePicker,
+  .institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField) .institutionFilePreview {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    grid-template-areas: "choose" "filename" "error" !important;
+    row-gap: 6px !important;
+  }
+  .institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField) .institutionFileName {
+    width: 100% !important;
+    min-width: 0 !important;
+    grid-area: filename;
+  }
+}

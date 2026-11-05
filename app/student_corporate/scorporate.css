@@ -5462,3 +5462,176 @@ body {
   white-space: nowrap;
 }
 
+
+/* Corporate Student: show ALL selected multi-select values (edit and saved modes). */
+.institutionMultiSelectField {
+  height: auto !important;
+  min-height: 68px;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  min-height: 24px !important;
+  height: auto !important;
+  align-items: flex-start !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectCurrentValue {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 24px;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectArrow {
+  top: 50% !important;
+}
+.institutionMultiSelectDisplayField {
+  min-height: 68px;
+  height: auto !important;
+}
+.institutionMultiSelectDisplayField .institutionFieldValue {
+  display: block !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+/* Work Experience: keep the Company dropdown and optional custom name in the same grid cell. */
+.institutionCompanyOtherField {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start;
+}
+.institutionCompanyOtherField > .institutionField {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Work Experience: original layout by default. Only selecting Company = Other changes it. */
+.institutionWorkExperienceGrid > .institutionWorkExperienceRoleField {
+  grid-column: auto;
+}
+/* Normal: Status / Company / Role; From / To / Achievements; Description full width. */
+.institutionWorkExperienceGrid > .institutionWorkExperienceAchievementsField {
+  grid-column: auto;
+  min-width: 0;
+}
+.institutionWorkExperienceGrid > .institutionWorkExperienceDescriptionField {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+/* Other adds Company Name as the third item. Role then flows to the next row.
+   Achievements and Description share the last row only in this mode. */
+.institutionWorkExperienceGridOther > .institutionWorkExperienceAchievementsField {
+  grid-column: 1;
+}
+.institutionWorkExperienceGridOther > .institutionWorkExperienceDescriptionField {
+  grid-column: span 2;
+}
+.institutionWorkExperienceGrid .institutionWorkExperienceDescriptionField .institutionFieldValue {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .institutionWorkExperienceGrid > .institutionWorkExperienceAchievementsField,
+  .institutionWorkExperienceGridOther > .institutionWorkExperienceAchievementsField {
+    grid-column: auto;
+  }
+  .institutionWorkExperienceGrid > .institutionWorkExperienceDescriptionField,
+  .institutionWorkExperienceGridOther > .institutionWorkExperienceDescriptionField {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 767px) {
+  .institutionWorkExperienceGrid > .institutionWorkExperienceDescriptionField,
+  .institutionWorkExperienceGridOther > .institutionWorkExperienceDescriptionField {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* Corporate student Documents: responsive layout for the two remaining uploads.
+   Desktop styling and all non-document sections remain unchanged. */
+@media (min-width: 768px) and (max-width: 1180px) {
+  .institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px;
+  }
+  .institutionDocumentsCard .institutionDocumentsGrid > .institutionField:last-child {
+    grid-column: auto !important;
+  }
+  .institutionDocumentsCard .institutionGovernmentIdPicker {
+    max-width: 100% !important;
+  }
+}
+@media (max-width: 767px) {
+  .institutionDocumentsCard .institutionDocumentsGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+  }
+  .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+    grid-column: auto !important;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  .institutionDocumentsCard .institutionGovernmentIdPicker {
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+  }
+  .institutionDocumentsCard .institutionGovernmentIdPicker .institutionFileName {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .institutionDocumentsCard .institutionFilePicker,
+  .institutionDocumentsCard .institutionFilePreview {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+@media (max-width: 420px) {
+  .institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField)
+    .institutionFilePicker,
+  .institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField)
+    .institutionFilePreview {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    grid-template-areas: "choose" "filename" "error" !important;
+  }
+  .institutionDocumentsCard .institutionDocumentTypeWrap,
+  .institutionDocumentsCard .institutionDocumentTypeSelect {
+    max-width: 100% !important;
+  }
+}
+
+/* Documents: after removing Profile Photo, fill the entire available desktop row.
+   Existing tablet/mobile single-column rules above remain unchanged. */
+@media (min-width: 1181px) {
+  .institutionDocumentsCard .institutionDocumentsGrid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px;
+  }
+  .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+    grid-column: auto !important;
+    min-width: 0;
+    width: 100%;
+  }
+}

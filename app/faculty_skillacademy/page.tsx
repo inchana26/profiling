@@ -242,7 +242,9 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onFocus?: () => void;
   onBlur?: (value: string) => void;
+  maxLength?: number;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -254,7 +256,9 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onFocus,
   onBlur,
+  maxLength,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -283,6 +287,8 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
+            onFocus={onFocus}
             onChange={(event) => onChange?.(event.target.value)}
             onBlur={(event) => onBlur?.(event.target.value)}
           />
@@ -581,7 +587,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1011,10 +1017,12 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "professional" && !registrationCompleted) {
-      showFlowPopup(
-        "Please Complete Registration Data",
-        "professional"
-      );
+      const contactError = getRegistrationContactError();
+      if (contactError) {
+        showLiveSectionError("registration", contactError);
+      } else {
+        showFlowPopup("Please Complete Registration Data", "professional");
+      }
       return;
     }
 
@@ -1037,11 +1045,19 @@ export default function FacultyUniversityPage() {
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+  // Indian mobile numbers must have 10 digits and begin with 6, 7, 8 or 9.
+  const isValidPhoneNumber = (value: string) => /^[6-9]\d{9}$/.test(value.trim());
 
-  const isValidEmail = (value: string) =>
-    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+  const isValidEmail = (value: string) => {
+    const email = value.trim();
+    if (!email || email.length > 254 || /\s|\.\./.test(email)) return false;
+    const parts = email.split("@");
+    if (parts.length !== 2) return false;
+    const [local, domain] = parts;
+    return local.length <= 64 &&
+      /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?$/.test(local) &&
+      /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(domain);
+  };
 
   const clearSectionError = (section: SectionName, message?: string) => {
     setSectionPopup((current) => {
@@ -1057,15 +1073,24 @@ export default function FacultyUniversityPage() {
     });
   };
 
-  /* Live field validation popup:
-     stays visible while the current value is invalid and disappears
-     immediately when the user corrects it. */
+  /* Contact popups are shown on field exit or an attempt to proceed,
+     not during the user's first keystrokes. */
   const showLiveSectionError = (section: SectionName, message: string) => {
     setSectionPopup({
       section,
       type: "error",
       message,
     });
+  };
+
+  const getRegistrationContactError = () => {
+    if (!isValidEmail(registrationDraft.email)) return "Enter correct Email";
+    if (registrationDraft.alternateEmail.trim() &&
+        !isValidEmail(registrationDraft.alternateEmail)) return "Enter correct Alternate Email";
+    if (!isValidPhoneNumber(registrationDraft.mobileNumber)) return "Enter correct Mobile Number";
+    if (registrationDraft.alternatePhone.trim() &&
+        !isValidPhoneNumber(registrationDraft.alternatePhone)) return "Enter correct Alternate Phone Number";
+    return "";
   };
 
   /* Section completion is automatic. A check appears only when the
@@ -1178,6 +1203,13 @@ export default function FacultyUniversityPage() {
   };
 
   const saveProfile = () => {
+    if (profilePhotoCompleted && !registrationCompleted) {
+      const contactError = getRegistrationContactError();
+      if (contactError) {
+        showLiveSectionError("registration", contactError);
+        return;
+      }
+    }
     const nextIncompleteStep =
       !profilePhotoCompleted
         ? "Profile Photo"
@@ -1601,7 +1633,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Registration</span>
+                    <span>Registration Data</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -1683,31 +1715,16 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.email}
                     placeholder="Enter Email"
                     visualIcon="edit"
+                    onFocus={() => clearSectionError("registration", "Enter correct Email")}
                     onChange={(value) => {
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        email: value,
-                      }));
-
-                      const trimmedValue = value.trim();
-
-                      if (!trimmedValue) {
-                        clearSectionError("registration", "Enter a valid Email");
-                      } else if (!isValidEmail(trimmedValue)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Email"
-                        );
-                      } else {
-                        clearSectionError("registration", "Enter a valid Email");
-                      }
+                      setRegistrationDraft((current) => ({ ...current, email: value }));
+                      if (isValidEmail(value)) clearSectionError("registration", "Enter correct Email");
                     }}
                     onBlur={(value) => {
-                      if (!isValidEmail(value.trim())) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Email"
-                        );
+                      if (!isValidEmail(value)) {
+                        showLiveSectionError("registration", "Enter correct Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Email");
                       }
                     }}
                   />
@@ -1717,37 +1734,18 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     visualIcon="edit"
+                    onFocus={() => clearSectionError("registration", "Enter correct Alternate Email")}
                     onChange={(value) => {
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternateEmail: value,
-                      }));
-
-                      const trimmedValue = value.trim();
-
-                      if (!trimmedValue) {
-                        clearSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      } else if (!isValidEmail(trimmedValue)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
+                      setRegistrationDraft((current) => ({ ...current, alternateEmail: value }));
+                      if (!value.trim() || isValidEmail(value)) {
+                        clearSectionError("registration", "Enter correct Alternate Email");
                       }
                     }}
                     onBlur={(value) => {
-                      if (value.trim() && !isValidEmail(value.trim())) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
+                      if (value.trim() && !isValidEmail(value)) {
+                        showLiveSectionError("registration", "Enter correct Alternate Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Email");
                       }
                     }}
                   />
@@ -1755,38 +1753,21 @@ export default function FacultyUniversityPage() {
                     label="Mobile Number"
                     type="tel"
                     value={registrationDraft.mobileNumber}
+                    maxLength={10}
                     placeholder="Enter Mobile Number"
                     visualIcon="edit"
+                    onFocus={() => clearSectionError("registration", "Enter correct Mobile Number")}
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        mobileNumber: digits,
-                      }));
-
-                      if (!digits) {
-                        clearSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      } else if (!isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      }
+                      // Do not turn an invalid pasted value into a valid-looking number.
+                      if (!/^\d{0,10}$/.test(value)) return;
+                      setRegistrationDraft((current) => ({ ...current, mobileNumber: value }));
+                      if (isValidPhoneNumber(value)) clearSectionError("registration", "Enter correct Mobile Number");
                     }}
                     onBlur={(value) => {
                       if (!isValidPhoneNumber(value)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
+                        showLiveSectionError("registration", "Enter correct Mobile Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Mobile Number");
                       }
                     }}
                   />
@@ -1795,38 +1776,22 @@ export default function FacultyUniversityPage() {
                     label="Alternate Phone"
                     type="tel"
                     value={registrationDraft.alternatePhone}
+                    maxLength={10}
                     placeholder="Enter Alternate Phone"
                     visualIcon="edit"
+                    onFocus={() => clearSectionError("registration", "Enter correct Alternate Phone Number")}
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternatePhone: digits,
-                      }));
-
-                      if (!digits) {
-                        clearSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      } else if (!isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
+                      if (!/^\d{0,10}$/.test(value)) return;
+                      setRegistrationDraft((current) => ({ ...current, alternatePhone: value }));
+                      if (!value || isValidPhoneNumber(value)) {
+                        clearSectionError("registration", "Enter correct Alternate Phone Number");
                       }
                     }}
                     onBlur={(value) => {
                       if (value && !isValidPhoneNumber(value)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
+                        showLiveSectionError("registration", "Enter correct Alternate Phone Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Phone Number");
                       }
                     }}
                   />

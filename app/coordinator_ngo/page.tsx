@@ -187,6 +187,8 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -198,6 +200,8 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onFocus,
+  onBlur,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -227,6 +231,8 @@ function EditField({
             value={value}
             placeholder={placeholder}
             onChange={(event) => onChange?.(event.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         )}
       </div>
@@ -257,6 +263,25 @@ function EditField({
       )}
     </div>
   );
+}
+
+function isValidDateOfBirth(value: string): boolean {
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  const local = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  if (!iso && !local) return false;
+  const year = Number(iso ? iso[1] : local![3]);
+  const month = Number(iso ? iso[2] : local![2]);
+  const day = Number(iso ? iso[3] : local![1]);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const selected = new Date(0);
+  selected.setFullYear(year, month - 1, day);
+  selected.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return selected.getFullYear() === year &&
+    selected.getMonth() === month - 1 &&
+    selected.getDate() === day &&
+    selected.getTime() <= today.getTime();
 }
 
 type CalendarDateFieldProps = {
@@ -368,6 +393,8 @@ function CalendarDateField({
 
   const moveMonth = (amount: number) => {
     const next = new Date(displayYear, displayMonth + amount, 1);
+    if (next.getFullYear() > today.getFullYear() ||
+        (next.getFullYear() === today.getFullYear() && next.getMonth() > today.getMonth())) return;
     setDisplayMonth(next.getMonth());
     setDisplayYear(next.getFullYear());
   };
@@ -394,6 +421,7 @@ function CalendarDateField({
   }
 
   const chooseDate = (date: Date) => {
+    if (!isValidDateOfBirth(formatForState(date))) return;
     onChange(formatForState(date));
     setDisplayMonth(date.getMonth());
     setDisplayYear(date.getFullYear());
@@ -417,11 +445,14 @@ function CalendarDateField({
   };
 
   const selectMonth = (monthIndex: number) => {
+    if (displayYear > today.getFullYear() ||
+        (displayYear === today.getFullYear() && monthIndex > today.getMonth())) return;
     setDisplayMonth(monthIndex);
     setView("days");
   };
 
   const selectYear = (year: number) => {
+    if (year > today.getFullYear()) return;
     setDisplayYear(year);
     setView("days");
   };
@@ -513,6 +544,8 @@ function CalendarDateField({
                   type="button"
                   className="institutionCalendarRoundNav"
                   onClick={() => moveMonth(1)}
+                  disabled={displayYear > today.getFullYear() ||
+                    (displayYear === today.getFullYear() && displayMonth >= today.getMonth())}
                   aria-label="Next month"
                 >
                   ›
@@ -547,6 +580,7 @@ function CalendarDateField({
                           ? "institutionCalendarDaySelected"
                           : ""
                       }`}
+                      disabled={!isValidDateOfBirth(formatForState(date))}
                       onClick={() => chooseDate(date)}
                     >
                       {date.getDate()}
@@ -568,6 +602,8 @@ function CalendarDateField({
                       ? "institutionCalendarChoiceSelected"
                       : ""
                   }`}
+                  disabled={displayYear > today.getFullYear() ||
+                    (displayYear === today.getFullYear() && index > today.getMonth())}
                   onClick={() => selectMonth(index)}
                 >
                   {month}
@@ -600,6 +636,7 @@ function CalendarDateField({
                   onClick={() =>
                     setYearPageStart((current) => current + 12)
                   }
+                  disabled={yearPageStart + 12 > today.getFullYear()}
                   aria-label="Next years"
                 >
                   ›
@@ -619,6 +656,7 @@ function CalendarDateField({
                         ? "institutionCalendarChoiceSelected"
                         : ""
                     }`}
+                    disabled={year > today.getFullYear()}
                     onClick={() => selectYear(year)}
                   >
                     {year}
@@ -1318,6 +1356,15 @@ export default function FacultyUniversityPage() {
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  const [contactFieldsTouched, setContactFieldsTouched] = useState({
+    officialEmail: false,
+    alternateEmail: false,
+    mobileNumber: false,
+    alternatePhone: false,
+  });
+  const [activeContactField, setActiveContactField] = useState<
+    "officialEmail" | "alternateEmail" | "mobileNumber" | "alternatePhone" | null
+  >(null);
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
@@ -1334,13 +1381,13 @@ export default function FacultyUniversityPage() {
   }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
 
   const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+    /^[6-9]\d{9}$/.test(value);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
   const registrationFormComplete = Boolean(
-    registrationDraft.dateOfBirth &&
+    isValidDateOfBirth(registrationDraft.dateOfBirth) &&
       registrationDraft.gender &&
       registrationDraft.highestQualification &&
       registrationDraft.officialEmail.trim() &&
@@ -1384,7 +1431,6 @@ export default function FacultyUniversityPage() {
 
   const documentsFormComplete = Boolean(
     governmentIdDocumentType.trim() &&
-      documentFiles["Profile Photo"] &&
       documentFiles["Government ID Proof"] &&
       documentFiles["Supporting Documents"]
   );
@@ -1423,48 +1469,44 @@ export default function FacultyUniversityPage() {
     setDocumentsCompleted(documentsStepComplete);
   }, [documentsStepComplete]);
 
-  /* Show live email/phone errors in the existing Registration popup spot. */
+  /* Contact errors appear only after leaving an invalid field, not while typing. */
   useEffect(() => {
     if (editingSection !== "registration") return;
 
     const officialEmail = registrationDraft.officialEmail.trim();
     const alternateEmail = registrationDraft.alternateEmail.trim();
-    const mobileNumber = registrationDraft.mobileNumber.replace(/\D/g, "");
-    const alternatePhone =
-      registrationDraft.alternatePhone.replace(/\D/g, "");
+    const mobileNumber = registrationDraft.mobileNumber;
+    const alternatePhone = registrationDraft.alternatePhone;
 
     let message: string | null = null;
-
-    if (officialEmail && !isValidEmail(officialEmail)) {
-      message = "Enter a valid Official Email";
-    } else if (alternateEmail && !isValidEmail(alternateEmail)) {
-      message = "Enter a valid Alternate Email";
-    } else if (mobileNumber && !isValidPhoneNumber(mobileNumber)) {
-      message = "Mobile Number must be 10 digits";
-    } else if (alternatePhone && !isValidPhoneNumber(alternatePhone)) {
-      message = "Alternate Phone must be 10 digits";
+    if (contactFieldsTouched.officialEmail && activeContactField !== "officialEmail" &&
+        !isValidEmail(officialEmail)) {
+      message = "Enter correct Official Email";
+    } else if (contactFieldsTouched.alternateEmail && activeContactField !== "alternateEmail" &&
+               !isValidEmail(alternateEmail)) {
+      message = "Enter correct Alternate Email";
+    } else if (contactFieldsTouched.mobileNumber && activeContactField !== "mobileNumber" &&
+               !isValidPhoneNumber(mobileNumber)) {
+      message = "Enter correct Mobile Number";
+    } else if (contactFieldsTouched.alternatePhone && activeContactField !== "alternatePhone" &&
+               !isValidPhoneNumber(alternatePhone)) {
+      message = "Enter correct Alternate Phone Number";
     }
 
     setSectionPopup((current) => {
       if (message) {
-        return {
-          section: "registration",
-          type: "error",
-          message,
-        };
+        if (current?.section === "registration" && current.type === "error" &&
+            current.message === message) return current;
+        return { section: "registration", type: "error", message };
       }
-
-      if (
-        current?.section === "registration" &&
-        current.type === "error"
-      ) {
-        return null;
-      }
-
-      return current;
+      return current?.section === "registration" && current.type === "error"
+        ? null
+        : current;
     });
   }, [
     editingSection,
+    contactFieldsTouched,
+    activeContactField,
     registrationDraft.officialEmail,
     registrationDraft.alternateEmail,
     registrationDraft.mobileNumber,
@@ -1487,43 +1529,45 @@ export default function FacultyUniversityPage() {
 
   const commitCurrentSection = (section: SectionName) => {
     if (section === "registration") {
+      if (!isValidDateOfBirth(registrationDraft.dateOfBirth)) {
+        showSectionError("registration", "Enter correct Date of Birth");
+        return false;
+      }
       const officialEmail = registrationDraft.officialEmail.trim();
       const alternateEmail = registrationDraft.alternateEmail.trim();
 
-      if (officialEmail && !isValidEmail(officialEmail)) {
+      if (!isValidEmail(officialEmail)) {
         showSectionError(
           "registration",
-          "Enter a valid Official Email"
+          "Enter correct Official Email"
         );
         return false;
       }
 
-      if (alternateEmail && !isValidEmail(alternateEmail)) {
+      if (!isValidEmail(alternateEmail)) {
         showSectionError(
           "registration",
-          "Enter a valid Alternate Email"
+          "Enter correct Alternate Email"
         );
         return false;
       }
 
       if (
-        registrationDraft.mobileNumber &&
         !isValidPhoneNumber(registrationDraft.mobileNumber)
       ) {
         showSectionError(
           "registration",
-          "Mobile Number must be 10 digits"
+          "Enter correct Mobile Number"
         );
         return false;
       }
 
       if (
-        registrationDraft.alternatePhone &&
         !isValidPhoneNumber(registrationDraft.alternatePhone)
       ) {
         showSectionError(
           "registration",
-          "Alternate Phone must be 10 digits"
+          "Enter correct Alternate Phone Number"
         );
         return false;
       }
@@ -1647,6 +1691,8 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "registration") {
+      setContactFieldsTouched({ officialEmail: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
+      setActiveContactField(null);
       setRegistrationDraft({ ...registrationInfo });
     }
 
@@ -1738,6 +1784,8 @@ export default function FacultyUniversityPage() {
 
     setRegistrationInfo(initialRegistration);
     setRegistrationDraft(initialRegistration);
+    setContactFieldsTouched({ officialEmail: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
+    setActiveContactField(null);
 
     setProfessionalInfo(initialProfessional);
     setProfessionalDraft(initialProfessional);
@@ -2224,6 +2272,11 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Official Email"
                     type="email"
+                    onFocus={() => setActiveContactField("officialEmail")}
+                    onBlur={() => {
+                      setActiveContactField(null);
+                      setContactFieldsTouched((current) => ({ ...current, officialEmail: true }));
+                    }}
                     value={registrationDraft.officialEmail}
                     placeholder="Enter Official Email"
                     visualIcon="edit"
@@ -2238,6 +2291,11 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Alternate Email"
                     type="email"
+                    onFocus={() => setActiveContactField("alternateEmail")}
+                    onBlur={() => {
+                      setActiveContactField(null);
+                      setContactFieldsTouched((current) => ({ ...current, alternateEmail: true }));
+                    }}
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     visualIcon="edit"
@@ -2252,6 +2310,11 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Mobile Number"
                     type="tel"
+                    onFocus={() => setActiveContactField("mobileNumber")}
+                    onBlur={() => {
+                      setActiveContactField(null);
+                      setContactFieldsTouched((current) => ({ ...current, mobileNumber: true }));
+                    }}
                     value={registrationDraft.mobileNumber}
                     placeholder="Enter Mobile Number"
                     visualIcon="edit"
@@ -2266,6 +2329,11 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Alternate Phone"
                     type="tel"
+                    onFocus={() => setActiveContactField("alternatePhone")}
+                    onBlur={() => {
+                      setActiveContactField(null);
+                      setContactFieldsTouched((current) => ({ ...current, alternatePhone: true }));
+                    }}
                     value={registrationDraft.alternatePhone}
                     placeholder="Enter Alternate Phone"
                     visualIcon="edit"
@@ -2926,7 +2994,7 @@ export default function FacultyUniversityPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${

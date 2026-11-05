@@ -785,8 +785,7 @@ button {
   transform: translateY(4px);
 }
 
-/* Profile Photo + Supporting Documents:
-   keep Choose File fixed in the first 124px column before and after upload. */
+/* Resume file picker: keep the original Choose File button and filename alignment. */
 .institutionDocumentsCard
   .institutionUploadField:not(.institutionGovernmentIdField)
   .institutionFilePicker,
@@ -5321,4 +5320,147 @@ body {
   .superAdminPage.institutionAdminPage .institutionPageContent {
     padding-top: 6px !important;
   }
+}
+
+/* University Student only: display every multi-select choice without ellipsis. */
+.institutionMultiSelectField {
+  height: auto !important;
+  min-height: 68px;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionSelectWrap {
+  width: 100% !important;
+  min-width: 0;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  min-height: 28px !important;
+  height: auto !important;
+  align-items: flex-start !important;
+  padding-right: 38px !important;
+}
+.institutionMultiSelectField .institutionSelectCurrentValue,
+.institutionMultiSelectField .institutionSelectPlaceholderValue,
+.institutionMultiSelectSavedField .institutionFieldValue {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+}
+.institutionMultiSelectSavedField {
+  height: auto !important;
+  min-height: 68px;
+}
+/* Profile Photo error uses the existing neumorphic popup style, without resizing the card. */
+.institutionOverviewCard { position: relative; }
+.institutionProfilePhotoErrorPopup {
+  position: absolute;
+  right: 18px;
+  top: 10px;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(420px, 60%);
+  padding: 7px 12px;
+  color: #c94f05;
+  background: #dfe6e9;
+  border: 1px solid #e59a67;
+  border-radius: 7px;
+  box-shadow: -4px -4px 8px #fff, 4px 4px 8px #c4c4c4;
+  font-family: "Segoe UI", Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+.institutionProfilePhotoErrorPopup span { white-space: normal; overflow-wrap: anywhere; }
+.institutionProfilePhotoErrorPopup img { flex: 0 0 18px; }
+@media (max-width: 720px) {
+  .institutionProfilePhotoErrorPopup {
+    right: 8px;
+    top: 8px;
+    max-width: calc(100% - 16px);
+  }
+}
+
+/* Targeted University Student validation changes. Keep existing neumorphic layout. */
+.institutionEditFieldError {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  color: #C94F05;
+  font-size: 12px;
+  line-height: 17px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.institutionEditableField:has(.institutionEditFieldError) {
+  align-items: flex-start;
+  min-height: 68px;
+}
+.institutionSavedProfileLink {
+  color: #2D4CC8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.institutionSavedProfileLink:hover,
+.institutionSavedProfileLink:focus-visible { color: #1A3498; }
+/* Documents: only Government ID Proof and Resume. Profile Photo stays in the top avatar area. */
+.institutionDocumentsCard .institutionDocumentsGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.institutionDocumentsCard .institutionDocumentsGrid .institutionField:last-child {
+  grid-column: auto;
+}
+/* Do not crop document-specific validation text. */
+.institutionDocumentsCard .institutionDocumentUploadError,
+.institutionDocumentsCard .institutionGovernmentIdField.governmentIdProofField .institutionDocumentUploadError {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  line-height: 17px !important;
+}
+.institutionDocumentsCard .institutionGovernmentIdField.governmentIdProofField {
+  height: auto !important;
+  max-height: none !important;
+}
+.institutionDocumentsCard .institutionInformationHeaderHasPopup .institutionInlinePopup {
+  max-width: min(470px, 100%);
+  height: auto;
+  min-height: 38px;
+  padding: 7px 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.institutionDocumentsCard .institutionInformationHeaderHasPopup .institutionInlinePopup > span:last-child {
+  display: block;
+  max-height: none;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+@media (max-width: 767px) {
+  .institutionDocumentsCard .institutionDocumentsGrid { grid-template-columns: 1fr; }
+  .institutionDocumentsCard .institutionInformationHeaderHasPopup .institutionInlinePopup { max-width: min(320px, 100%); }
+}
+/* Allow two-line and longer upload explanations without clipping either row. */
+.institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField) .institutionFilePicker,
+.institutionDocumentsCard .institutionUploadField:not(.institutionGovernmentIdField) .institutionFilePreview {
+  grid-template-rows: 36px auto !important;
+}
+.institutionDocumentsCard .institutionGovernmentIdField.governmentIdProofField .institutionGovernmentIdPicker {
+  grid-template-rows: 36px auto !important;
 }

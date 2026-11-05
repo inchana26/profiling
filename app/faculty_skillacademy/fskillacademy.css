@@ -6382,3 +6382,21 @@ body {
   }
 }
 
+
+/* Skill Academy Faculty: show every chosen multi-select value without ellipsis.
+   Scoped to MultiSelectField only; single-select controls stay unchanged. */
+.superAdminPage.institutionAdminPage .institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px;
+}
+
+.superAdminPage.institutionAdminPage .institutionMultiSelectField .institutionSelectCurrentValue {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal;
+}

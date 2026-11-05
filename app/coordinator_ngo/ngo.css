@@ -5168,3 +5168,43 @@ body {
   }
 }
 
+
+
+/* NGO Coordinator Documents: two remaining uploads, no unused third column.
+   Scoped rules leave all other sections and desktop components unchanged. */
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+}
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-column: auto !important;
+  box-sizing: border-box !important;
+}
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionFilePicker,
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionFilePreview {
+  max-width: 100%;
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid {
+    gap: 14px !important;
+  }
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+    max-width: 100% !important;
+  }
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionFileName {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

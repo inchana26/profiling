@@ -184,6 +184,8 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
+  maxLength?: number;
   className?: string;
   visualIcon?: "edit" | "lock" | "select";
 };
@@ -195,6 +197,8 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onBlur,
+  maxLength,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -223,7 +227,9 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => onChange?.(event.target.value)}
+            onBlur={onBlur}
           />
         )}
       </div>
@@ -397,6 +403,22 @@ type DateFieldProps = {
   placeholder?: string;
 };
 
+// Only real calendar dates up to the user's current local date are valid DOBs.
+const isValidCoordinatorDOB = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const parsed = new Date(0);
+  parsed.setFullYear(year, month - 1, day);
+  parsed.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day &&
+    parsed.getTime() <= today.getTime();
+};
+
 type CalendarView = "days" | "months" | "years";
 
 const CALENDAR_MONTHS = [
@@ -543,12 +565,17 @@ function DateField({
 
   const moveMonth = (amount: number) => {
     const next = new Date(displayYear, displayMonth + amount, 1);
+    const today = new Date();
+    if (next.getFullYear() > today.getFullYear() ||
+      (next.getFullYear() === today.getFullYear() && next.getMonth() > today.getMonth())) return;
     setDisplayMonth(next.getMonth());
     setDisplayYear(next.getFullYear());
   };
 
   const selectDay = (year: number, month: number, day: number) => {
-    onChange(formatDate(year, month, day));
+    const nextDOB = formatDate(year, month, day);
+    if (!isValidCoordinatorDOB(nextDOB)) return;
+    onChange(nextDOB);
     setDisplayYear(year);
     setDisplayMonth(month);
     setOpen(false);
@@ -572,6 +599,11 @@ function DateField({
   });
 
   const selected = value ? new Date(`${value}T00:00:00`) : null;
+  const todayForDOB = new Date();
+  const currentDOBYear = todayForDOB.getFullYear();
+  const currentDOBMonth = todayForDOB.getMonth();
+  const monthIsCurrentOrLater = displayYear > currentDOBYear ||
+    (displayYear === currentDOBYear && displayMonth >= currentDOBMonth);
 
   return (
     <div className="institutionField institutionEditableField institutionDateField" ref={popupRef}>
@@ -638,7 +670,7 @@ function DateField({
             <button type="button" className="institutionCalendarSelect institutionCalendarYearSelect" onClick={() => { setYearPageStart(Math.floor(displayYear / 12) * 12); setView("years"); }}>
               <span>{displayYear}</span><span>⌄</span>
             </button>
-            <button type="button" className="institutionCalendarArrow" onClick={() => moveMonth(1)} aria-label="Next month">›</button>
+            <button type="button" className="institutionCalendarArrow" onClick={() => moveMonth(1)} disabled={monthIsCurrentOrLater} aria-label="Next month">›</button>
           </div>
 
           {view === "days" && (
@@ -654,6 +686,7 @@ function DateField({
                       type="button"
                       key={`${cell.year}-${cell.month}-${cell.day}-${index}`}
                       className={`institutionCalendarDay ${cell.muted ? "institutionCalendarMuted" : ""} ${isSelected ? "institutionCalendarSelected" : ""}`}
+                      disabled={!isValidCoordinatorDOB(formatDate(cell.year, cell.month, cell.day))}
                       onClick={() => selectDay(cell.year, cell.month, cell.day)}
                     >{cell.day}</button>
                   );
@@ -665,7 +698,7 @@ function DateField({
           {view === "months" && (
             <div className="institutionCalendarMonths">
               {CALENDAR_MONTHS.map((month, index) => (
-                <button type="button" key={month} className="institutionCalendarChoice" onClick={() => { setDisplayMonth(index); setView("days"); }}>
+                <button type="button" key={month} className="institutionCalendarChoice" disabled={displayYear > currentDOBYear || (displayYear === currentDOBYear && index > currentDOBMonth)} onClick={() => { setDisplayMonth(index); setView("days"); }}>
                   {month}
                 </button>
               ))}
@@ -677,11 +710,11 @@ function DateField({
               <div className="institutionCalendarYearRange">
                 <button type="button" className="institutionCalendarRoundArrow" onClick={() => setYearPageStart((current) => current - 12)} aria-label="Previous years">‹</button>
                 <strong>{yearPageStart} - {yearPageStart + 11}</strong>
-                <button type="button" className="institutionCalendarRoundArrow" onClick={() => setYearPageStart((current) => current + 12)} aria-label="Next years">›</button>
+                <button type="button" className="institutionCalendarRoundArrow" disabled={yearPageStart + 12 > currentDOBYear} onClick={() => setYearPageStart((current) => current + 12)} aria-label="Next years">›</button>
               </div>
               <div className="institutionCalendarYears">
                 {Array.from({ length: 12 }, (_, index) => yearPageStart + index).map((year) => (
-                  <button type="button" key={year} className="institutionCalendarChoice" onClick={() => { setDisplayYear(year); setView("days"); }}>
+                  <button type="button" key={year} className="institutionCalendarChoice" disabled={year > currentDOBYear} onClick={() => { setDisplayYear(year); setView("days"); }}>
                     {year}
                   </button>
                 ))}
@@ -1362,6 +1395,51 @@ const createResearchInnovationRecord = (
   additionalDetails: "",
 });
 
+// Research fields: limits are enforced without showing character counters.
+const RESEARCH_TITLE_LIMIT = 100;
+const RESEARCH_AGENCY_LIMIT = 100;
+const RESEARCH_LINK_LIMIT = 500;
+
+const sanitizeResearchName = (value: string, maxLength: number): string =>
+  value.replace(/[^\p{L} ]/gu, "").replace(/ {2,}/g, " ").replace(/^ /, "").slice(0, maxLength);
+
+const isValidResearchName = (value: string, maxLength: number): boolean => {
+  const text = value.trim();
+  return text.length >= 2 && text.length <= maxLength &&
+    /^[\p{L}]+(?: [\p{L}]+)*$/u.test(text);
+};
+
+const isValidResearchLink = (value: string): boolean => {
+  const text = value.trim();
+  if (!text || text.length > RESEARCH_LINK_LIMIT || /\s/.test(text)) return false;
+  try {
+    const parsed = new URL(text);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    if (parsed.username || parsed.password) return false;
+    // Require a proper web domain, not an unqualified identifier.
+    const hostLabels = parsed.hostname.split(".");
+    return hostLabels.length >= 2 && hostLabels.every(label =>
+      label.length > 0 && label.length <= 63 &&
+      /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(label)
+    ) && /^[A-Za-z]{2,63}$/.test(hostLabels[hostLabels.length - 1]);
+  } catch {
+    return false;
+  }
+};
+
+const getResearchValidationError = (activity: ResearchInnovationRecord): string | null => {
+  if (!isValidResearchName(activity.title, RESEARCH_TITLE_LIMIT)) {
+    return "Enter correct Title.";
+  }
+  if (!isValidResearchName(activity.organizationAgency, RESEARCH_AGENCY_LIMIT)) {
+    return "Enter correct Organization / Agency (letters and spaces only).";
+  }
+  if (!isValidResearchLink(activity.link)) {
+    return "Enter correct Link URL";
+  }
+  return null;
+};
+
 export default function CoordinatorUniversityPage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -1435,7 +1513,6 @@ export default function CoordinatorUniversityPage() {
   const [confirmation, setConfirmation] = useState(false);
 
   const [documentFileStatus, setDocumentFileStatus] = useState({
-    profilePhoto: false,
     govtIdProof: false,
     supportingDocuments: false,
   });
@@ -1443,13 +1520,11 @@ export default function CoordinatorUniversityPage() {
   /* Document file names follow Save / Cancel exactly like the other fields.
      Draft names are shown while editing. Saved names are shown after Save. */
   const [savedDocumentFileNames, setSavedDocumentFileNames] = useState({
-    profilePhoto: "",
     govtIdProof: "",
     supportingDocuments: "",
   });
 
   const [documentFileNamesDraft, setDocumentFileNamesDraft] = useState({
-    profilePhoto: "",
     govtIdProof: "",
     supportingDocuments: "",
   });
@@ -1540,7 +1615,7 @@ export default function CoordinatorUniversityPage() {
     );
 
   const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+    /^[6-9]\d{9}$/.test(value);
 
   const validateRegistrationContactFields = () => {
     const allRegistrationFieldsFilled = Object.values(registrationDraft).every(
@@ -1550,6 +1625,13 @@ export default function CoordinatorUniversityPage() {
     if (!allRegistrationFieldsFilled) {
       showRegistrationValidationPopup(
         "Please Fill All Registration Data Fields"
+      );
+      return false;
+    }
+
+    if (!isValidCoordinatorDOB(registrationDraft.dateOfBirth)) {
+      showRegistrationValidationPopup(
+        "Enter a valid Date of Birth. Future dates are not allowed."
       );
       return false;
     }
@@ -1570,14 +1652,14 @@ export default function CoordinatorUniversityPage() {
 
     if (!isValidPhoneNumber(registrationDraft.mobileNumber)) {
       showRegistrationValidationPopup(
-        "Mobile Number must be 10 digits"
+        "Enter correct Mobile Number"
       );
       return false;
     }
 
     if (!isValidPhoneNumber(registrationDraft.alternatePhone)) {
       showRegistrationValidationPopup(
-        "Alternate Phone must be 10 digits"
+        "Enter correct Alternate Phone Number"
       );
       return false;
     }
@@ -1605,7 +1687,7 @@ export default function CoordinatorUniversityPage() {
     assignedBatch: "",
     academicYear: "",
     reportingAuthority: "",
-    status: "eg. Active",
+    status: "Active",
   });
 
   const [researchInnovationInfo, setResearchInnovationInfo] = useState<
@@ -1629,6 +1711,7 @@ export default function CoordinatorUniversityPage() {
   ).every((value) => value.trim().length > 0);
 
   const registrationContactsValid =
+    isValidCoordinatorDOB(registrationCompletionSource.dateOfBirth) &&
     isValidEmail(registrationCompletionSource.officialEmail) &&
     isValidEmail(registrationCompletionSource.alternateEmail) &&
     isValidPhoneNumber(registrationCompletionSource.mobileNumber) &&
@@ -1656,7 +1739,8 @@ export default function CoordinatorUniversityPage() {
         activity.additionalDetails,
       ].every((value) => value.trim().length > 0);
 
-      return allActivityFieldsFilled && Boolean(researchProofStatus[activity.id]);
+      return allActivityFieldsFilled && !getResearchValidationError(activity) &&
+        Boolean(researchProofStatus[activity.id]);
     });
 
   const researchInnovationSectionCompleted =
@@ -1672,7 +1756,6 @@ export default function CoordinatorUniversityPage() {
 
   const documentsFieldsCompleted =
     Boolean(documentsCompletionType) &&
-    Boolean(documentsCompletionNames.profilePhoto) &&
     Boolean(documentsCompletionNames.govtIdProof) &&
     Boolean(documentsCompletionNames.supportingDocuments);
 
@@ -1723,6 +1806,11 @@ export default function CoordinatorUniversityPage() {
     }
 
     if (section === "researchInnovation") {
+      const fieldError = researchInnovationDraft.map(getResearchValidationError).find(Boolean);
+      if (fieldError) {
+        showSequenceValidation("researchInnovation", fieldError);
+        return false;
+      }
       if (!researchInnovationSectionCompleted) {
         showSequenceValidation(
           "researchInnovation",
@@ -1745,7 +1833,6 @@ export default function CoordinatorUniversityPage() {
       }
 
       const allDocumentsUploaded =
-        Boolean(documentFileNamesDraft.profilePhoto) &&
         Boolean(documentFileNamesDraft.govtIdProof) &&
         Boolean(documentFileNamesDraft.supportingDocuments);
 
@@ -1768,7 +1855,6 @@ export default function CoordinatorUniversityPage() {
       setSavedGovernmentDocumentType(governmentDocumentTypeDraft);
       setSavedDocumentFileNames(documentFileNamesDraft);
       setDocumentFileStatus({
-        profilePhoto: true,
         govtIdProof: true,
         supportingDocuments: true,
       });
@@ -1837,7 +1923,6 @@ export default function CoordinatorUniversityPage() {
       setGovernmentDocumentTypeDraft(savedGovernmentDocumentType);
       setDocumentFileNamesDraft(savedDocumentFileNames);
       setDocumentFileStatus({
-        profilePhoto: Boolean(savedDocumentFileNames.profilePhoto),
         govtIdProof: Boolean(savedDocumentFileNames.govtIdProof),
         supportingDocuments: Boolean(savedDocumentFileNames.supportingDocuments),
       });
@@ -1866,7 +1951,7 @@ export default function CoordinatorUniversityPage() {
       assignedBatch: "",
       academicYear: "",
       reportingAuthority: "",
-      status: "eg. Active",
+      status: "Active",
     };
 
     const blankResearch = createResearchInnovationRecord(
@@ -1888,17 +1973,14 @@ export default function CoordinatorUniversityPage() {
     setSavedGovernmentDocumentType("");
     setGovernmentDocumentTypeDraft("");
     setSavedDocumentFileNames({
-      profilePhoto: "",
       govtIdProof: "",
       supportingDocuments: "",
     });
     setDocumentFileNamesDraft({
-      profilePhoto: "",
       govtIdProof: "",
       supportingDocuments: "",
     });
     setDocumentFileStatus({
-      profilePhoto: false,
       govtIdProof: false,
       supportingDocuments: false,
     });
@@ -1927,9 +2009,10 @@ export default function CoordinatorUniversityPage() {
     }
 
     if (!researchInnovationSectionCompleted) {
+      const fieldError = researchCompletionSource.map(getResearchValidationError).find(Boolean);
       showSequenceValidation(
         "researchInnovation",
-        "Please fill all Research fields and upload Proof."
+        fieldError || "Please fill all Research fields and upload Proof."
       );
       return;
     }
@@ -2287,14 +2370,19 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                     type="tel"
                     value={registrationDraft.mobileNumber}
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
+                      const message = "Enter correct Mobile Number";
+                      // Reject oversized or nonnumeric input instead of silently
+                      // shortening an invalid pasted number to a valid one.
+                      if (/\D/.test(value) || value.length > 10) {
+                        showLiveRegistrationValidationPopup(message);
+                        return;
+                      }
+                      const digits = value;
 
                       setRegistrationDraft((current) => ({
                         ...current,
                         mobileNumber: digits,
                       }));
-
-                      const message = "Mobile Number must be 10 digits";
                       if (digits && !isValidPhoneNumber(digits)) {
                         showLiveRegistrationValidationPopup(message);
                       } else {
@@ -2310,14 +2398,17 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                     type="tel"
                     value={registrationDraft.alternatePhone}
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
+                      const message = "Enter correct Alternate Phone Number";
+                      if (/\D/.test(value) || value.length > 10) {
+                        showLiveRegistrationValidationPopup(message);
+                        return;
+                      }
+                      const digits = value;
 
                       setRegistrationDraft((current) => ({
                         ...current,
                         alternatePhone: digits,
                       }));
-
-                      const message = "Alternate Phone must be 10 digits";
                       if (digits && !isValidPhoneNumber(digits)) {
                         showLiveRegistrationValidationPopup(message);
                       } else {
@@ -2547,15 +2638,19 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                           label="Title"
                           value={activity.title}
                           placeholder="Enter activity title"
-                          onChange={(value) =>
+                          maxLength={RESEARCH_TITLE_LIMIT}
+                          onChange={(value) => {
+                            const next = sanitizeResearchName(value, RESEARCH_TITLE_LIMIT);
                             setResearchInnovationDraft((current) =>
-                              current.map((item) =>
-                                item.id === activity.id
-                                  ? { ...item, title: value }
-                                  : item
-                              )
-                            )
-                          }
+                              current.map((item) => item.id === activity.id ? { ...item, title: next } : item)
+                            );
+                            if (next !== value) showSequenceValidation("researchInnovation", "Enter correct Title");
+                          }}
+                          onBlur={() => {
+                            if (!isValidResearchName(activity.title, RESEARCH_TITLE_LIMIT)) {
+                              showSequenceValidation("researchInnovation", "Enter correct Title");
+                            }
+                          }}
                                                   visualIcon="edit"
                         />
 
@@ -2591,15 +2686,19 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                           label="Organization / Agency"
                           value={activity.organizationAgency}
                           placeholder="Enter organization or agency"
-                          onChange={(value) =>
+                          maxLength={RESEARCH_AGENCY_LIMIT}
+                          onChange={(value) => {
+                            const next = sanitizeResearchName(value, RESEARCH_AGENCY_LIMIT);
                             setResearchInnovationDraft((current) =>
-                              current.map((item) =>
-                                item.id === activity.id
-                                  ? { ...item, organizationAgency: value }
-                                  : item
-                              )
-                            )
-                          }
+                              current.map((item) => item.id === activity.id ? { ...item, organizationAgency: next } : item)
+                            );
+                            if (next !== value) showSequenceValidation("researchInnovation", "Enter correct Organization / Agency");
+                          }}
+                          onBlur={() => {
+                            if (!isValidResearchName(activity.organizationAgency, RESEARCH_AGENCY_LIMIT)) {
+                              showSequenceValidation("researchInnovation", "Enter correct Organization / Agency (letters and spaces only).");
+                            }
+                          }}
                                                   visualIcon="edit"
                         />
 
@@ -2607,15 +2706,17 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                           label="Link"
                           value={activity.link}
                           placeholder="Enter activity link"
-                          onChange={(value) =>
+                          maxLength={RESEARCH_LINK_LIMIT}
+                          onChange={(value) => {
                             setResearchInnovationDraft((current) =>
-                              current.map((item) =>
-                                item.id === activity.id
-                                  ? { ...item, link: value }
-                                  : item
-                              )
-                            )
-                          }
+                              current.map((item) => item.id === activity.id ? { ...item, link: value.slice(0, RESEARCH_LINK_LIMIT) } : item)
+                            );
+                          }}
+                          onBlur={() => {
+                            if (!isValidResearchLink(activity.link)) {
+                              showSequenceValidation("researchInnovation", "Enter correct URL Link");
+                            }
+                          }}
                                                   visualIcon="edit"
                         />
 
@@ -2778,28 +2879,20 @@ const addResearchInnovationActivity = (afterIndex?: number) => {
                 onEdit={() => startSectionEdit("documents")}
               />
 
+              <style>{`
+                @media (min-width: 1101px) {
+                  .institutionDocumentsCard .institutionDocumentsGrid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                  }
+                }
+                @media (max-width: 1100px) {
+                  .institutionDocumentsCard .institutionDocumentsGrid {
+                    grid-template-columns: minmax(0, 1fr) !important;
+                  }
+                }
+              `}</style>
+
               <div className="institutionGrid institutionDocumentsGrid">
-                <UploadField
-                  label="Profile Photo"
-                  editing={isDocumentsEditing}
-                  fileName={
-                    isDocumentsEditing
-                      ? documentFileNamesDraft.profilePhoto
-                      : savedDocumentFileNames.profilePhoto
-                  }
-                  onFileNameChange={(fileName) =>
-                    setDocumentFileNamesDraft((current) => ({
-                      ...current,
-                      profilePhoto: fileName,
-                    }))
-                  }
-                  onFileStatusChange={(hasFile) =>
-                    setDocumentFileStatus((current) => ({
-                      ...current,
-                      profilePhoto: hasFile,
-                    }))
-                  }
-                />
                 <GovernmentIdUploadField
                   editing={isDocumentsEditing}
                   documentType={

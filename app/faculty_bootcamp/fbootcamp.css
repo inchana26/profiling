@@ -4987,3 +4987,47 @@ body {
   filter: brightness(0) !important;
 }
 
+
+
+/* Bootcamp Faculty: show every selected multi-select value without ellipsis.
+   Applies only to multi-select fields (single-select styles remain unchanged). */
+.superAdminPage.institutionAdminPage .institutionMultiValueField {
+  height: auto !important;
+  max-height: none !important;
+}
+.superAdminPage.institutionAdminPage .institutionMultiValueField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px !important;
+}
+.superAdminPage.institutionAdminPage .institutionMultiValueField .institutionMultiSelectValue,
+.superAdminPage.institutionAdminPage .institutionMultiValueDisplay .institutionFieldValue {
+  display: block !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+.superAdminPage.institutionAdminPage .institutionMultiValueField .institutionMultiSelectValue {
+  flex: 1 1 auto;
+}
+
+/* Bootcamp Faculty: prevent browser autofill and selection tint on contact input. */
+.superAdminPage.institutionAdminPage .institutionContactField .institutionFieldInput {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.superAdminPage.institutionAdminPage .institutionContactField .institutionFieldInput:-webkit-autofill,
+.superAdminPage.institutionAdminPage .institutionContactField .institutionFieldInput:-webkit-autofill:hover,
+.superAdminPage.institutionAdminPage .institutionContactField .institutionFieldInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #DFE6E9 inset !important;
+  -webkit-text-fill-color: #2F3547 !important;
+  caret-color: #2F3547;
+}
+.superAdminPage.institutionAdminPage .institutionContactField .institutionFieldInput::selection {
+  color: #2F3547;
+  background: #DFE6E9;
+}

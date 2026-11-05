@@ -186,6 +186,9 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  maxLength?: number;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -197,6 +200,9 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onFocus,
+  onBlur,
+  maxLength,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -225,6 +231,9 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
+            onFocus={onFocus}
+            onBlur={onBlur}
             onChange={(event) => onChange?.(event.target.value)}
           />
         )}
@@ -931,7 +940,22 @@ export default function FacultyUniversityPage() {
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  // Contact validation runs after leaving a field, never during its first keystrokes.
+  const [contactFieldsTouched, setContactFieldsTouched] = useState({
+    email: false,
+    alternateEmail: false,
+    mobileNumber: false,
+    alternatePhone: false,
+  });
+  const [activeContactField, setActiveContactField] = useState<
+    "email" | "alternateEmail" | "mobileNumber" | "alternatePhone" | null
+  >(null);
+  const markContactBlur = (field: keyof typeof contactFieldsTouched) => {
+    setActiveContactField(null);
+    setContactFieldsTouched((current) => ({ ...current, [field]: true }));
+  };
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
+  const [publicationsTouched, setPublicationsTouched] = useState(false);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
@@ -950,16 +974,25 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "professional" && !registrationFormComplete) {
-      showFlowPopup(
-        "Please Complete Registration Data",
-        "professional"
-      );
+      const contactError = getRegistrationContactError();
+      if (contactError) {
+        setSectionPopup({ section: "registration", type: "error", message: contactError });
+      } else {
+        showFlowPopup("Please Complete Registration Data", "professional");
+      }
+      return;
+    }
+
+    if (editingSection === "professional" && section !== "professional" &&
+        !isValidPublication(professionalDraft.publications)) {
+      setPublicationsTouched(true);
+      setSectionPopup({ section: "professional", type: "error", message: "Enter correct Publications" });
       return;
     }
 
     if (section === "skills" && !professionalFormComplete) {
       showFlowPopup(
-        "Please Complete Academic & Professional Profile",
+        "Please Complete Academic Profile",
         "skills"
       );
       return;
@@ -976,10 +1009,18 @@ export default function FacultyUniversityPage() {
     setSectionPopup(null);
 
     if (section === "registration") {
+      setContactFieldsTouched({
+        email: false,
+        alternateEmail: false,
+        mobileNumber: false,
+        alternatePhone: false,
+      });
+      setActiveContactField(null);
       setRegistrationDraft({ ...registrationInfo });
     }
 
     if (section === "professional") {
+      setPublicationsTouched(false);
       setProfessionalDraft({
         ...professionalInfo,
         areasOfExpertise: [...professionalInfo.areasOfExpertise],
@@ -1008,10 +1049,42 @@ export default function FacultyUniversityPage() {
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string) => /^\d{10}$/.test(value);
+  // A publication may contain letters, digits, and ordinary citation punctuation.
+  // It should not accept symbol-only or malformed text. A blank value remains optional.
+  const PUBLICATIONS_MAX_LENGTH = 250;
+  const isValidPublication = (value: string) => {
+    const title = value.trim();
+    if (!title) return true;
+    return (
+      title.length >= 3 &&
+      title.length <= PUBLICATIONS_MAX_LENGTH &&
+      /[\p{L}]/u.test(title) &&
+      /^[\p{L}\p{N}][\p{L}\p{N}\s.,:;!?()&'"\/+#%=\[\]\-–—]*$/u.test(title)
+    );
+  };
 
-  const isValidEmail = (value: string) =>
-    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+  const isValidPhoneNumber = (value: string) => /^[6-9]\d{9}$/.test(value);
+
+  const isValidEmail = (value: string) => {
+    const email = value.trim();
+    if (!email || email.length > 254 || /\s|\.\./.test(email)) return false;
+    const parts = email.split("@");
+    if (parts.length !== 2) return false;
+    const [local, domain] = parts;
+    return local.length <= 64 &&
+      /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?$/.test(local) &&
+      /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(domain);
+  };
+
+  const getRegistrationContactError = () => {
+    if (!isValidEmail(registrationDraft.email)) return "Enter correct Email";
+    if (registrationDraft.alternateEmail.trim() &&
+        !isValidEmail(registrationDraft.alternateEmail)) return "Enter correct Alternate Email";
+    if (!isValidPhoneNumber(registrationDraft.mobileNumber)) return "Enter correct Mobile Number";
+    if (registrationDraft.alternatePhone.trim() &&
+        !isValidPhoneNumber(registrationDraft.alternatePhone)) return "Enter correct Alternate Phone Number";
+    return "";
+  };
 
   const registrationFormComplete = Boolean(
     profilePhotoCompleted &&
@@ -1043,7 +1116,8 @@ export default function FacultyUniversityPage() {
       professionalDraft.academicRole.length > 0 &&
       professionalDraft.researchArea.length > 0 &&
       professionalDraft.researchProjects.length > 0 &&
-      professionalDraft.studentGuidance.length > 0
+      professionalDraft.studentGuidance.length > 0 &&
+      isValidPublication(professionalDraft.publications)
   );
 
   const skillsFormComplete = Boolean(
@@ -1088,8 +1162,12 @@ export default function FacultyUniversityPage() {
 
   useEffect(() => {
     if (editingSection === "professional") {
-      setProfessionalInfo({
+      setProfessionalInfo((current) => ({
         ...professionalDraft,
+        // Keep the previous valid read-only value until the entered publication is valid.
+        publications: isValidPublication(professionalDraft.publications)
+          ? professionalDraft.publications
+          : current.publications,
         areasOfExpertise: [...professionalDraft.areasOfExpertise],
         coursesTaught: [...professionalDraft.coursesTaught],
         teachingLevel: [...professionalDraft.teachingLevel],
@@ -1097,7 +1175,7 @@ export default function FacultyUniversityPage() {
         researchArea: [...professionalDraft.researchArea],
         researchProjects: [...professionalDraft.researchProjects],
         studentGuidance: [...professionalDraft.studentGuidance],
-      });
+      }));
     }
   }, [editingSection, professionalDraft]);
 
@@ -1116,52 +1194,68 @@ export default function FacultyUniversityPage() {
     }
   }, [editingSection, skillsDraft]);
 
-  /* Show registration errors in the existing section popup area while the
-     user is filling the field. The popup clears automatically as soon as
-     the value becomes valid. */
+  /* Only show contact errors after blur. Clear them when the value is corrected;
+     the existing Registration Data popup remains the presentation. */
   useEffect(() => {
-    if (editingSection !== "registration") {
-      return;
-    }
-
-    const email = registrationDraft.email.trim();
-    const alternateEmail = registrationDraft.alternateEmail.trim();
-    const mobileNumber = registrationDraft.mobileNumber.trim();
-    const alternatePhone = registrationDraft.alternatePhone.trim();
+    if (editingSection !== "registration") return;
 
     let message = "";
-
-    if (email && !isValidEmail(email)) {
-      message = "Enter a valid Email";
-    } else if (mobileNumber && !isValidPhoneNumber(mobileNumber)) {
-      message = "Mobile Number must contain exactly 10 digits";
-    } else if (alternateEmail && !isValidEmail(alternateEmail)) {
-      message = "Enter a valid Alternate Email";
-    } else if (alternatePhone && !isValidPhoneNumber(alternatePhone)) {
-      message = "Alternate Phone must contain exactly 10 digits";
+    if (contactFieldsTouched.email && activeContactField !== "email" &&
+        !isValidEmail(registrationDraft.email)) {
+      message = "Enter correct Email";
+    } else if (contactFieldsTouched.alternateEmail && activeContactField !== "alternateEmail" &&
+               registrationDraft.alternateEmail.trim() &&
+               !isValidEmail(registrationDraft.alternateEmail)) {
+      message = "Enter correct Alternate Email";
+    } else if (contactFieldsTouched.mobileNumber && activeContactField !== "mobileNumber" &&
+               !isValidPhoneNumber(registrationDraft.mobileNumber)) {
+      message = "Enter correct Mobile Number";
+    } else if (contactFieldsTouched.alternatePhone && activeContactField !== "alternatePhone" &&
+               registrationDraft.alternatePhone.trim() &&
+               !isValidPhoneNumber(registrationDraft.alternatePhone)) {
+      message = "Enter correct Alternate Phone Number";
     }
 
-    if (!message) {
-      setSectionPopup((current) =>
-        current?.section === "registration" && current.type === "error"
-          ? null
-          : current
-      );
-      return;
-    }
-
-    setSectionPopup({
-      section: "registration",
-      type: "error",
-      message,
+    const contactMessages = [
+      "Enter correct Email",
+      "Enter correct Alternate Email",
+      "Enter correct Mobile Number",
+      "Enter correct Alternate Phone Number",
+    ];
+    setSectionPopup((current) => {
+      if (message) {
+        if (current?.section === "registration" && current.type === "error" &&
+            current.message === message) return current;
+        return { section: "registration", type: "error", message };
+      }
+      if (current?.section === "registration" && current.type === "error" &&
+          contactMessages.includes(current.message || "")) return null;
+      return current;
     });
   }, [
     editingSection,
+    contactFieldsTouched,
+    activeContactField,
     registrationDraft.email,
     registrationDraft.mobileNumber,
     registrationDraft.alternateEmail,
     registrationDraft.alternatePhone,
   ]);
+
+  useEffect(() => {
+    if (editingSection !== "professional" || !publicationsTouched) return;
+    const invalid = !isValidPublication(professionalDraft.publications);
+    setSectionPopup((current) => {
+      if (invalid) {
+        if (current?.section === "professional" && current.type === "error" &&
+            current.message === "Enter correct Publications") return current;
+        return { section: "professional", type: "error", message: "Enter correct Publications" };
+      }
+      if (current?.section === "professional" && current.type === "error" &&
+          current.message === "Enter correct Publications") return null;
+      return current;
+    });
+  }, [editingSection, publicationsTouched, professionalDraft.publications]);
 
   const showSectionError = (section: SectionName, message: string) => {
     setSectionPopup({ section, type: "error", message });
@@ -1224,6 +1318,13 @@ export default function FacultyUniversityPage() {
 
     setRegistrationInfo(resetRegistration);
     setRegistrationDraft(resetRegistration);
+    setContactFieldsTouched({
+      email: false,
+      alternateEmail: false,
+      mobileNumber: false,
+      alternatePhone: false,
+    });
+    setActiveContactField(null);
     setProfessionalInfo(resetProfessional);
     setProfessionalDraft(resetProfessional);
     setSkillsInfo(resetSkills);
@@ -1255,13 +1356,25 @@ export default function FacultyUniversityPage() {
   };
 
   const saveProfile = () => {
+    if (editingSection === "professional" && !isValidPublication(professionalDraft.publications)) {
+      setPublicationsTouched(true);
+      setSectionPopup({ section: "professional", type: "error", message: "Enter correct Publications" });
+      return;
+    }
+    if (profilePhotoCompleted && !registrationFormComplete) {
+      const contactError = getRegistrationContactError();
+      if (contactError) {
+        setSectionPopup({ section: "registration", type: "error", message: contactError });
+        return;
+      }
+    }
     const nextIncompleteStep =
       !profilePhotoCompleted
         ? "Profile Photo"
         : !registrationFormComplete
           ? "Registration Data"
           : !professionalFormComplete
-            ? "Academic & Professional Profile"
+            ? "Academic Profile"
             : !skillsFormComplete
               ? "Skills & Development"
               : !documentsFormComplete
@@ -1279,7 +1392,7 @@ export default function FacultyUniversityPage() {
           ? "profile"
           : nextIncompleteStep === "Registration Data"
             ? "registration"
-            : nextIncompleteStep === "Academic & Professional Profile"
+            : nextIncompleteStep === "Academic Profile"
               ? "professional"
               : nextIncompleteStep === "Skills & Development"
                 ? "skills"
@@ -1583,7 +1696,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Academic &amp; Professional Profile</span>
+                    <span>Academic Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -1705,6 +1818,8 @@ export default function FacultyUniversityPage() {
                     label="Email"
                     type="email"
                     value={registrationDraft.email}
+                    onFocus={() => setActiveContactField("email")}
+                    onBlur={() => markContactBlur("email")}
                     placeholder="Enter Email"
                     visualIcon="edit"
                     onChange={(value) =>
@@ -1718,6 +1833,8 @@ export default function FacultyUniversityPage() {
                     label="Alternate Email"
                     type="email"
                     value={registrationDraft.alternateEmail}
+                    onFocus={() => setActiveContactField("alternateEmail")}
+                    onBlur={() => markContactBlur("alternateEmail")}
                     placeholder="Enter Alternate Email"
                     visualIcon="edit"
                     onChange={(value) =>
@@ -1731,28 +1848,38 @@ export default function FacultyUniversityPage() {
                     label="Mobile Number"
                     type="tel"
                     value={registrationDraft.mobileNumber}
+                    onFocus={() => setActiveContactField("mobileNumber")}
+                    onBlur={() => markContactBlur("mobileNumber")}
+                    maxLength={10}
                     placeholder="Enter Mobile Number"
                     visualIcon="edit"
-                    onChange={(value) =>
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "");
+                      if (digits.length > 10) return;
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value.replace(/\D/g, "").slice(0, 10),
-                      }))
-                    }
+                        mobileNumber: digits,
+                      }));
+                    }}
                   />
 
                   <EditField
                     label="Alternate Phone"
                     type="tel"
                     value={registrationDraft.alternatePhone}
+                    onFocus={() => setActiveContactField("alternatePhone")}
+                    onBlur={() => markContactBlur("alternatePhone")}
+                    maxLength={10}
                     placeholder="Enter Alternate Phone"
                     visualIcon="edit"
-                    onChange={(value) =>
+                    onChange={(value) => {
+                      const digits = value.replace(/\D/g, "");
+                      if (digits.length > 10) return;
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value.replace(/\D/g, "").slice(0, 10),
-                      }))
-                    }
+                        alternatePhone: digits,
+                      }));
+                    }}
                   />
                   <SelectField
                     label="Gender"
@@ -2137,8 +2264,13 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.publications}
                     placeholder="Enter Publications"
                     visualIcon="edit"
+                    maxLength={PUBLICATIONS_MAX_LENGTH}
+                    onBlur={() => setPublicationsTouched(true)}
                     onChange={(value) =>
-                      setProfessionalDraft((current) => ({ ...current, publications: value }))
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        publications: value.slice(0, PUBLICATIONS_MAX_LENGTH),
+                      }))
                     }
                   />
                   <MultiSelectField
@@ -2609,7 +2741,7 @@ export default function FacultyUniversityPage() {
 
                       if (event.target.checked && !professionalFormComplete) {
                         showFlowPopup(
-                          "Please complete Academic & Professional Profile first.",
+                          "Please complete Academic Profile first.",
                           "confirmation"
                         );
                         return;

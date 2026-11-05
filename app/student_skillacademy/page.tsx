@@ -41,10 +41,6 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -106,20 +102,11 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
   if (label === "Government ID Proof") {
     return (
@@ -134,6 +121,124 @@ const isAcceptedDocumentFile = (
   );
 };
 
+
+
+type SkillLinkName = "portfolioLink" | "linkedinUrl" | "githubUrl" | "instagramId" | "facebookUrl" | "twitterX";
+type SkillLinkValues = Record<SkillLinkName, string>;
+
+const getValidPublicHttpUrl = (value: string): URL | null => {
+  const text = value.trim();
+  if (!text || text.length > 2048 || /\s|\\/.test(text)) return null;
+  // Do not coerce other schemes (ftp:, javascript:, data:, etc.) into HTTPS URLs.
+  if (/^[a-z][a-z\d+.-]*:/i.test(text) && !/^https?:\/\//i.test(text)) return null;
+  try {
+    const url = new URL(/^https?:\/\//i.test(text) ? text : "https://" + text);
+    const hostname = url.hostname.toLowerCase();
+    const parts = hostname.split(".");
+    const publicHost = hostname.length <= 253 && parts.length >= 2 &&
+      parts.every((part) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(part)) &&
+      /^[a-z]{2,24}$/i.test(parts[parts.length - 1]);
+    return publicHost && !url.username && !url.password &&
+      (url.protocol === "http:" || url.protocol === "https:") ? url : null;
+  } catch {
+    return null;
+  }
+};
+
+const validProfileSegment = (segment: string): boolean =>
+  /^[a-z0-9][a-z0-9._-]{0,99}$/i.test(segment) && !segment.includes("..");
+
+const isFullSocialAddress = (value: string) =>
+  /^(?:https?:\/\/|www\.)/i.test(value) || value.includes("/") ||
+  /\.(?:com|net|org|io|co|app|dev|in|me|edu|gov|uk|us|xyz)(?:$|[:/?#])/i.test(value);
+
+const skillLinkValidationMessage: Record<SkillLinkName, string> = {
+  portfolioLink: "Enter correct Portfolio Link.",
+  linkedinUrl: "Enter correct LinkedIn URL.",
+  githubUrl: "Enter correct GitHub URL.",
+  instagramId: "Enter correct Instagram ID.",
+  facebookUrl: "Enter correct Facebook ID or URL.",
+  twitterX: "Enter correct Twitter / X.",
+};
+
+const getSkillLinkError = (field: SkillLinkName, value: string): string | null => {
+  const input = value.trim();
+  if (!input) return null; // All these fields are optional; a nonempty value must be valid.
+  if (input.length > 2048 || /\s/.test(input)) {
+    return skillLinkValidationMessage[field];
+  }
+  if (field === "instagramId" || field === "facebookUrl" || field === "twitterX") {
+    if (!isFullSocialAddress(input)) {
+      const username = input.replace(/^@/, "");
+      const validUsername = field === "instagramId"
+        ? /^[a-z\d._]{1,30}$/i.test(username) && !username.endsWith(".") && !username.includes("..")
+        : field === "twitterX"
+          ? /^[a-z\d_]{1,15}$/i.test(username)
+          : /^[a-z\d.]{5,50}$/i.test(username) && !username.includes("..");
+      if (validUsername) return null;
+    }
+  }
+  const url = getValidPublicHttpUrl(input);
+  if (!url) return skillLinkValidationMessage[field];
+  const host = url.hostname.toLowerCase();
+  const segments = url.pathname.split("/").filter(Boolean).map((segment) => {
+    try { return decodeURIComponent(segment); } catch { return ""; }
+  });
+  if (field === "portfolioLink") return null;
+  if (field === "linkedinUrl") {
+    const valid = ["linkedin.com", "www.linkedin.com"].includes(host) &&
+      ["in", "pub", "company", "school"].includes(segments[0] || "") &&
+      Boolean(segments[1] && validProfileSegment(segments[1]));
+    return valid ? null : skillLinkValidationMessage[field];
+  }
+  if (field === "githubUrl") {
+    const user = segments[0] || "";
+    const valid = ["github.com", "www.github.com"].includes(host) &&
+      /^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(user);
+    return valid ? null : skillLinkValidationMessage[field];
+  }
+  if (field === "instagramId") {
+    const user = segments[0] || "";
+    const valid = ["instagram.com", "www.instagram.com"].includes(host) &&
+      /^[a-z\d._]{1,30}$/i.test(user) && !user.endsWith(".") && !user.includes("..");
+    return valid ? null : skillLinkValidationMessage[field];
+  }
+  if (field === "facebookUrl") {
+    const valid = ["facebook.com", "www.facebook.com", "m.facebook.com", "fb.com", "www.fb.com"].includes(host) &&
+      Boolean(segments[0] && (validProfileSegment(segments[0]) || segments[0] === "profile.php"));
+    return valid ? null : skillLinkValidationMessage[field];
+  }
+  const valid = ["x.com", "www.x.com", "twitter.com", "www.twitter.com"].includes(host) &&
+    Boolean(segments[0] && /^[a-z\d_]{1,15}$/i.test(segments[0]));
+  return valid ? null : skillLinkValidationMessage[field];
+};
+
+const getSkillsLinkValidationError = (info: SkillLinkValues): string | null =>
+  getSkillLinkError("portfolioLink", info.portfolioLink) ||
+  getSkillLinkError("linkedinUrl", info.linkedinUrl) ||
+  getSkillLinkError("githubUrl", info.githubUrl) ||
+  getSkillLinkError("instagramId", info.instagramId) ||
+  getSkillLinkError("facebookUrl", info.facebookUrl) ||
+  getSkillLinkError("twitterX", info.twitterX);
+
+const getAlternateContactError = (value: string): string | null => {
+  // Indian mobile numbers only: exactly 10 digits, beginning with 6, 7, 8 or 9.
+  if (!value) return null;
+  return /^[6-9]\d{9}$/.test(value) ? null : "Enter correct number.";
+};
+
+const getAlternateEmailError = (value: string): string | null => {
+  const email = value.trim();
+  if (!email) return null;
+  const parts = email.split("@");
+  if (email.length > 254 || parts.length !== 2 ||
+      parts[0].length > 64 || parts[0].startsWith(".") || parts[0].endsWith(".") || parts[0].includes("..") ||
+      !/^[a-z\d._%+-]+$/i.test(parts[0]) ||
+      !/^(?:[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?\.)+[a-z]{2,24}$/i.test(parts[1])) {
+    return "Enter correct email.";
+  }
+  return null;
+};
 
 type IconImageProps = {
   src: string;
@@ -200,6 +305,11 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  onValidationClear?: () => void;
+  maxLength?: number;
+  digitsOnly?: boolean;
+  inputMode?: "numeric";
+  validationAttempt?: number;
 };
 
 function EditField({
@@ -214,8 +324,14 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  onValidationClear,
+  maxLength,
+  digitsOnly = false,
+  inputMode,
+  validationAttempt = 0,
 }: EditFieldProps) {
   const inputId = useId();
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const validationTimerRef = useRef<number | null>(null);
   const lastValidationErrorRef = useRef<string | null>(null);
 
@@ -231,6 +347,7 @@ function EditField({
     if (!validate) return;
 
     const message = validate(nextValue);
+    setFieldError(message);
 
     if (message) {
       if (lastValidationErrorRef.current !== message) {
@@ -240,8 +357,16 @@ function EditField({
       return;
     }
 
+    if (lastValidationErrorRef.current) onValidationClear?.();
     lastValidationErrorRef.current = null;
   };
+
+  // Show all invalid fields inline if the user tries to save or switch sections.
+  useEffect(() => {
+    if (validationAttempt && validate) {
+      setFieldError(validate(value));
+    }
+  }, [validationAttempt, validate, value]);
 
   const scheduleValidation = (nextValue: string) => {
     if (!validate) return;
@@ -279,10 +404,17 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
+            inputMode={inputMode}
+            aria-invalid={Boolean(fieldError)}
+            aria-describedby={fieldError ? `${inputId}-error` : undefined}
             onChange={(event) => {
-              const nextValue = event.target.value;
+              const nextValue = digitsOnly
+                ? event.target.value.replace(/\D/g, "").slice(0, maxLength ?? 10)
+                : event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (fieldError && validate) runValidation(nextValue);
+              else scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
@@ -294,6 +426,11 @@ function EditField({
               onBlur?.();
             }}
           />
+        )}
+        {fieldError && !locked && (
+          <span id={`${inputId}-error`} role="alert" style={{ display: "block", color: "#C94F05", fontSize: 12, lineHeight: "18px", whiteSpace: "normal", overflowWrap: "anywhere", marginTop: 4 }}>
+            {fieldError}
+          </span>
         )}
       </div>
 
@@ -1763,7 +1900,6 @@ export default function StudentSkillAcademyPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -1828,8 +1964,20 @@ export default function StudentSkillAcademyPage() {
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
+  const [validationAttempt, setValidationAttempt] = useState({ professional: 0, skills: 0 });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeUploadError, setResumeUploadError] = useState("");
+
+  const getRequiredSkillsError = (info: typeof skillsInfo): string | null => {
+    if (!info.careerGoal) return "Please select Career Goal.";
+    if (info.targetRole.length === 0) return "Please select at least one Target Role.";
+    if (info.targetIndustry.length === 0) return "Please select at least one Target Industry.";
+    if (info.learningObjective.length === 0) return "Please select at least one Learning Objective.";
+    if (info.learningMode.length === 0) return "Please select at least one Learning Mode.";
+    if (info.portfolioEvidence.length === 0) return "Please select at least one Portfolio Evidence.";
+    if (!resumeFile) return "Please upload Resume.";
+    return null;
+  };
 
   const editingSectionRef = useRef<SectionName | null>(editingSection);
   const registrationDraftRef = useRef(registrationDraft);
@@ -1863,13 +2011,10 @@ export default function StudentSkillAcademyPage() {
 
     if (editingSection && editingSection !== section) {
       if (editingSection === "professional") {
-        const alternateEmail = professionalDraft.alternateEmail.trim();
-
-        if (alternateEmail && !isValidEmail(alternateEmail)) {
-          showSectionError(
-            "professional",
-            "Please enter a valid Alternate Email"
-          );
+        const contactError = getAlternateContactError(professionalDraft.alternateContact) ||
+          getAlternateEmailError(professionalDraft.alternateEmail);
+        if (contactError) {
+          setValidationAttempt((previous) => ({ ...previous, professional: previous.professional + 1 }));
           return;
         }
 
@@ -1880,7 +2025,7 @@ export default function StudentSkillAcademyPage() {
         if (!complete) {
           showSectionError(
             "professional",
-            "Please complete Accessibility Needs"
+            !professionalDraft.accessibilityNeeds.length ? "Please select Accessibility Needs." : "Please select Device Access."
           );
           return;
         }
@@ -1895,6 +2040,11 @@ export default function StudentSkillAcademyPage() {
       }
 
       if (editingSection === "skills") {
+        const linkError = getSkillsLinkValidationError(skillsDraft);
+        if (linkError) {
+          setValidationAttempt((previous) => ({ ...previous, skills: previous.skills + 1 }));
+          return;
+        }
         const complete =
           skillsDraft.careerGoal &&
           skillsDraft.targetRole.length > 0 &&
@@ -1907,7 +2057,7 @@ export default function StudentSkillAcademyPage() {
         if (!complete) {
           showSectionError(
             "skills",
-            "Please complete the required Professional Profile fields and upload Resume."
+            getRequiredSkillsError(skillsDraft) || "Please complete the required Professional Profile fields."
           );
           return;
         }
@@ -2000,34 +2150,6 @@ export default function StudentSkillAcademyPage() {
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
-  const isValidOptionalContact = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return true;
-
-    if (!/^[+()\d\s-]+$/.test(trimmed)) {
-      return false;
-    }
-
-    const digits = trimmed.replace(/\D/g, "");
-    return digits.length >= 7 && digits.length <= 15;
-  };
-
-  const isValidOptionalUrl = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return true;
-
-    try {
-      const normalized = /^https?:\/\//i.test(trimmed)
-        ? trimmed
-        : `https://${trimmed}`;
-
-      const parsed = new URL(normalized);
-      return Boolean(parsed.hostname && parsed.hostname.includes("."));
-    } catch {
-      return false;
-    }
-  };
-
   const handleResumeFileSelect = (file: File | null) => {
     if (!file) return;
 
@@ -2076,13 +2198,30 @@ export default function StudentSkillAcademyPage() {
     const skillsSource =
       editingSection === "skills" ? skillsDraft : skillsInfo;
 
-    const alternateEmail = professionalSource.alternateEmail.trim();
-
-    if (alternateEmail && !isValidEmail(alternateEmail)) {
-      showFlowPopup(
-        "Please enter a valid Alternate Email",
-        "confirmation"
-      );
+    const contactError = getAlternateContactError(professionalSource.alternateContact) ||
+      getAlternateEmailError(professionalSource.alternateEmail);
+    if (contactError) {
+      if (editingSection !== "professional") {
+        setProfessionalDraft({ ...professionalSource,
+          accessibilityNeeds: [...professionalSource.accessibilityNeeds],
+          deviceAccess: [...professionalSource.deviceAccess] });
+        setEditingSection("professional");
+      }
+      setValidationAttempt((previous) => ({ ...previous, professional: previous.professional + 1 }));
+      return;
+    }
+    const linkError = getSkillsLinkValidationError(skillsSource);
+    if (linkError) {
+      if (editingSection !== "skills") {
+        setSkillsDraft({ ...skillsSource,
+          targetRole: [...skillsSource.targetRole],
+          targetIndustry: [...skillsSource.targetIndustry],
+          learningObjective: [...skillsSource.learningObjective],
+          learningMode: [...skillsSource.learningMode],
+          portfolioEvidence: [...skillsSource.portfolioEvidence] });
+        setEditingSection("skills");
+      }
+      setValidationAttempt((previous) => ({ ...previous, skills: previous.skills + 1 }));
       return;
     }
 
@@ -2117,7 +2256,7 @@ export default function StudentSkillAcademyPage() {
 
     if (!professionalComplete) {
       showFlowPopup(
-        "Please complete Accessibility Profile before saving the profile.",
+        !professionalSource.accessibilityNeeds.length ? "Please select Accessibility Needs." : "Please select Device Access.",
         "confirmation"
       );
       return;
@@ -2125,7 +2264,7 @@ export default function StudentSkillAcademyPage() {
 
     if (!skillsComplete) {
       showFlowPopup(
-        "Please complete Professional Profile and upload Resume before saving the profile.",
+        getRequiredSkillsError(skillsSource) || "Please complete Professional Profile before saving the profile.",
         "confirmation"
       );
       return;
@@ -2233,7 +2372,6 @@ export default function StudentSkillAcademyPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
       "Government ID Proof": null,
       "Supporting Documents": null,
     });
@@ -2284,13 +2422,13 @@ export default function StudentSkillAcademyPage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
 
     if (!isAcceptedDocumentFile(label, file)) {
-      const message = `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
+      const message = `${label}: unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
 
       setDocumentUploadErrors((current) => ({
         ...current,
@@ -2303,7 +2441,7 @@ export default function StudentSkillAcademyPage() {
     const recommendedSize = getDocumentRecommendedSize(file);
 
     if (recommendedSize === null) {
-      const message = "Unsupported file type.";
+      const message = `${label}: unsupported file type.`;
 
       setDocumentUploadErrors((current) => ({
         ...current,
@@ -2317,7 +2455,7 @@ export default function StudentSkillAcademyPage() {
       file.size < recommendedSize.min ||
       file.size > recommendedSize.max
     ) {
-      const message = `Recommended file size is ${recommendedSize.label}.`;
+      const message = `${label}: recommended file size is ${recommendedSize.label}.`;
 
       setDocumentUploadErrors((current) => ({
         ...current,
@@ -2336,6 +2474,7 @@ export default function StudentSkillAcademyPage() {
       ...current,
       [label]: "",
     }));
+    setSectionPopup((current) => current?.section === "documents" && current.type === "error" ? null : current);
   };
 
   useEffect(() => {
@@ -2387,13 +2526,13 @@ export default function StudentSkillAcademyPage() {
     const source =
       editingSection === "professional" ? professionalDraft : professionalInfo;
 
-    const emailOkay =
-      !source.alternateEmail.trim() || isValidEmail(source.alternateEmail.trim());
+    const contactDetailsOkay = !getAlternateContactError(source.alternateContact) &&
+      !getAlternateEmailError(source.alternateEmail);
 
     const complete = Boolean(
       source.accessibilityNeeds.length > 0 &&
         source.deviceAccess.length > 0 &&
-        emailOkay
+        contactDetailsOkay
     );
 
     setProfessionalProfileCompleted(complete);
@@ -2409,6 +2548,7 @@ export default function StudentSkillAcademyPage() {
         source.learningObjective.length > 0 &&
         source.learningMode.length > 0 &&
         source.portfolioEvidence.length > 0 &&
+        !getSkillsLinkValidationError(source) &&
         resumeFile
     );
 
@@ -2724,14 +2864,12 @@ export default function StudentSkillAcademyPage() {
                         alternateContact: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalContact(value)
-                        ? null
-                        : "Please enter a valid Alternate Contact Number."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("professional", message)
-                    }
+                    type="tel"
+                    validate={getAlternateContactError}
+                    maxLength={10}
+                    inputMode="numeric"
+                    digitsOnly
+                    validationAttempt={validationAttempt.professional}
                     visualIcon="edit"
                   />
 
@@ -2746,17 +2884,8 @@ export default function StudentSkillAcademyPage() {
                         alternateEmail: value,
                       }))
                     }
-                    validate={(value) => {
-                      const email = value.trim();
-                      if (!email) return null;
-
-                      return isValidEmail(email)
-                        ? null
-                        : "Please enter a valid Alternate Email";
-                    }}
-                    onValidationError={(message) =>
-                      showSectionError("professional", message)
-                    }
+                    validate={getAlternateEmailError}
+                    validationAttempt={validationAttempt.professional}
                     visualIcon="edit"
                   />
 
@@ -3016,14 +3145,8 @@ export default function StudentSkillAcademyPage() {
                         portfolioLink: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid Portfolio Link."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => getSkillLinkError("portfolioLink", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3037,14 +3160,8 @@ export default function StudentSkillAcademyPage() {
                         linkedinUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => getSkillLinkError("linkedinUrl", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3058,14 +3175,8 @@ export default function StudentSkillAcademyPage() {
                         githubUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => getSkillLinkError("githubUrl", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3079,6 +3190,8 @@ export default function StudentSkillAcademyPage() {
                         instagramId: value,
                       }))
                     }
+                    validate={(value) => getSkillLinkError("instagramId", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3092,6 +3205,8 @@ export default function StudentSkillAcademyPage() {
                         facebookUrl: value,
                       }))
                     }
+                    validate={(value) => getSkillLinkError("facebookUrl", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3105,6 +3220,8 @@ export default function StudentSkillAcademyPage() {
                         twitterX: value,
                       }))
                     }
+                    validate={(value) => getSkillLinkError("twitterX", value)}
+                    validationAttempt={validationAttempt.skills}
                     visualIcon="edit"
                   />
 
@@ -3227,7 +3344,7 @@ export default function StudentSkillAcademyPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {(["Government ID Proof", "Supporting Documents"] as const).map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3285,7 +3402,6 @@ export default function StudentSkillAcademyPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -3293,7 +3409,6 @@ export default function StudentSkillAcademyPage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

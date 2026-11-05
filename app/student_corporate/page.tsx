@@ -41,10 +41,6 @@ type SectionName = "registration" | "professional" | "experience" | "skills" | "
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -106,22 +102,14 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
 
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
-  if (label === "Government ID Proof") {
+if (label === "Government ID Proof") {
     return (
       type.startsWith("image/") ||
       type === "application/pdf" ||
@@ -199,6 +187,9 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  maxLength?: number;
+  validateOnBlurOnly?: boolean;
+  clearInvalidOnBlur?: boolean;
 };
 
 function EditField({
@@ -212,6 +203,9 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  maxLength,
+  validateOnBlurOnly = false,
+  clearInvalidOnBlur = false,
 }: EditFieldProps) {
   const inputId = useId();
   const validationTimerRef = useRef<number | null>(null);
@@ -277,10 +271,11 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => {
               const nextValue = event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (!validateOnBlurOnly) scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
@@ -288,6 +283,10 @@ function EditField({
                 validationTimerRef.current = null;
               }
               runValidation(event.currentTarget.value);
+              if (clearInvalidOnBlur && validate?.(event.currentTarget.value)) {
+                onChange?.("");
+                lastValidationErrorRef.current = null;
+              }
             }}
           />
         )}
@@ -330,12 +329,18 @@ type CalendarDateFieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  maxDate?: string;
+  minDate?: string;
+  onValidationError?: (message: string) => void;
 };
 
 function CalendarDateField({
   label,
   value,
   onChange,
+  maxDate,
+  minDate,
+  onValidationError,
 }: CalendarDateFieldProps) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"days" | "months" | "years">("days");
@@ -671,6 +676,9 @@ function CalendarDateField({
                   const isCurrentMonth =
                     date.getMonth() === monthIndex;
                   const isSelected = value === dateValue;
+                  const isAfterMaximum = Boolean(maxDate && dateValue > maxDate);
+                  const isBeforeMinimum = Boolean(minDate && dateValue < minDate);
+                  const isUnavailable = isAfterMaximum || isBeforeMinimum;
 
                   return (
                     <button
@@ -685,7 +693,19 @@ function CalendarDateField({
                           ? "institutionDateCalendarDaySelected"
                           : ""
                       }`}
+                      aria-disabled={isUnavailable}
+                      style={isUnavailable ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
                       onClick={() => {
+                        if (isAfterMaximum) {
+                          onValidationError?.(
+                            `${label} Date cannot be after today.`
+                          );
+                          return;
+                        }
+                        if (isBeforeMinimum) {
+                          onValidationError?.("To date cannot be before From date.");
+                          return;
+                        }
                         onChange(dateValue);
 
                         if (!isCurrentMonth) {
@@ -979,7 +999,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1783,7 +1803,7 @@ export default function CorporateTraineePage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
+
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -1835,6 +1855,7 @@ export default function CorporateTraineePage() {
   const [experienceInfo, setExperienceInfo] = useState({
     employmentStatus: "",
     company: "",
+    companyOther: "",
     role: "",
     from: "",
     to: "",
@@ -1899,13 +1920,131 @@ export default function CorporateTraineePage() {
         source.expectedSalary
     );
 
+  const getTodayLocalISO = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const getWorkExperienceValidationError = (source: typeof experienceInfo): string | null => {
+    if (source.company === "Other") {
+      const companyName = source.companyOther.trim();
+      if (!companyName || companyName.length > 150 || !/[\p{L}\p{N}]/u.test(companyName)) {
+        return "Enter a valid Company Name (maximum 150 characters).";
+      }
+    }
+    const today = getTodayLocalISO();
+    if (source.from && source.from > today) {
+      return "From Date cannot be after today.";
+    }
+    if (source.to && source.to > today) {
+      return "To Date cannot be after today.";
+    }
+
+    if (source.from && source.to && source.to < source.from) {
+      return "To date cannot be before From date.";
+    }
+
+    const achievement = source.achievements.trim();
+    if (source.achievements.length > 250 || (achievement && !/^[\p{L} ]+$/u.test(achievement))) {
+      return "Enter correct Achievements using letters and spaces only (maximum 250 characters).";
+    }
+
+    if (source.description.length > 250) {
+      return "Description must not exceed 250 characters.";
+    }
+
+    return null;
+  };
+
   const isWorkExperienceComplete = (source: typeof experienceInfo) =>
     Boolean(
       source.employmentStatus &&
         source.company &&
+        (source.company !== "Other" || Boolean(source.companyOther.trim())) &&
         source.role &&
-        source.from
+        source.from &&
+        !getWorkExperienceValidationError(source)
     );
+
+  const validateProfileLink = (field: keyof Pick<typeof skillsDraft,
+    "portfolio" | "linkedinUrl" | "githubUrl" | "instagramId" | "facebookUrl" | "twitterX">, value: string): string | null => {
+    const messages: Record<typeof field, string> = {
+      portfolio: "Please enter a valid Portfolio URL.",
+      linkedinUrl: "Please enter a valid LinkedIn profile URL.",
+      githubUrl: "Please enter a valid GitHub profile URL.",
+      instagramId: "Please enter a valid Instagram ID or URL.",
+      facebookUrl: "Please enter a valid Facebook ID or URL.",
+      twitterX: "Please enter a valid Twitter / X username or URL.",
+    };
+    const invalid = messages[field];
+    const text = value.trim();
+    if (!text) return null; // Keep fields optional as before.
+    if (text.length > 150 || /\s/.test(text)) return invalid;
+
+    const parseHttpUrl = (raw: string): URL | null => {
+      try {
+        const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+        if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
+        const host = url.hostname.toLowerCase();
+        if (!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/.test(host)) return null;
+        return url;
+      } catch { return null; }
+    };
+    const websiteLike = /^(?:https?:\/\/)?(?:www\.)?[^\s/]+\.[^\s/]+/i.test(text);
+    if (field === 'portfolio') {
+      return parseHttpUrl(text) ? null : invalid;
+    }
+    // Dotted usernames are valid Instagram/Facebook handles, not necessarily URLs.
+    if (!/^https?:\/\//i.test(text) && !text.includes('/')) {
+      if (field === 'instagramId' && /^(?!.*\.\.)[A-Za-z0-9_](?:[A-Za-z0-9._]{0,28}[A-Za-z0-9_])?$/.test(text)) return null;
+      if (field === 'facebookUrl' && /^(?=.{5,50}$)[A-Za-z0-9][A-Za-z0-9._]*$/.test(text)) return null;
+      if (field === 'twitterX' && /^@?[A-Za-z0-9_]{1,15}$/.test(text)) return null;
+    }
+    if (!websiteLike && !/^https?:\/\//i.test(text)) {
+      if (field === 'instagramId') return /^(?!.*\.\.)[A-Za-z0-9_](?:[A-Za-z0-9._]{0,28}[A-Za-z0-9_])?$/.test(text) ? null : invalid;
+      if (field === 'facebookUrl') return /^(?=.{5,50}$)[A-Za-z0-9][A-Za-z0-9._]*$/.test(text) ? null : invalid;
+      if (field === 'twitterX') return /^@?[A-Za-z0-9_]{1,15}$/.test(text) ? null : invalid;
+      return invalid; // LinkedIn / GitHub must include their platform URL.
+    }
+    const url = parseHttpUrl(text);
+    if (!url) return invalid;
+    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+    const path = url.pathname.replace(/\/$/, '');
+    const segments = path.split('/').filter(Boolean);
+    const singleUsername = segments.length === 1 ? segments[0] : '';
+    switch (field) {
+      case 'linkedinUrl':
+        return (host === 'linkedin.com' || host.endsWith('.linkedin.com')) &&
+          /^(in|company|school|pub)$/.test(segments[0] || '') &&
+          segments.length >= 2 && segments.slice(1).every(s => /^[A-Za-z0-9_-]+$/.test(s)) ? null : invalid;
+      case 'githubUrl':
+        return host === 'github.com' && /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(singleUsername) ? null : invalid;
+      case 'instagramId':
+        return host === 'instagram.com' && /^(?!.*\.\.)[A-Za-z0-9_](?:[A-Za-z0-9._]{0,28}[A-Za-z0-9_])?$/.test(singleUsername) ? null : invalid;
+      case 'facebookUrl':
+        return (host === 'facebook.com' || host === 'fb.com') &&
+          ((segments.length === 1 && /^(?=.{5,50}$)[A-Za-z0-9][A-Za-z0-9._]*$/.test(singleUsername)) ||
+           (url.pathname === '/profile.php' && /^\d+$/.test(url.searchParams.get('id') || ''))) ? null : invalid;
+      case 'twitterX':
+        return (host === 'x.com' || host === 'twitter.com') && /^[A-Za-z0-9_]{1,15}$/.test(singleUsername) ? null : invalid;
+      default:
+        return invalid;
+    }
+  };
+
+  const getSkillsLinkError = (values: typeof skillsDraft): string | null => {
+    const fields: Array<keyof Pick<typeof skillsDraft,
+      "portfolio" | "linkedinUrl" | "githubUrl" | "instagramId" | "facebookUrl" | "twitterX">> =
+      ['portfolio', 'linkedinUrl', 'githubUrl', 'instagramId', 'facebookUrl', 'twitterX'];
+    for (const field of fields) {
+      const error = validateProfileLink(field, values[field]);
+      if (error) return error;
+    }
+    return null;
+  };
 
   const isSkillsProfileComplete = (source: typeof skillsInfo) =>
     Boolean(
@@ -1919,7 +2058,8 @@ export default function CorporateTraineePage() {
         source.category &&
         source.domain &&
         source.proficiency &&
-        source.portfolioEvidence
+        source.portfolioEvidence &&
+        !getSkillsLinkError(source)
     );
 
   const startSectionEdit = (section: SectionName) => {
@@ -1951,6 +2091,11 @@ export default function CorporateTraineePage() {
       }
 
       if (editingSection === "experience") {
+        const workError = getWorkExperienceValidationError(experienceDraft);
+        if (workError) {
+          showSectionError("experience", workError);
+          return;
+        }
         if (!isWorkExperienceComplete(experienceDraft)) {
           showSectionError(
             "experience",
@@ -1965,6 +2110,11 @@ export default function CorporateTraineePage() {
       }
 
       if (editingSection === "skills") {
+        const linkError = getSkillsLinkError(skillsDraft);
+        if (linkError) {
+          showSectionError("skills", linkError);
+          return;
+        }
         if (!isSkillsProfileComplete(skillsDraft)) {
           showSectionError(
             "skills",
@@ -2135,6 +2285,11 @@ export default function CorporateTraineePage() {
     }
 
     if (section === "experience") {
+      const workError = getWorkExperienceValidationError(experienceDraft);
+      if (workError) {
+        showSectionError("experience", workError);
+        return;
+      }
       if (!isWorkExperienceComplete(experienceDraft)) {
         showSectionError(
           "experience",
@@ -2148,6 +2303,11 @@ export default function CorporateTraineePage() {
     }
 
     if (section === "skills") {
+      const linkError = getSkillsLinkError(skillsDraft);
+      if (linkError) {
+        showSectionError("skills", linkError);
+        return;
+      }
       if (!isSkillsProfileComplete(skillsDraft)) {
         showSectionError(
           "skills",
@@ -2208,6 +2368,7 @@ export default function CorporateTraineePage() {
 
     const careerComplete = isCareerGoalsComplete(professionalSource);
     const experienceComplete = isWorkExperienceComplete(experienceSource);
+    const workExperienceError = getWorkExperienceValidationError(experienceSource);
     const skillsComplete = isSkillsProfileComplete(skillsSource);
 
     const documentsComplete =
@@ -2234,11 +2395,22 @@ export default function CorporateTraineePage() {
       return;
     }
 
+    if (workExperienceError) {
+      showFlowPopup(workExperienceError, "confirmation");
+      return;
+    }
+
     if (!experienceComplete) {
       showFlowPopup(
         "Please complete Work Experience before saving the profile.",
         "confirmation"
       );
+      return;
+    }
+
+    const savedLinkError = getSkillsLinkError(skillsSource);
+    if (savedLinkError) {
+      showFlowPopup(savedLinkError, "confirmation");
       return;
     }
 
@@ -2329,6 +2501,7 @@ export default function CorporateTraineePage() {
     const emptyExperienceInfo = {
       employmentStatus: "",
       company: "",
+      companyOther: "",
       role: "",
       from: "",
       to: "",
@@ -2376,7 +2549,7 @@ export default function CorporateTraineePage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
+
       "Government ID Proof": null,
       "Supporting Documents": null,
     });
@@ -2428,7 +2601,7 @@ export default function CorporateTraineePage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
@@ -2560,7 +2733,8 @@ export default function CorporateTraineePage() {
     profilePhotoCompleted,
     registrationCompleted,
     professionalProfileCompleted,
-    workExperienceCompleted && skillsDevelopmentCompleted,
+    workExperienceCompleted,
+    skillsDevelopmentCompleted,
     documentsCompleted,
     confirmation,
   ];
@@ -2746,7 +2920,7 @@ export default function CorporateTraineePage() {
                   </div>
 
                   <div className="institutionCompletionStep">
-                    {workExperienceCompleted && skillsDevelopmentCompleted ? (
+                    {workExperienceCompleted ? (
                       <span className="institutionCompletedCircle institutionProfileStepCheck">
                         <span className="institutionProfileStepCheckMark" />
                       </span>
@@ -2754,6 +2928,17 @@ export default function CorporateTraineePage() {
                       <span className="institutionEmptyCircle" />
                     )}
                     <span>Work Experience</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {skillsDevelopmentCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Skills Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -3005,16 +3190,19 @@ export default function CorporateTraineePage() {
                   <DisplayField
                     label="Preferred Role"
                     value={professionalInfo.preferredRole.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Preferred Industry"
                     value={professionalInfo.preferredIndustry.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Preferred Location"
                     value={professionalInfo.preferredLocation.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
                   <DisplayField
@@ -3047,7 +3235,7 @@ export default function CorporateTraineePage() {
               )}
 
               {editingSection === "experience" ? (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
+                <div className={`institutionGrid institutionFacultyProfessionalGrid institutionWorkExperienceGrid${experienceDraft.company === "Other" ? " institutionWorkExperienceGridOther" : ""}`}>
                   <SelectField
                     label="Employment Status"
                     value={experienceDraft.employmentStatus}
@@ -3069,28 +3257,55 @@ export default function CorporateTraineePage() {
                     }
                   />
 
-                  <SelectField
-                    label="Company"
-                    value={experienceDraft.company}
-                    placeholder="Select"
-                    menuStyle="radio"
-                    options={[
-                      "Infosys",
-                      "TCS",
-                      "Wipro",
-                      "Accenture",
-                      "Deloitte",
-                      "Other",
-                    ]}
-                    onChange={(value) =>
-                      setExperienceDraft((current) => ({
-                        ...current,
-                        company: value,
-                      }))
-                    }
-                  />
+                  <div className="institutionCompanyOtherField">
+                    <SelectField
+                      label="Company"
+                      value={experienceDraft.company}
+                      placeholder="Select"
+                      menuStyle="radio"
+                      options={[
+                        "Infosys",
+                        "TCS",
+                        "Wipro",
+                        "Accenture",
+                        "Deloitte",
+                        "Other",
+                      ]}
+                      onChange={(value) =>
+                        setExperienceDraft((current) => ({
+                          ...current,
+                          company: value,
+                          companyOther: value === "Other" ? current.companyOther : "",
+                        }))
+                      }
+                    />
+                  </div>
+                  {experienceDraft.company === "Other" && (
+                      <EditField
+                        label="Company Name"
+                        value={experienceDraft.companyOther}
+                        placeholder="Enter Company Name"
+                        maxLength={150}
+                        validateOnBlurOnly
+                        validate={(value) => {
+                          const companyName = value.trim();
+                          return companyName && /[\p{L}\p{N}]/u.test(companyName)
+                            ? null
+                            : "Enter a valid Company Name.";
+                        }}
+                        onValidationError={(message) => showSectionError("experience", message)}
+                        onChange={(value) =>
+                          setExperienceDraft((current) => ({
+                            ...current,
+                            companyOther: value.slice(0, 150),
+                          }))
+                        }
+                        visualIcon="edit"
+                      />
+                  )}
 
                   <SelectField
+                    className="institutionWorkExperienceRoleField"
                     label="Role"
                     value={experienceDraft.role}
                     placeholder="Select"
@@ -3114,6 +3329,8 @@ export default function CorporateTraineePage() {
                   <CalendarDateField
                     label="From"
                     value={experienceDraft.from}
+                    maxDate={getTodayLocalISO()}
+                    onValidationError={(message) => showSectionError("experience", message)}
                     onChange={(value) =>
                       setExperienceDraft((current) => ({
                         ...current,
@@ -3125,6 +3342,9 @@ export default function CorporateTraineePage() {
                   <CalendarDateField
                     label="To"
                     value={experienceDraft.to}
+                    maxDate={getTodayLocalISO()}
+                    minDate={experienceDraft.from || undefined}
+                    onValidationError={(message) => showSectionError("experience", message)}
                     onChange={(value) =>
                       setExperienceDraft((current) => ({
                         ...current,
@@ -3134,28 +3354,37 @@ export default function CorporateTraineePage() {
                   />
 
                   <EditField
+                    className="institutionWorkExperienceAchievementsField"
                     label="Achievements"
                     value={experienceDraft.achievements}
                     placeholder="Enter Achievements"
+                    maxLength={250}
+                    validateOnBlurOnly
+                    validate={(value) =>
+                      !value.trim() || /^[\p{L} ]+$/u.test(value.trim())
+                        ? null
+                        : "Enter correct Achievements using letters and spaces only."
+                    }
+                    onValidationError={(message) => showSectionError("experience", message)}
                     onChange={(value) =>
                       setExperienceDraft((current) => ({
                         ...current,
-                        achievements: value,
+                        achievements: value.slice(0, 250),
                       }))
                     }
                     visualIcon="edit"
                   />
 
                   <div
-                    className="institutionField institutionEditableField"
-                    style={{ gridColumn: "1 / -1", minHeight: "92px" }}
+                    className="institutionField institutionEditableField institutionWorkExperienceDescriptionField"
+                    style={{ minHeight: "92px" }}
                   >
                     <div className="institutionFieldText">
                       <label
                         htmlFor="corporate-work-description"
                         className="institutionFieldLabel"
                       >
-                        Description (max 250 words)
+                        Description (max 250 characters)
                       </label>
                       <textarea
                         id="corporate-work-description"
@@ -3172,7 +3401,7 @@ export default function CorporateTraineePage() {
                         onChange={(event) =>
                           setExperienceDraft((current) => ({
                             ...current,
-                            description: event.target.value,
+                            description: event.target.value.slice(0, 250),
                           }))
                         }
                         style={{
@@ -3191,7 +3420,7 @@ export default function CorporateTraineePage() {
                   </div>
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultyProfessionalGrid">
+                <div className="institutionGrid institutionFacultyProfessionalGrid institutionWorkExperienceGrid">
                   <DisplayField
                     label="Employment Status"
                     value={experienceInfo.employmentStatus}
@@ -3199,10 +3428,11 @@ export default function CorporateTraineePage() {
                   />
                   <DisplayField
                     label="Company"
-                    value={experienceInfo.company}
+                    value={experienceInfo.company === "Other" ? experienceInfo.companyOther.trim() : experienceInfo.company}
                     placeholder="Select"
                   />
                   <DisplayField
+                    className="institutionWorkExperienceRoleField"
                     label="Role"
                     value={experienceInfo.role}
                     placeholder="Select"
@@ -3218,16 +3448,17 @@ export default function CorporateTraineePage() {
                     placeholder="dd/mm/yyyy"
                   />
                   <DisplayField
+                    className="institutionWorkExperienceAchievementsField"
                     label="Achievements"
                     value={experienceInfo.achievements}
                     placeholder="Enter Achievements"
                   />
                   <div
-                    className="institutionField"
-                    style={{ gridColumn: "1 / -1", minHeight: "92px" }}
+                    className="institutionField institutionWorkExperienceDescriptionField"
+                    style={{ minHeight: "92px" }}
                   >
                     <div className="institutionFieldLabel">
-                      Description (max 250 words)
+                      Description (max 250 characters)
                     </div>
                     <div
                       className={`institutionFieldValue ${
@@ -3537,14 +3768,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid Portfolio URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("portfolio", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <EditField
@@ -3558,14 +3786,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("linkedinUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <EditField
@@ -3579,14 +3804,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("githubUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <EditField
@@ -3600,6 +3822,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("instagramId", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <EditField
@@ -3613,6 +3840,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("facebookUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <EditField
@@ -3626,6 +3858,11 @@ export default function CorporateTraineePage() {
                       }))
                     }
                     visualIcon="edit"
+                    maxLength={150}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    validate={(value) => validateProfileLink("twitterX", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <SelectField
@@ -3658,16 +3895,19 @@ export default function CorporateTraineePage() {
                   <DisplayField
                     label="Learning Goals"
                     value={skillsInfo.learningGoals.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Skill Interests"
                     value={skillsInfo.skillInterests.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Learning Mode"
                     value={skillsInfo.learningMode.join(", ")}
+                    className="institutionMultiSelectDisplayField"
                     placeholder="Select"
                   />
 
@@ -3786,7 +4026,7 @@ export default function CorporateTraineePage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3844,7 +4084,6 @@ export default function CorporateTraineePage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -3852,7 +4091,6 @@ export default function CorporateTraineePage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

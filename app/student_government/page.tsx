@@ -41,10 +41,6 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -106,20 +102,11 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
   if (label === "Government ID Proof") {
     return (
@@ -200,6 +187,9 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  validateOnBlurOnly?: boolean;
+  clearInvalidOnBlur?: boolean;
+  maxLength?: number;
 };
 
 function EditField({
@@ -214,6 +204,9 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  validateOnBlurOnly = false,
+  clearInvalidOnBlur = false,
+  maxLength,
 }: EditFieldProps) {
   const inputId = useId();
   const validationTimerRef = useRef<number | null>(null);
@@ -279,10 +272,11 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => {
               const nextValue = event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (!validateOnBlurOnly) scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
@@ -290,7 +284,12 @@ function EditField({
                 validationTimerRef.current = null;
               }
 
+              const invalid = Boolean(validate?.(event.currentTarget.value));
               runValidation(event.currentTarget.value);
+              if (invalid && clearInvalidOnBlur) {
+                onChange?.("");
+                lastValidationErrorRef.current = null;
+              }
               onBlur?.();
             }}
           />
@@ -1047,7 +1046,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1079,8 +1078,8 @@ function MultiSelectField({
           <span
             className={
               value.length
-                ? "institutionSelectCurrentValue"
-                : "institutionSelectPlaceholderValue"
+                ? "institutionSelectCurrentValue institutionMultiSelectSelectedText"
+                : "institutionSelectPlaceholderValue institutionMultiSelectSelectedText"
             }
           >
             {displayValue}
@@ -1849,7 +1848,6 @@ export default function StudentGovernmentPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -2022,6 +2020,12 @@ export default function StudentGovernmentPage() {
       }
 
       if (editingSection === "skills") {
+        const linkError = getSkillsLinkError(skillsDraft);
+        if (linkError) {
+          showSectionError("skills", linkError);
+          return;
+        }
+
         const complete =
           skillsDraft.educationStatus &&
           skillsDraft.studyArea &&
@@ -2169,6 +2173,98 @@ export default function StudentGovernmentPage() {
     }
   };
 
+  // Optional profile fields: every non-empty value must match its own platform.
+  // The same validation applies on blur, while changing sections and on Save.
+  type ProfileLinkField = keyof Pick<typeof skillsDraft,
+    "portfolioLink" | "linkedinUrl" | "githubUrl" | "instagramId" |
+    "facebookUrl" | "twitterX">;
+
+  const profileLinkMessages: Record<ProfileLinkField, string> = {
+    portfolioLink: "Please enter a valid Portfolio URL.",
+    linkedinUrl: "Please enter a valid LinkedIn profile URL.",
+    githubUrl: "Please enter a valid GitHub profile URL.",
+    instagramId: "Please enter a valid Instagram ID or URL.",
+    facebookUrl: "Please enter a valid Facebook ID or URL.",
+    twitterX: "Please enter a valid Twitter / X username or URL.",
+  };
+
+  const parseProfileUrl = (raw: string): URL | null => {
+    if (!raw || /[\s\\]/.test(raw) || raw.startsWith("//")) return null;
+    if (/^[A-Za-z][A-Za-z0-9+.-]*:\/\//.test(raw) && !/^https?:\/\//i.test(raw)) return null;
+    try {
+      const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+      if (url.username || url.password) return null;
+      if (!/^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,24}$/.test(url.hostname)) return null;
+      return url;
+    } catch {
+      return null;
+    }
+  };
+
+  const validateProfileLink = (field: ProfileLinkField, value: string): string | null => {
+    const text = value.trim();
+    if (!text) return null; // Existing fields remain optional.
+    const error = profileLinkMessages[field];
+    if (text.length > 150 || /\s/.test(text)) return error;
+
+    const instagramHandle = /^(?!.*\.\.)[A-Za-z0-9_](?:[A-Za-z0-9._]{0,28}[A-Za-z0-9_])?$/;
+    const facebookHandle = /^(?=.{5,50}$)[A-Za-z0-9][A-Za-z0-9.]*$/;
+    const xHandle = /^[A-Za-z0-9_]{1,15}$/;
+    const githubHandle = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
+
+    const looksLikeUrl = /^https?:\/\//i.test(text) || text.includes("/") || text.includes(".");
+    if (!looksLikeUrl) {
+      if (field === "instagramId") return instagramHandle.test(text) ? null : error;
+      if (field === "facebookUrl") return facebookHandle.test(text) ? null : error;
+      if (field === "twitterX") return xHandle.test(text.replace(/^@/, "")) ? null : error;
+      return error; // Portfolio, GitHub and LinkedIn require URLs.
+    }
+
+    // Dots can also occur inside a social username; they are not always a URL.
+    if (!/^https?:\/\//i.test(text) && !text.includes("/")) {
+      if (field === "instagramId" && instagramHandle.test(text)) return null;
+      if (field === "facebookUrl" && facebookHandle.test(text)) return null;
+    }
+
+    const url = parseProfileUrl(text);
+    if (!url) return error;
+    if (field === "portfolioLink") return isValidOptionalUrl(text) ? null : error;
+    const host = url.hostname.toLowerCase().replace(/^(?:www|m)\./, "");
+    const segments = url.pathname.split("/").filter(Boolean);
+    const username = segments.length === 1 ? segments[0] : "";
+    switch (field) {
+      case "linkedinUrl":
+        return host === "linkedin.com" &&
+          ["in", "pub"].includes(segments[0] || "") &&
+          segments.length >= 2 &&
+          segments.slice(1).every((part) => /^[A-Za-z0-9_-]+$/.test(part)) ? null : error;
+      case "githubUrl":
+        return host === "github.com" && githubHandle.test(username) ? null : error;
+      case "instagramId":
+        return host === "instagram.com" && instagramHandle.test(username) ? null : error;
+      case "facebookUrl":
+        return (host === "facebook.com" || host === "fb.com") &&
+          (facebookHandle.test(username) ||
+            (url.pathname === "/profile.php" && /^\d+$/.test(url.searchParams.get("id") || ""))) ? null : error;
+      case "twitterX":
+        return (host === "twitter.com" || host === "x.com") && xHandle.test(username) ? null : error;
+      default:
+        return error;
+    }
+  };
+
+  const getSkillsLinkError = (values: typeof skillsDraft): string | null => {
+    const fields: ProfileLinkField[] = [
+      "portfolioLink", "instagramId", "facebookUrl", "twitterX", "githubUrl", "linkedinUrl",
+    ];
+    for (const field of fields) {
+      const error = validateProfileLink(field, values[field]);
+      if (error) return error;
+    }
+    return null;
+  };
+
   const handleResumeFileSelect = (file: File | null) => {
     if (!file) return;
 
@@ -2259,7 +2355,8 @@ export default function StudentGovernmentPage() {
       skillsSource.primaryDevice &&
       skillsSource.offlineAccess &&
       skillsSource.portfolioEvidence &&
-      resumeFile
+      resumeFile &&
+      !getSkillsLinkError(skillsSource)
     );
 
     const documentsComplete =
@@ -2283,6 +2380,12 @@ export default function StudentGovernmentPage() {
         "Please complete Role & Competency before saving the profile.",
         "professional"
       );
+      return;
+    }
+
+    const linkError = getSkillsLinkError(skillsSource);
+    if (linkError) {
+      showFlowPopup(linkError, "skills");
       return;
     }
 
@@ -2430,7 +2533,6 @@ export default function StudentGovernmentPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
       "Government ID Proof": null,
       "Supporting Documents": null,
     });
@@ -2481,7 +2583,7 @@ export default function StudentGovernmentPage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
@@ -2632,7 +2734,8 @@ export default function StudentGovernmentPage() {
       source.primaryDevice &&
       source.offlineAccess &&
       source.portfolioEvidence &&
-      resumeFile
+      resumeFile &&
+      !getSkillsLinkError(source)
     );
 
     setSkillsDevelopmentCompleted(complete);
@@ -3138,19 +3241,19 @@ export default function StudentGovernmentPage() {
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultyProfessionalGrid">
-                  <DisplayField label="Language" value={professionalInfo.language.join(", ")} placeholder="Select" />
-                  <DisplayField label="Communication Mode" value={professionalInfo.communicationMode.join(", ")} placeholder="Select" />
-                  <DisplayField label="Responsibilities" value={professionalInfo.responsibilities.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Language" value={professionalInfo.language.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Communication Mode" value={professionalInfo.communicationMode.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Responsibilities" value={professionalInfo.responsibilities.join(", ")} placeholder="Select" />
                   <DisplayField label="Work Domain" value={professionalInfo.workDomain} placeholder="Select" />
                   <DisplayField label="Learning Pace" value={professionalInfo.learningPace} placeholder="Select" />
-                  <DisplayField label="Learning Mode" value={professionalInfo.learningMode.join(", ")} placeholder="Select" />
-                  <DisplayField label="Content Format" value={professionalInfo.contentFormat.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Learning Mode" value={professionalInfo.learningMode.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Content Format" value={professionalInfo.contentFormat.join(", ")} placeholder="Select" />
                   <DisplayField label="Role Competency" value={professionalInfo.roleCompetency} placeholder="Select" />
                   <DisplayField label="Digital Competency" value={professionalInfo.digitalCompetency} placeholder="Select" />
                   <DisplayField label="Leadership Level" value={professionalInfo.leadershipLevel} placeholder="Select" />
-                  <DisplayField label="Governance Area" value={professionalInfo.governanceArea.join(", ")} placeholder="Select" />
-                  <DisplayField label="ERP / System Skills" value={professionalInfo.erpSystemSkills.join(", ")} placeholder="Select" />
-                  <DisplayField label="Certifications" value={professionalInfo.certifications.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Governance Area" value={professionalInfo.governanceArea.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="ERP / System Skills" value={professionalInfo.erpSystemSkills.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Certifications" value={professionalInfo.certifications.join(", ")} placeholder="Select" />
                   <DisplayField label="Service Category" value={professionalInfo.serviceCategory} placeholder="Select" />
                   <DisplayField label="Role Type" value={professionalInfo.roleType} placeholder="Select" />
                   <DisplayField label="Supervisory Level" value={professionalInfo.supervisoryLevel} placeholder="Select" />
@@ -3158,7 +3261,7 @@ export default function StudentGovernmentPage() {
                   <DisplayField label="Current Role" value={professionalInfo.currentRole} placeholder="Select" />
                   <DisplayField label="Govt. Service" value={professionalInfo.govtService} placeholder="Select" />
                   <DisplayField label="Total Experience" value={professionalInfo.totalExperience} placeholder="Select" />
-                  <DisplayField label="Previous Postings" value={professionalInfo.previousPostings.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Previous Postings" value={professionalInfo.previousPostings.join(", ")} placeholder="Select" />
                   <DisplayField label="Retirement Year" value={professionalInfo.retirementYear} placeholder="Select" />
                 </div>
               )}
@@ -3376,12 +3479,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.portfolioLink}
                     placeholder="Enter Portfolio"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, portfolioLink: value }))}
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid Portfolio."
-                    }
+                    validate={(value) => validateProfileLink("portfolioLink", value)}
                     onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3390,6 +3492,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.instagramId}
                     placeholder="Enter Instagram ID"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, instagramId: value }))}
+                    validate={(value) => validateProfileLink("instagramId", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3398,6 +3505,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.facebookUrl}
                     placeholder="Enter Facebook URL"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, facebookUrl: value }))}
+                    validate={(value) => validateProfileLink("facebookUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3406,6 +3518,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.twitterX}
                     placeholder="Enter Twitter / X"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, twitterX: value }))}
+                    validate={(value) => validateProfileLink("twitterX", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3414,12 +3531,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.githubUrl}
                     placeholder="Enter GitHub URL"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, githubUrl: value }))}
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
+                    validate={(value) => validateProfileLink("githubUrl", value)}
                     onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3428,12 +3544,11 @@ export default function StudentGovernmentPage() {
                     value={skillsDraft.linkedinUrl}
                     placeholder="Enter LinkedIn"
                     onChange={(value) => setSkillsDraft((current) => ({ ...current, linkedinUrl: value }))}
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid LinkedIn."
-                    }
+                    validate={(value) => validateProfileLink("linkedinUrl", value)}
                     onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3452,9 +3567,9 @@ export default function StudentGovernmentPage() {
                   <DisplayField label="Study Area" value={skillsInfo.studyArea} placeholder="Select" />
                   <DisplayField label="Digital Literacy" value={skillsInfo.digitalLiteracy} placeholder="Select" />
                   <DisplayField label="Online Learning" value={skillsInfo.onlineLearning} placeholder="Select" />
-                  <DisplayField label="Prior Certifications" value={skillsInfo.priorCertifications.join(", ")} placeholder="Select" />
-                  <DisplayField label="Available Devices" value={skillsInfo.availableDevices.join(", ")} placeholder="Select" />
-                  <DisplayField label="Mandated Training" value={skillsInfo.mandatedTraining.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Prior Certifications" value={skillsInfo.priorCertifications.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Available Devices" value={skillsInfo.availableDevices.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectSavedField" label="Mandated Training" value={skillsInfo.mandatedTraining.join(", ")} placeholder="Select" />
                   <DisplayField label="Training Compliance" value={skillsInfo.trainingCompliance} placeholder="Select" />
                   <DisplayField label="Last Training" value={skillsInfo.lastTraining} placeholder="Select" />
                   <DisplayField label="Next Deadline" value={skillsInfo.nextDeadline} placeholder="dd/mm/yyyy" />
@@ -3503,7 +3618,7 @@ export default function StudentGovernmentPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3561,7 +3676,6 @@ export default function StudentGovernmentPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -3569,7 +3683,6 @@ export default function StudentGovernmentPage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

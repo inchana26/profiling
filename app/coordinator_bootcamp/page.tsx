@@ -44,10 +44,6 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -109,20 +105,11 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
   if (label === "Government ID Proof") {
     return (
@@ -271,6 +258,19 @@ function EditField({
 }
 
 
+const isValidBootcampDOB = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const parsed = new Date(0);
+  parsed.setFullYear(year, month - 1, day);
+  parsed.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parsed.getFullYear() === year && parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day && parsed.getTime() <= today.getTime();
+};
+
 type CalendarDateFieldProps = {
   label: string;
   value: string;
@@ -322,6 +322,9 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
 
   const moveMonth = (amount: number) => {
     const next = new Date(displayYear, displayMonth + amount, 1);
+    const todayMonth = new Date();
+    if (next.getFullYear() > todayMonth.getFullYear() ||
+      (next.getFullYear() === todayMonth.getFullYear() && next.getMonth() > todayMonth.getMonth())) return;
     setDisplayMonth(next.getMonth());
     setDisplayYear(next.getFullYear());
   };
@@ -343,12 +346,19 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
   }
 
   const chooseDate = (date: Date) => {
+    if (!isValidBootcampDOB(formatDate(date))) return;
     onChange(formatDate(date));
     setDisplayMonth(date.getMonth());
     setDisplayYear(date.getFullYear());
     setOpen(false);
     setView("days");
   };
+
+  const currentDOBYear = today.getFullYear();
+  const currentDOBMonth = today.getMonth();
+  const nextDOBPeriodAllowed = view === "days"
+    ? displayYear < currentDOBYear || (displayYear === currentDOBYear && displayMonth < currentDOBMonth)
+    : view === "months" ? displayYear < currentDOBYear : yearPageStart + 12 <= currentDOBYear;
 
   const openCalendar = () => {
     if (!open && selectedDate && !Number.isNaN(selectedDate.getTime())) {
@@ -434,6 +444,7 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
                 else if (view === "years") setYearPageStart((current) => current + 12);
                 else setDisplayYear((current) => current + 1);
               }}
+              disabled={!nextDOBPeriodAllowed}
               aria-label="Next"
             >
               ›
@@ -464,6 +475,7 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
                       className={`institutionCalendarDay ${
                         !currentMonth ? "institutionCalendarDayMuted" : ""
                       } ${selected ? "institutionCalendarDaySelected" : ""}`}
+                      disabled={!isValidBootcampDOB(formatDate(date))}
                       onClick={() => chooseDate(date)}
                     >
                       {date.getDate()}
@@ -483,8 +495,9 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
                   className={`institutionCalendarChoice ${
                     index === displayMonth ? "institutionCalendarChoiceSelected" : ""
                   }`}
-                  onClick={() => {
-                    setDisplayMonth(index);
+                    disabled={displayYear > currentDOBYear || (displayYear === currentDOBYear && index > currentDOBMonth)}
+                    onClick={() => {
+                      setDisplayMonth(index);
                     setView("days");
                   }}
                 >
@@ -508,6 +521,7 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
                 <button
                   type="button"
                   className="institutionCalendarRoundNav"
+                  disabled={yearPageStart + 12 > currentDOBYear}
                   onClick={() => setYearPageStart((current) => current + 12)}
                 >
                   ›
@@ -523,6 +537,7 @@ function CalendarDateField({ label, value, onChange }: CalendarDateFieldProps) {
                       className={`institutionCalendarChoice ${
                         year === displayYear ? "institutionCalendarChoiceSelected" : ""
                       }`}
+                      disabled={year > currentDOBYear || year < 1}
                       onClick={() => {
                         setDisplayYear(year);
                         setView("days");
@@ -1571,7 +1586,6 @@ export default function BootcampCoordinatorPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -1608,7 +1622,7 @@ export default function BootcampCoordinatorPage() {
     designation: "",
     tenantId: "LXP-COL-001",
     reportingAuthority: "",
-    status: "",
+    status: "Active",
   });
 
   const [professionalInfo, setProfessionalInfo] = useState({
@@ -1772,13 +1786,14 @@ export default function BootcampCoordinatorPage() {
   };
 
   const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+    /^[6-9]\d{9}$/.test(value);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
 
   const registrationFormComplete = Boolean(
+    isValidBootcampDOB(registrationDraft.dateOfBirth) &&
     registrationDraft.gender &&
       registrationDraft.highestQualification &&
       registrationDraft.email.trim() &&
@@ -1817,7 +1832,6 @@ export default function BootcampCoordinatorPage() {
 
   const documentsFormComplete = Boolean(
     governmentIdDocumentType.trim() &&
-      documentFiles["Profile Photo"] &&
       documentFiles["Government ID Proof"] &&
       documentFiles["Supporting Documents"]
   );
@@ -1867,9 +1881,9 @@ export default function BootcampCoordinatorPage() {
     } else if (alternateEmail && !isValidEmail(alternateEmail)) {
       message = "Enter a valid Alternate Email";
     } else if (mobile && !isValidPhoneNumber(mobile)) {
-      message = "Mobile Number must be 10 digits";
+      message = "Enter correct Mobile Number";
     } else if (alternatePhone && !isValidPhoneNumber(alternatePhone)) {
-      message = "Alternate Phone must be 10 digits";
+      message = "Enter correct Alternate Phone Number";
     }
 
     setSectionPopup((current) => {
@@ -1940,6 +1954,10 @@ export default function BootcampCoordinatorPage() {
     }
 
     if (section === "registration") {
+      if (!isValidBootcampDOB(registrationDraft.dateOfBirth)) {
+        showSectionError("registration", "Enter a valid Date of Birth. Future dates are not allowed.");
+        return;
+      }
       const email = registrationDraft.email.trim();
       const alternateEmail = registrationDraft.alternateEmail.trim();
 
@@ -1951,7 +1969,7 @@ export default function BootcampCoordinatorPage() {
       if (!isValidPhoneNumber(registrationDraft.mobileNumber)) {
         showSectionError(
           "registration",
-          "Mobile Number must be 10 digits"
+          "Enter correct Mobile Number"
         );
         return;
       }
@@ -1967,7 +1985,7 @@ export default function BootcampCoordinatorPage() {
       ) {
         showSectionError(
           "registration",
-          "Alternate Phone must be 10 digits"
+          "Enter correct Alternate Phone Number"
         );
         return;
       }
@@ -2154,7 +2172,7 @@ export default function BootcampCoordinatorPage() {
       designation: "",
       tenantId: "LXP-COL-001",
       reportingAuthority: "",
-      status: "",
+      status: "Active",
     };
 
     const initialProfessional = {
@@ -2193,7 +2211,6 @@ export default function BootcampCoordinatorPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
       "Government ID Proof": null,
       "Supporting Documents": null,
     });
@@ -2336,7 +2353,7 @@ export default function BootcampCoordinatorPage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
@@ -2694,12 +2711,13 @@ export default function BootcampCoordinatorPage() {
                     type="tel"
                     value={registrationDraft.mobileNumber}
                     visualIcon="edit"
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        mobileNumber: value.replace(/\D/g, "").slice(0, 10),
-                      }))
-                    }
+                    onChange={(value) => {
+                      if (!/^\d{0,10}$/.test(value)) {
+                        showSectionError("registration", "Enter correct Mobile Number");
+                        return;
+                      }
+                      setRegistrationDraft((current) => ({ ...current, mobileNumber: value }));
+                    }}
                     placeholder="Enter Mobile Number"
                   />
 
@@ -2708,12 +2726,13 @@ export default function BootcampCoordinatorPage() {
                     type="tel"
                     value={registrationDraft.alternatePhone}
                     visualIcon="edit"
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternatePhone: value.replace(/\D/g, "").slice(0, 10),
-                      }))
-                    }
+                    onChange={(value) => {
+                      if (!/^\d{0,10}$/.test(value)) {
+                        showSectionError("registration", "Enter correct Alternate Phone Number");
+                        return;
+                      }
+                      setRegistrationDraft((current) => ({ ...current, alternatePhone: value }));
+                    }}
                     placeholder="Enter Alternate Phone"
                   />
                   <SelectField label="Total Experience" value={registrationDraft.totalExperience} placeholder="Select" menuStyle="radio"
@@ -2735,7 +2754,7 @@ export default function BootcampCoordinatorPage() {
                   <SelectField label="Reporting Authority" value={registrationDraft.reportingAuthority} placeholder="Select" menuStyle="radio"
                     options={["Institute Admin", "Principal", "Director", "Program Head", "Department Head", "Platform Admin"]}
                     onChange={(value) => setRegistrationDraft((current) => ({ ...current, reportingAuthority: value }))} />
-                  <EditField label="Status" value={registrationDraft.status} placeholder="eg. Active" locked />
+                  <EditField label="Status" value={registrationDraft.status} locked />
                 </div>
               ) : (
                 <div className="institutionGrid institutionFacultyRegistrationGrid">
@@ -2760,7 +2779,7 @@ export default function BootcampCoordinatorPage() {
                   <DisplayField label="Designation" value={registrationInfo.designation} placeholder="Select" />
                   <DisplayField label="Tenant ID" value={registrationInfo.tenantId} />
                   <DisplayField label="Reporting Authority" value={registrationInfo.reportingAuthority} placeholder="Select" />
-                  <DisplayField label="Status" value={registrationInfo.status} placeholder="eg. Active" />
+                  <DisplayField label="Status" value={registrationInfo.status} />
                 </div>
               )}
             </section>
@@ -2943,8 +2962,21 @@ export default function BootcampCoordinatorPage() {
                 </div>
               )}
 
+              <style>{`
+                @media (min-width: 1181px) {
+                  .institutionDocumentsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+                }
+                @media (max-width: 1180px) {
+                  .institutionDocumentsGrid { grid-template-columns: minmax(0, 1fr) !important; }
+                }
+                .institutionDocumentsGrid > .institutionField {
+                  min-width: 0;
+                  width: 100%;
+                  grid-column: auto !important;
+                }
+              `}</style>
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3002,7 +3034,6 @@ export default function BootcampCoordinatorPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -3010,7 +3041,6 @@ export default function BootcampCoordinatorPage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

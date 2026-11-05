@@ -5003,3 +5003,43 @@ body {
   }
 }
 
+
+
+/* Government Faculty — show every multi-select choice without ellipsis. */
+.institutionMultiSelectField {
+  height: auto !important;
+  min-height: 68px;
+  max-height: none !important;
+}
+.institutionMultiSelectField .institutionSelectWrap,
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px !important;
+  max-height: none !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  align-items: flex-start !important;
+  white-space: normal !important;
+}
+.institutionMultiSelectField .institutionSelectCurrentValue,
+.institutionMultiSelectField .institutionSelectPlaceholderValue {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+.institutionMultiSelectDisplayField {
+  height: auto !important;
+  max-height: none !important;
+}
+.institutionMultiSelectDisplayField .institutionFieldValue {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}

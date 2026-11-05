@@ -41,18 +41,13 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
   },
-  "Supporting Documents": {
-    accept:
-      "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.ppt,.pptx,.mp3,.aac,.mp4,.zip,.xlsx,.vtt,.srt",
-    label: "Use the recommended LMS upload size for the selected file type",
+  "Resume": {
+    accept: "application/pdf,.pdf,.doc,.docx",
+    label: "PDF, DOC or DOCX — maximum 5 MB",
   },
 } as const;
 
@@ -106,34 +101,233 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
-  file: File
+  label: "Government ID Proof" | "Resume", file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
-
   if (label === "Government ID Proof") {
-    return (
-      type.startsWith("image/") ||
-      type === "application/pdf" ||
-      /\.(jpe?g|png|webp|pdf|doc|docx)$/i.test(name)
-    );
+    return (type === "image/jpeg" || type === "image/png" || type === "image/webp" ||
+      type === "application/pdf" || /\.(jpe?g|png|webp|pdf|doc|docx)$/i.test(name));
   }
-
-  return /\.(jpe?g|png|webp|pdf|doc|docx|ppt|pptx|mp3|aac|mp4|zip|xlsx|vtt|srt)$/i.test(
-    name
-  );
+  // Resume upload: accept document formats only.
+  return /\.(pdf|doc|docx)$/i.test(name) &&
+    (!type || [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/octet-stream",
+    ].includes(type));
 };
 
+type DigitalLinkName = "portfolioLink" | "linkedinUrl" | "githubUrl" | "personalWebsite";
+type DigitalLinks = Record<DigitalLinkName, string>;
+
+const parseDigitalLink = (value: string): URL | null => {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 2048 || /\s|\\/.test(trimmed)) return null;
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(trimmed) && !/^https?:\/\//i.test(trimmed)) return null;
+  try {
+    const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : "https://" + trimmed);
+    const host = url.hostname.toLowerCase();
+    const labels = host.split(".");
+    const validHost = labels.length >= 2 && host.length <= 253 &&
+      labels.every((part) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(part)) &&
+      /^[a-z]{2,24}$/i.test(labels[labels.length - 1]);
+    return (validHost && (url.protocol === "https:" || url.protocol === "http:") &&
+      !url.username && !url.password) ? url : null;
+  } catch { return null; }
+};
+
+const digitalLinkError = (field: DigitalLinkName, value: string): string | null => {
+  if (!value.trim()) return null;
+  const url = parseDigitalLink(value);
+  const hostname = url?.hostname.toLowerCase() || "";
+  const parts = url?.pathname.split("/").filter(Boolean) || [];
+  if (field === "linkedinUrl") {
+    return url && (hostname === "linkedin.com" || hostname.endsWith(".linkedin.com")) &&
+      ["in", "pub", "company", "school"].includes(parts[0] || "") && parts.length >= 2
+      ? null : "Enter a valid LinkedIn URL (https://www.linkedin.com/in/username).";
+  }
+  if (field === "githubUrl") {
+    return url && (hostname === "github.com" || hostname === "www.github.com") && parts.length >= 1
+      ? null : "Enter a valid GitHub URL (https://github.com/username).";
+  }
+  if (field === "portfolioLink") {
+    return url ? null : "Enter a valid Portfolio Link (https://portfolio.example.com).";
+  }
+  return url ? null : "Enter a valid Personal Website URL (https://example.com).";
+};
+
+const getDigitalLinkError = (value: DigitalLinks): string | null =>
+  digitalLinkError("portfolioLink", value.portfolioLink) ||
+  digitalLinkError("linkedinUrl", value.linkedinUrl) ||
+  digitalLinkError("githubUrl", value.githubUrl) ||
+  digitalLinkError("personalWebsite", value.personalWebsite);
+
+const normalizeDigitalLink = (value: string): string =>
+  value.trim() ? (parseDigitalLink(value)?.href || value.trim()) : "";
+
+
+const PROFILE_PHOTO_MAX_BYTES = 2 * MB;
+
+const getProfilePhotoValidationError = async (file: File): Promise<string | null> => {
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  const validType =
+    (type === "image/jpeg" && /\.jpe?g$/.test(name)) ||
+    (type === "image/png" && /\.png$/.test(name)) ||
+    (type === "image/webp" && /\.webp$/.test(name));
+
+  if (!validType) return "Profile Photo: only JPG, PNG or WebP files are allowed.";
+  if (file.size > PROFILE_PHOTO_MAX_BYTES) return "Profile Photo must be 2 MB or less.";
+  if (file.size === 0) return "Profile Photo is empty or corrupted.";
+
+  try {
+    const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const jpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+    const png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every(
+      (part, i) => bytes[i] === part
+    );
+    const webp = [82, 73, 70, 70].every((part, i) => bytes[i] === part) &&
+      [87, 69, 66, 80].every((part, i) => bytes[i + 8] === part);
+    if (!((type === "image/jpeg" && jpeg) ||
+          (type === "image/png" && png) ||
+          (type === "image/webp" && webp))) {
+      return "Profile Photo is corrupted or does not match its file type.";
+    }
+
+    // A valid header alone is insufficient: the complete image must decode.
+    if (typeof window !== "undefined" && "createImageBitmap" in window) {
+      const bitmap = await createImageBitmap(file);
+      const validDimensions = bitmap.width > 0 && bitmap.height > 0;
+      bitmap.close();
+      if (!validDimensions) return "Profile Photo is corrupted or unreadable.";
+    } else if (typeof window !== "undefined") {
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const testImage = new window.Image();
+          testImage.onload = () => testImage.naturalWidth && testImage.naturalHeight
+            ? resolve() : reject(new Error("Invalid dimensions"));
+          testImage.onerror = () => reject(new Error("Cannot decode image"));
+          testImage.src = objectUrl;
+        });
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+    return null;
+  } catch {
+    return "Profile Photo is corrupted or unreadable.";
+  }
+};
+
+const validatePreferredName = (name: string): string | null => {
+  const trimmed = name.trim();
+  if (!trimmed) return null; // Keep the existing optional-field behavior.
+  if (name.length > 50 || !/^\p{L}+(?:[ .'-]\p{L}+)*$/u.test(trimmed)) {
+    return "Enter correct Preferred Name.";
+  }
+  return null;
+};
+
+// Academic and credential validations are evaluated on blur, section change and Save.
+// Optional fields remain optional unless the corresponding document type is selected.
+const validateIdentityDocumentNumber = (type: string, value: string): string | null => {
+  const id = value.trim();
+  if (!type && !id) return null;
+  if (!type || !id || id.length > 30) return "Enter correct Identity Document Number.";
+  const upper = id.toUpperCase();
+  const valid = type === "Aadhaar"
+    ? /^\d{12}$/.test(id)
+    : type === "PAN Card"
+      ? /^[A-Z]{5}\d{4}[A-Z]$/.test(upper)
+      : type === "Passport"
+        ? /^[A-Z0-9]{6,12}$/.test(upper) && /[0-9]/.test(upper)
+        : type === "Driving Licence"
+          ? /^[A-Z]{2}[ -]?\d{2}[ -]?\d{11}$/.test(upper)
+          : type === "Voter ID"
+            ? /^[A-Z]{3}\d{7}$/.test(upper)
+            : /^[A-Z0-9]+(?:[-/][A-Z0-9]+)*$/.test(upper) && upper.length >= 5;
+  return valid ? null : "Enter correct Identity Document Number.";
+};
+
+const validateAlternateContact = (value: string): string | null =>
+  !value.trim() || /^[6-9]\d{9}$/.test(value.trim())
+    ? null : "Enter correct Alternate Contact.";
+
+const validateAlternateEmail = (value: string): string | null => {
+  const email = value.trim();
+  if (!email) return null;
+  return email.length <= 254 && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(email)
+    ? null : "Enter correct Alternate Email.";
+};
+
+const validateUniversityGrade = (system: string, value: string): string | null => {
+  const grade = value.trim();
+  if (!grade) return null;
+  if (!system || grade.length > 8) return "Enter correct Grade / Score.";
+  if (system === "Grade") {
+    return /^(?:[A-F][+-]?|[A-F][1-3]|O|S|P)$/i.test(grade)
+      ? null : "Enter correct Grade / Score.";
+  }
+  const percentage = system === "Percentage";
+  const numericText = percentage && grade.endsWith("%") ? grade.slice(0,-1) : grade;
+  if (!/^\d{1,3}(?:\.\d{1,2})?$/.test(numericText)) return "Enter correct Grade / Score.";
+  const number = Number(numericText);
+  const maximum = percentage ? 100 : system === "CGPA – 10 Point Scale" ? 10 : 4;
+  return number >= 0 && number <= maximum ? null : "Enter correct Grade / Score.";
+};
+
+const getTodayForUniversity = (): string => {
+  const today = new Date();
+  return [today.getFullYear(), String(today.getMonth()+1).padStart(2,"0"), String(today.getDate()).padStart(2,"0")].join("-");
+};
+
+const validateUniversityIssueDate = (value: string): string | null =>
+  value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value > getTodayForUniversity())
+    ? "Issue Date cannot be after today." : null;
+
+const validateCredentialID = (value: string): string | null => {
+  const id = value.trim();
+  if (!id) return null;
+  return id.length >= 4 && id.length <= 50 && /^[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*$/.test(id)
+    ? null : "Enter correct Credential ID.";
+};
+
+const validateCredentialVerificationUrl = (value: string): string | null => {
+  const address = value.trim();
+  if (!address) return null;
+  if (address.length > 150 || /\s/.test(address)) return "Enter correct Credential URL.";
+  try {
+    const normalized = /^https?:\/\//i.test(address) ? address : 'https://' + address;
+    const url = new URL(normalized);
+    const validHost = /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,24}$/.test(url.hostname);
+    return (['http:', 'https:'].includes(url.protocol) && validHost && !url.username && !url.password)
+      ? null : "Enter correct Credential URL.";
+  } catch {
+    return "Enter correct Credential URL.";
+  }
+};
+
+type AcademicValidationSource = {
+  preferredName: string; identityDocumentType: string; identityDocumentNumber: string;
+  alternateContact: string; alternateEmail: string; gradingSystem: string; gradeScore: string;
+};
+const getUniversityAcademicError = (info: AcademicValidationSource): string | null =>
+  validatePreferredName(info.preferredName) ||
+  validateIdentityDocumentNumber(info.identityDocumentType, info.identityDocumentNumber) ||
+  validateAlternateContact(info.alternateContact) ||
+  validateAlternateEmail(info.alternateEmail) ||
+  validateUniversityGrade(info.gradingSystem, info.gradeScore);
+
+type CredentialValidationSource = {
+  issueDate: string; credentialId: string; credentialUrl: string;
+};
+const getUniversityCredentialError = (info: CredentialValidationSource): string | null =>
+  validateUniversityIssueDate(info.issueDate) ||
+  validateCredentialID(info.credentialId) ||
+  validateCredentialVerificationUrl(info.credentialUrl);
 
 type IconImageProps = {
   src: string;
@@ -167,6 +361,7 @@ type DisplayFieldProps = {
   value: string;
   placeholder?: string;
   className?: string;
+  isLink?: boolean;
 };
 
 function DisplayField({
@@ -174,6 +369,7 @@ function DisplayField({
   value,
   placeholder,
   className = "",
+  isLink = false,
 }: DisplayFieldProps) {
   return (
     <div className={`institutionField ${className}`}>
@@ -182,7 +378,9 @@ function DisplayField({
         className={`institutionFieldValue ${!value ? "institutionPlaceholder" : ""
           }`}
       >
-        {value || placeholder || "--"}
+        {isLink && value && parseDigitalLink(value) ? (
+          <a className="institutionSavedProfileLink" href={normalizeDigitalLink(value)} target="_blank" rel="noopener noreferrer">{value}</a>
+        ) : value || placeholder || "--"}
       </div>
     </div>
   );
@@ -199,6 +397,10 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  onValidationClear?: () => void;
+  validateOnBlurOnly?: boolean;
+  clearInvalidOnBlur?: boolean;
+  maxLength?: number;
 };
 
 function EditField({
@@ -212,8 +414,13 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  onValidationClear,
+  validateOnBlurOnly = false,
+  clearInvalidOnBlur = false,
+  maxLength,
 }: EditFieldProps) {
   const inputId = useId();
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const validationTimerRef = useRef<number | null>(null);
   const lastValidationErrorRef = useRef<string | null>(null);
 
@@ -229,6 +436,7 @@ function EditField({
     if (!validate) return;
 
     const message = validate(nextValue);
+    setFieldError(message);
 
     if (message) {
       if (lastValidationErrorRef.current !== message) {
@@ -238,6 +446,7 @@ function EditField({
       return;
     }
 
+    if (lastValidationErrorRef.current) onValidationClear?.();
     lastValidationErrorRef.current = null;
   };
 
@@ -277,19 +486,32 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
+            aria-invalid={Boolean(fieldError)}
+            aria-describedby={fieldError ? `${inputId}-error` : undefined}
             onChange={(event) => {
               const nextValue = event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (fieldError && validate) runValidation(nextValue);
+              else if (!validateOnBlurOnly) scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
                 window.clearTimeout(validationTimerRef.current);
                 validationTimerRef.current = null;
               }
+              const invalid = Boolean(validate?.(event.currentTarget.value));
               runValidation(event.currentTarget.value);
+              if (invalid && clearInvalidOnBlur) {
+                onChange?.("");
+                setFieldError(null);
+                lastValidationErrorRef.current = null;
+              }
             }}
           />
+        )}
+        {fieldError && !locked && (
+          <span id={`${inputId}-error`} className="institutionEditFieldError" role="alert">{fieldError}</span>
         )}
       </div>
 
@@ -330,12 +552,16 @@ type CalendarDateFieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  maxDate?: string;
+  onValidationError?: (message: string) => void;
 };
 
 function CalendarDateField({
   label,
   value,
   onChange,
+  maxDate,
+  onValidationError,
 }: CalendarDateFieldProps) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"days" | "months" | "years">("days");
@@ -671,6 +897,7 @@ function CalendarDateField({
                   const isCurrentMonth =
                     date.getMonth() === monthIndex;
                   const isSelected = value === dateValue;
+                  const unavailable = Boolean(maxDate && dateValue > maxDate);
 
                   return (
                     <button
@@ -685,7 +912,13 @@ function CalendarDateField({
                           ? "institutionDateCalendarDaySelected"
                           : ""
                       }`}
+                      aria-disabled={unavailable}
+                      style={unavailable ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
                       onClick={() => {
+                        if (unavailable) {
+                          onValidationError?.("Issue Date cannot be after today.");
+                          return;
+                        }
                         onChange(dateValue);
 
                         if (!isCurrentMonth) {
@@ -724,6 +957,7 @@ type SelectFieldProps = {
   className?: string;
   visualIcon?: "select" | "edit";
   menuStyle?: "default" | "radio";
+  entireFieldClickable?: boolean;
 };
 
 function SelectField({
@@ -735,6 +969,7 @@ function SelectField({
   className = "",
   visualIcon = "select",
   menuStyle = "default",
+  entireFieldClickable = true,
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const selectId = useId();
@@ -781,6 +1016,13 @@ function SelectField({
 
   const isRadioMenu = menuStyle === "radio";
   const shouldScroll = isRadioMenu && options.length > 4;
+  const toggleSelectOpen = () => {
+    const nextOpen = !open;
+    if (nextOpen) {
+      window.dispatchEvent(new CustomEvent("faculty-profile-dropdown-open", { detail: selectId }));
+    }
+    setOpen(nextOpen);
+  };
 
   return (
     <div
@@ -788,6 +1030,11 @@ function SelectField({
       className={`institutionField institutionSelectField ${
         isRadioMenu ? "institutionRadioSelectField" : ""
       } ${open ? "institutionSelectFieldOpen" : ""} ${className}`}
+      onClick={(event) => {
+        if (!entireFieldClickable) return;
+        if ((event.target as HTMLElement).closest("button")) return;
+        toggleSelectOpen();
+      }}
     >
       <div id={labelId} className="institutionFieldLabel">
         {label}
@@ -802,17 +1049,7 @@ function SelectField({
           aria-expanded={open}
           aria-labelledby={labelId}
           aria-controls={listboxId}
-          onClick={() => {
-            const nextOpen = !open;
-            if (nextOpen) {
-              window.dispatchEvent(
-                new CustomEvent("faculty-profile-dropdown-open", {
-                  detail: selectId,
-                })
-              );
-            }
-            setOpen(nextOpen);
-          }}
+          onClick={toggleSelectOpen}
         >
           <span
             className={
@@ -979,7 +1216,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1759,9 +1996,8 @@ export default function FacultyUniversityPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
-    "Supporting Documents": null,
+    "Resume": null,
   });
 
   const [documentUploadErrors, setDocumentUploadErrors] = useState<
@@ -1866,6 +2102,11 @@ export default function FacultyUniversityPage() {
 
     if (editingSection && editingSection !== section) {
       if (editingSection === "professional") {
+        const nameError = getUniversityAcademicError(professionalDraft);
+        if (nameError) {
+          showSectionError("professional", nameError);
+          return;
+        }
         const complete =
           professionalDraft.nationality &&
           professionalDraft.identityDocumentType &&
@@ -1892,6 +2133,11 @@ export default function FacultyUniversityPage() {
       }
 
       if (editingSection === "skills") {
+        const credentialError = getUniversityCredentialError(skillsDraft) || getDigitalLinkError(skillsDraft);
+        if (credentialError) {
+          showSectionError("skills", credentialError);
+          return;
+        }
         const complete =
           skillsDraft.certificationName &&
           skillsDraft.issuingOrganisation &&
@@ -1916,6 +2162,10 @@ export default function FacultyUniversityPage() {
 
         setSkillsInfo({
           ...skillsDraft,
+        portfolioLink: normalizeDigitalLink(skillsDraft.portfolioLink),
+        linkedinUrl: normalizeDigitalLink(skillsDraft.linkedinUrl),
+        githubUrl: normalizeDigitalLink(skillsDraft.githubUrl),
+        personalWebsite: normalizeDigitalLink(skillsDraft.personalWebsite),
           preferredRole: [...skillsDraft.preferredRole],
           preferredIndustry: [...skillsDraft.preferredIndustry],
           learningGoal: [...skillsDraft.learningGoal],
@@ -1926,15 +2176,9 @@ export default function FacultyUniversityPage() {
       }
 
       if (editingSection === "documents") {
-        const hasGovernmentId =
-          governmentIdDocumentType.trim() !== "" &&
-          documentFiles["Government ID Proof"] !== null;
-
-        if (!hasGovernmentId) {
-          showSectionError(
-            "documents",
-            "Please select Document Type and upload Government ID Proof."
-          );
+        const documentError = getDocumentSectionError();
+        if (documentError) {
+          showSectionError("documents", documentError);
           return;
         }
 
@@ -1993,24 +2237,6 @@ export default function FacultyUniversityPage() {
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
-  const isValidWebAddress = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return true;
-
-    try {
-      const candidate = /^https?:\/\//i.test(trimmed)
-        ? trimmed
-        : `https://${trimmed}`;
-      const parsed = new URL(candidate);
-
-      return (
-        (parsed.protocol === "http:" || parsed.protocol === "https:") &&
-        parsed.hostname.includes(".")
-      );
-    } catch {
-      return false;
-    }
-  };
 
   const isValidOptionalContact = (value: string) => {
     const trimmed = value.trim();
@@ -2032,6 +2258,19 @@ export default function FacultyUniversityPage() {
           : current
       );
     }, 2500);
+  };
+
+  const clearSectionError = (section: SectionName) => {
+    setSectionPopup((current) => current?.section === section && current.type === "error" ? null : current);
+  };
+
+  const getDocumentSectionError = (): string | null => {
+    const uploadError = Object.values(documentUploadErrors).find(Boolean);
+    if (uploadError) return uploadError;
+    if (!governmentIdDocumentType.trim()) return "Documents: select the Government ID document type.";
+    if (!documentFiles["Government ID Proof"]) return "Documents: upload Government ID Proof.";
+    if (!documentFiles["Resume"]) return "Documents: upload Resume (PDF, DOC or DOCX).";
+    return null;
   };
 
   const saveProfile = () => {
@@ -2069,17 +2308,22 @@ export default function FacultyUniversityPage() {
 
     const documentsComplete =
       governmentIdDocumentType.trim() !== "" &&
-      documentFiles["Government ID Proof"] !== null;
+      documentFiles["Government ID Proof"] !== null &&
+      documentFiles["Resume"] !== null;
 
-    const hasDocumentError = Object.values(documentUploadErrors).some(
-      (message) => Boolean(message)
-    );
+    const documentError = getDocumentSectionError();
 
     if (!profilePhotoCompleted) {
       showFlowPopup(
         "Please complete Profile Photo before saving the profile.",
         "confirmation"
       );
+      return;
+    }
+
+    const preferredNameError = getUniversityAcademicError(professionalSource);
+    if (preferredNameError) {
+      showSectionError("professional", preferredNameError);
       return;
     }
 
@@ -2091,6 +2335,12 @@ export default function FacultyUniversityPage() {
       return;
     }
 
+    const credentialError = getUniversityCredentialError(skillsSource) || getDigitalLinkError(skillsSource);
+    if (credentialError) {
+      showSectionError("skills", credentialError);
+      return;
+    }
+
     if (!skillsComplete) {
       showFlowPopup(
         "Please complete Digital Profile before saving the profile.",
@@ -2099,19 +2349,10 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (hasDocumentError) {
-      showFlowPopup(
-        "Please correct the document upload error before saving the profile.",
-        "confirmation"
-      );
-      return;
-    }
-
-    if (!documentsComplete) {
-      showFlowPopup(
-        "Please complete Documents before saving the profile.",
-        "confirmation"
-      );
+    if (documentError || !documentsComplete) {
+      const message = documentError || "Documents: upload Government ID Proof.";
+      showSectionError("documents", message);
+      showFlowPopup(message, "confirmation");
       return;
     }
 
@@ -2130,6 +2371,10 @@ export default function FacultyUniversityPage() {
     if (editingSection === "skills") {
       setSkillsInfo({
         ...skillsDraft,
+        portfolioLink: normalizeDigitalLink(skillsDraft.portfolioLink),
+        linkedinUrl: normalizeDigitalLink(skillsDraft.linkedinUrl),
+        githubUrl: normalizeDigitalLink(skillsDraft.githubUrl),
+        personalWebsite: normalizeDigitalLink(skillsDraft.personalWebsite),
         preferredRole: [...skillsDraft.preferredRole],
         preferredIndustry: [...skillsDraft.preferredIndustry],
         learningGoal: [...skillsDraft.learningGoal],
@@ -2216,9 +2461,8 @@ export default function FacultyUniversityPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
       "Government ID Proof": null,
-      "Supporting Documents": null,
+      "Resume": null,
     });
     setDocumentUploadErrors({});
 
@@ -2244,14 +2488,17 @@ export default function FacultyUniversityPage() {
     setShowDraftSaved(false);
   };
 
-  const handleProfileImageSelect = (
+  const handleProfileImageSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
 
-    if (!file || !file.type.startsWith("image/")) {
-      event.target.value = "";
-      return;
+    const error = await getProfilePhotoValidationError(file);
+    if (error) {
+      showFlowPopup(error, "profile");
+      return; // Do not accept unsupported, oversized or corrupted photos.
     }
 
     const reader = new FileReader();
@@ -2259,66 +2506,55 @@ export default function FacultyUniversityPage() {
       if (typeof reader.result === "string") {
         setProfileImage(reader.result);
         setProfilePhotoCompleted(true);
+        setFlowPopup(null);
+        setFlowPopupSection(null);
+      } else {
+        showFlowPopup("Profile Photo could not be opened.", "profile");
       }
     };
-
+    reader.onerror = () => {
+      showFlowPopup("Profile Photo could not be read.", "profile");
+    };
     reader.readAsDataURL(file);
-    event.target.value = "";
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
-    file: File | null
+    label: "Government ID Proof" | "Resume", file: File | null
   ) => {
     if (!file) return;
 
-    if (!isAcceptedDocumentFile(label, file)) {
-      const message = `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
+    const size = label === "Resume"
+      ? { min: 0, max: 5 * MB, label: "up to 5 MB" }
+      : getDocumentRecommendedSize(file);
+    let message: string | null = null;
+    if (!isAcceptedDocumentFile(label, file) || !size) {
+      message = label === "Resume"
+        ? "Resume: upload a PDF, DOC or DOCX file."
+        : "Government ID Proof: upload a JPG, PNG, WebP, PDF, DOC or DOCX file.";
+    } else if (file.size === 0) {
+      message = label + ": the selected file is empty or corrupted.";
+    } else if (file.size > size.max) {
+      message = label === "Resume"
+        ? "Resume must be 5 MB or less."
+        : label + ": file exceeds the recommended size (" + size.label + ").";
+    } else if (file.size < size.min) {
+      message = label + ": file is below the recommended size (" + size.label + ").";
+    }
 
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: message,
-      }));
+    if (message) {
+      setDocumentFiles((previous) => ({ ...previous, [label]: null }));
+      setDocumentUploadErrors((previous) => ({ ...previous, [label]: message }));
       showSectionError("documents", message);
       return;
     }
 
-    const recommendedSize = getDocumentRecommendedSize(file);
-
-    if (recommendedSize === null) {
-      const message = "Unsupported file type.";
-
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: message,
-      }));
-      showSectionError("documents", message);
-      return;
+    setDocumentFiles((previous) => ({ ...previous, [label]: file }));
+    setDocumentUploadErrors((previous) => ({ ...previous, [label]: "" }));
+    clearSectionError("documents");
+    if (flowPopupSection === "documents" || flowPopupSection === "confirmation") {
+      setFlowPopup(null);
+      setFlowPopupSection(null);
     }
-
-    if (
-      file.size < recommendedSize.min ||
-      file.size > recommendedSize.max
-    ) {
-      const message = `Recommended file size is ${recommendedSize.label}.`;
-
-      setDocumentUploadErrors((current) => ({
-        ...current,
-        [label]: message,
-      }));
-      showSectionError("documents", message);
-      return;
-    }
-
-    setDocumentFiles((current) => ({
-      ...current,
-      [label]: file,
-    }));
-
-    setDocumentUploadErrors((current) => ({
-      ...current,
-      [label]: "",
-    }));
   };
 
   useEffect(() => {
@@ -2371,7 +2607,8 @@ export default function FacultyUniversityPage() {
       editingSection === "professional" ? professionalDraft : professionalInfo;
 
     const complete = Boolean(
-      source.nationality &&
+      !getUniversityAcademicError(source) &&
+        source.nationality &&
         source.identityDocumentType &&
         source.issuingCountry &&
         source.educationLevel &&
@@ -2390,6 +2627,8 @@ export default function FacultyUniversityPage() {
     const source = editingSection === "skills" ? skillsDraft : skillsInfo;
 
     const complete = Boolean(
+      !getUniversityCredentialError(source) &&
+      !getDigitalLinkError(source) &&
       source.certificationName &&
         source.issuingOrganisation &&
         source.careerGoal &&
@@ -2411,6 +2650,7 @@ export default function FacultyUniversityPage() {
     const complete =
       governmentIdDocumentType.trim() !== "" &&
       documentFiles["Government ID Proof"] !== null &&
+      documentFiles["Resume"] !== null &&
       !Object.values(documentUploadErrors).some((message) => Boolean(message));
 
     setDocumentsCompleted(complete);
@@ -2485,6 +2725,12 @@ export default function FacultyUniversityPage() {
             </div>
 
             <section className="institutionOverviewCard">
+              {flowPopup && flowPopupSection === "profile" && (
+                <div className="institutionProfilePhotoErrorPopup" role="alert" aria-live="assertive">
+                  <IconImage src={images.sad} width={18} height={18} />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
               <div className="institutionIdentity">
                 <div className="institutionAvatarWrap">
                   <div className="institutionAvatar">
@@ -2516,7 +2762,7 @@ export default function FacultyUniversityPage() {
                   <input
                     ref={profileImageInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                     className="institutionProfileImageInput"
                     onChange={handleProfileImageSelect}
                   />
@@ -2767,6 +3013,11 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.preferredName}
                     placeholder="Enter Preferred Name"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, preferredName: value }))}
+                    validate={validatePreferredName}
+                    onValidationError={(message) => showSectionError("professional", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={50}
                     visualIcon="edit"
                   />
 
@@ -2775,6 +3026,7 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.nationality}
                     placeholder="Select"
                     menuStyle="radio"
+                    entireFieldClickable
                     options={["Indian", "American", "British", "Australian", "Canadian", "Other"]}
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, nationality: value }))}
                   />
@@ -2785,7 +3037,7 @@ export default function FacultyUniversityPage() {
                     placeholder="Select"
                     menuStyle="radio"
                     options={["Aadhaar", "Passport", "PAN Card", "Driving Licence", "Voter ID", "Other"]}
-                    onChange={(value) => setProfessionalDraft((c) => ({ ...c, identityDocumentType: value }))}
+                    onChange={(value) => setProfessionalDraft((c) => ({ ...c, identityDocumentType: value, identityDocumentNumber: "" }))}
                   />
 
                   <EditField
@@ -2793,6 +3045,11 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.identityDocumentNumber}
                     placeholder="Enter Document Number"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, identityDocumentNumber: value }))}
+                    maxLength={30}
+                    validate={(value) => validateIdentityDocumentNumber(professionalDraft.identityDocumentType, value)}
+                    onValidationError={(message) => showSectionError("professional", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
                     visualIcon="edit"
                   />
 
@@ -2806,39 +3063,31 @@ export default function FacultyUniversityPage() {
                   />
 
                   <EditField
-                    label="Alternate Contact"
+                    label="Contact"
+                    type="tel"
                     value={professionalDraft.alternateContact}
                     placeholder="Enter Alternate Contact"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateContact: value }))}
+                    maxLength={10}
                     visualIcon="edit"
-                    validate={(value) =>
-                      isValidOptionalContact(value)
-                        ? null
-                        : "Please enter a valid Alternate Contact number."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("professional", message)
-                    }
+                    validate={validateAlternateContact}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    onValidationError={(message) => showSectionError("professional", message)}
                   />
 
                   <EditField
-                    label="Alternate Email"
+                    label="Email"
                     type="email"
                     value={professionalDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, alternateEmail: value }))}
+                    maxLength={254}
                     visualIcon="edit"
-                    validate={(value) => {
-                      const trimmed = value.trim();
-                      if (!trimmed) return null;
-
-                      return isValidEmail(trimmed)
-                        ? null
-                        : "Please enter a valid Alternate Email address.";
-                    }}
-                    onValidationError={(message) =>
-                      showSectionError("professional", message)
-                    }
+                    validate={validateAlternateEmail}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    onValidationError={(message) => showSectionError("professional", message)}
                   />
 
                   <SelectField
@@ -2883,7 +3132,7 @@ export default function FacultyUniversityPage() {
                     placeholder="Select"
                     menuStyle="radio"
                     options={["CGPA – 10 Point Scale", "CGPA – 4 Point Scale", "Percentage", "GPA", "Grade"]}
-                    onChange={(value) => setProfessionalDraft((c) => ({ ...c, gradingSystem: value }))}
+                    onChange={(value) => setProfessionalDraft((c) => ({ ...c, gradingSystem: value, gradeScore: "" }))}
                   />
 
                   <EditField
@@ -2891,6 +3140,11 @@ export default function FacultyUniversityPage() {
                     value={professionalDraft.gradeScore}
                     placeholder="Enter Grade / Score"
                     onChange={(value) => setProfessionalDraft((c) => ({ ...c, gradeScore: value }))}
+                    maxLength={8}
+                    validate={(value) => validateUniversityGrade(professionalDraft.gradingSystem, value)}
+                    onValidationError={(message) => showSectionError("professional", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
                     visualIcon="edit"
                   />
 
@@ -2919,8 +3173,8 @@ export default function FacultyUniversityPage() {
                   <DisplayField label="Identity Document Type" value={professionalInfo.identityDocumentType} placeholder="Select" />
                   <DisplayField label="Identity Document Number" value={professionalInfo.identityDocumentNumber} placeholder="Enter Document Number" />
                   <DisplayField label="Issuing Country" value={professionalInfo.issuingCountry} placeholder="Select" />
-                  <DisplayField label="Alternate Contact" value={professionalInfo.alternateContact} placeholder="Enter Alternate Contact" />
-                  <DisplayField label="Alternate Email" value={professionalInfo.alternateEmail} placeholder="Enter Alternate Email" />
+                  <DisplayField label="Contact" value={professionalInfo.alternateContact} placeholder="Enter Alternate Contact" />
+                  <DisplayField label="Email" value={professionalInfo.alternateEmail} placeholder="Enter Alternate Email" />
                   <DisplayField label="Education Level" value={professionalInfo.educationLevel} placeholder="Select" />
                   <DisplayField label="Qualification" value={professionalInfo.qualification} placeholder="Select" />
                   <DisplayField label="Institution Name" value={professionalInfo.institutionName} placeholder="Select" />
@@ -2974,6 +3228,8 @@ export default function FacultyUniversityPage() {
                   <CalendarDateField
                     label="Issue Date"
                     value={skillsDraft.issueDate}
+                    maxDate={getTodayForUniversity()}
+                    onValidationError={(message) => showSectionError("skills", message)}
                     onChange={(value) =>
                       setSkillsDraft((c) => ({ ...c, issueDate: value }))
                     }
@@ -2986,20 +3242,27 @@ export default function FacultyUniversityPage() {
                       setSkillsDraft((c) => ({ ...c, expiryDate: value }))
                     }
                   />
-                  <EditField label="Credential ID" value={skillsDraft.credentialId} placeholder="Enter Credential ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialId: value }))} />
+                  <EditField
+                    label="Credential ID"
+                    value={skillsDraft.credentialId}
+                    placeholder="Enter Credential ID"
+                    onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialId: value }))}
+                    maxLength={50}
+                    validate={validateCredentialID}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                  />
                   <EditField
                     label="Credential URL"
                     value={skillsDraft.credentialUrl}
                     placeholder="Enter Verification Link"
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, credentialUrl: value }))}
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid Credential URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={150}
+                    validate={validateCredentialVerificationUrl}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    onValidationError={(message) => showSectionError("skills", message)}
                   />
 
                   <SelectField
@@ -3083,28 +3346,20 @@ export default function FacultyUniversityPage() {
                     value={skillsDraft.portfolioLink}
                     placeholder="Enter Portfolio Link"
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, portfolioLink: value }))}
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid Portfolio Link."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={2048}
+                    validate={(value) => digitalLinkError("portfolioLink", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    onValidationClear={() => clearSectionError("skills")}
                   />
                   <EditField
                     label="LinkedIn URL"
                     value={skillsDraft.linkedinUrl}
                     placeholder="Enter LinkedIn URL"
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, linkedinUrl: value }))}
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={2048}
+                    validate={(value) => digitalLinkError("linkedinUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    onValidationClear={() => clearSectionError("skills")}
                   />
                   <EditField label="Instagram ID" value={skillsDraft.instagramId} placeholder="Enter Instagram ID" onChange={(value) => setSkillsDraft((c) => ({ ...c, instagramId: value }))} />
                   <EditField label="Facebook ID / URL" value={skillsDraft.facebookUrl} placeholder="Enter Facebook URL" onChange={(value) => setSkillsDraft((c) => ({ ...c, facebookUrl: value }))} />
@@ -3113,14 +3368,10 @@ export default function FacultyUniversityPage() {
                     value={skillsDraft.githubUrl}
                     placeholder="Enter GitHub URL"
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, githubUrl: value }))}
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={2048}
+                    validate={(value) => digitalLinkError("githubUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    onValidationClear={() => clearSectionError("skills")}
                   />
                   <EditField label="Twitter / X" value={skillsDraft.twitterX} placeholder="Enter Twitter / X" onChange={(value) => setSkillsDraft((c) => ({ ...c, twitterX: value }))} />
 
@@ -3149,14 +3400,10 @@ export default function FacultyUniversityPage() {
                     value={skillsDraft.personalWebsite}
                     placeholder="Enter Personal Website"
                     onChange={(value) => setSkillsDraft((c) => ({ ...c, personalWebsite: value }))}
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid Personal Website URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    maxLength={2048}
+                    validate={(value) => digitalLinkError("personalWebsite", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    onValidationClear={() => clearSectionError("skills")}
                   />
                 </div>
               ) : (
@@ -3168,22 +3415,22 @@ export default function FacultyUniversityPage() {
                   <DisplayField label="Credential ID" value={skillsInfo.credentialId} placeholder="Enter Credential ID" />
                   <DisplayField label="Credential URL" value={skillsInfo.credentialUrl} placeholder="Enter Verification Link" />
                   <DisplayField label="Career Goal" value={skillsInfo.careerGoal} placeholder="Select" />
-                  <DisplayField label="Preferred Role" value={skillsInfo.preferredRole.join(", ")} placeholder="Select" />
-                  <DisplayField label="Preferred Industry" value={skillsInfo.preferredIndustry.join(", ")} placeholder="Select" />
-                  <DisplayField label="Learning Goal" value={skillsInfo.learningGoal.join(", ")} placeholder="Select" />
-                  <DisplayField label="Preferred Learning Mode" value={skillsInfo.preferredLearningMode.join(", ")} placeholder="Select" />
+                  <DisplayField label="Preferred Role" value={skillsInfo.preferredRole.join(", ")} placeholder="Select" className="institutionMultiSelectSavedField" />
+                  <DisplayField label="Preferred Industry" value={skillsInfo.preferredIndustry.join(", ")} placeholder="Select" className="institutionMultiSelectSavedField" />
+                  <DisplayField label="Learning Goal" value={skillsInfo.learningGoal.join(", ")} placeholder="Select" className="institutionMultiSelectSavedField" />
+                  <DisplayField label="Preferred Learning Mode" value={skillsInfo.preferredLearningMode.join(", ")} placeholder="Select" className="institutionMultiSelectSavedField" />
                   <DisplayField label="Skill Name" value={skillsInfo.skillName} placeholder="Select" />
                   <DisplayField label="Category" value={skillsInfo.category} placeholder="Select" />
                   <DisplayField label="Domain" value={skillsInfo.domain} placeholder="Select" />
                   <DisplayField label="Self-Rated Level" value={skillsInfo.selfRatedLevel} placeholder="Select" />
-                  <DisplayField label="Portfolio Link" value={skillsInfo.portfolioLink} placeholder="Enter Portfolio Link" />
-                  <DisplayField label="LinkedIn URL" value={skillsInfo.linkedinUrl} placeholder="Enter LinkedIn URL" />
+                  <DisplayField label="Portfolio Link" value={skillsInfo.portfolioLink} placeholder="Enter Portfolio Link" isLink />
+                  <DisplayField label="LinkedIn URL" value={skillsInfo.linkedinUrl} placeholder="Enter LinkedIn URL" isLink />
                   <DisplayField label="Instagram ID" value={skillsInfo.instagramId} placeholder="Enter Instagram ID" />
                   <DisplayField label="Facebook ID / URL" value={skillsInfo.facebookUrl} placeholder="Enter Facebook URL" />
-                  <DisplayField label="GitHub URL" value={skillsInfo.githubUrl} placeholder="Enter GitHub URL" />
+                  <DisplayField label="GitHub URL" value={skillsInfo.githubUrl} placeholder="Enter GitHub URL" isLink />
                   <DisplayField label="Twitter / X" value={skillsInfo.twitterX} placeholder="Enter Twitter / X" />
                   <DisplayField label="Portfolio Evidence" value={skillsInfo.portfolioEvidence} placeholder="Select" />
-                  <DisplayField label="Personal Website" value={skillsInfo.personalWebsite} placeholder="Enter Personal Website" />
+                  <DisplayField label="Personal Website" value={skillsInfo.personalWebsite} placeholder="Enter Personal Website" isLink />
                 </div>
               )}
             </section>
@@ -3195,6 +3442,7 @@ export default function FacultyUniversityPage() {
                 iconTone="orange"
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
+                popupMessage={sectionPopup?.section === "documents" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
@@ -3214,7 +3462,7 @@ export default function FacultyUniversityPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Resume"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3259,7 +3507,10 @@ export default function FacultyUniversityPage() {
                   "Birth Certificate",
                   "Other Government ID",
                 ]}
-                              onChange={setGovernmentIdDocumentType}
+                              onChange={(value) => {
+                                setGovernmentIdDocumentType(value);
+                                clearSectionError("documents");
+                              }}
                             />
                           )}
 
@@ -3272,17 +3523,15 @@ export default function FacultyUniversityPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
-                                    | "Supporting Documents"
+                                    | "Resume"
                                 ].accept
                               }
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
-                                    | "Supporting Documents",
+                                    | "Resume",
                                   event.target.files?.[0] ?? null
                                 );
                                 event.target.value = "";

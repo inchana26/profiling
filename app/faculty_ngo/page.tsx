@@ -280,7 +280,7 @@ function SelectField({
   onChange,
   className = "",
   visualIcon = "select",
-  menuStyle = "default",
+  menuStyle = "radio",
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const selectId = useId();
@@ -400,20 +400,6 @@ function SelectField({
             role="listbox"
             aria-labelledby={labelId}
           >
-            {!isRadioMenu && (
-              <button
-                type="button"
-                className={`institutionCustomSelectOption ${
-                  !value ? "institutionCustomSelectOptionActive" : ""
-                }`}
-                role="option"
-                aria-selected={!value}
-                onClick={() => handleSelect("")}
-              >
-                {placeholder}
-              </button>
-            )}
-
             {options.map((option) => {
               const selected = value === option;
 
@@ -525,7 +511,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -915,7 +901,7 @@ export default function FacultyUniversityPage() {
     qualification: "",
     totalExperience: "",
     trainingCenterName: "",
-    employmentStatus: "",
+    employmentStatus: "Active",
   });
 
   const [professionalInfo, setProfessionalInfo] = useState({
@@ -978,7 +964,7 @@ export default function FacultyUniversityPage() {
 
     if (section === "skills" && !professionalProfileCompleted) {
       showFlowPopup(
-        "Please Complete Professional Trainer Profile",
+        "Please Complete Trainer Profile",
         "skills"
       );
       return;
@@ -1032,7 +1018,7 @@ export default function FacultyUniversityPage() {
   };
 
   const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+    /^[6-9]\d{9}$/.test(value);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
@@ -1060,14 +1046,6 @@ export default function FacultyUniversityPage() {
       }
 
       return null;
-    });
-  };
-
-  const showLiveSectionError = (section: SectionName, message: string) => {
-    setSectionPopup({
-      section,
-      type: "error",
-      message,
     });
   };
 
@@ -1189,7 +1167,7 @@ export default function FacultyUniversityPage() {
         : !registrationCompleted
           ? "Registration Data"
           : !professionalProfileCompleted
-            ? "Professional Trainer Profile"
+            ? "Trainer Profile"
             : !skillsDevelopmentCompleted
               ? "Skills & Development"
               : !documentsCompleted
@@ -1204,7 +1182,7 @@ export default function FacultyUniversityPage() {
           ? "profile"
           : nextIncompleteStep === "Registration Data"
             ? "registration"
-            : nextIncompleteStep === "Professional Trainer Profile"
+            : nextIncompleteStep === "Trainer Profile"
               ? "professional"
               : nextIncompleteStep === "Skills & Development"
                 ? "skills"
@@ -1277,7 +1255,7 @@ export default function FacultyUniversityPage() {
       qualification: "",
       totalExperience: "",
       trainingCenterName: "",
-      employmentStatus: "",
+      employmentStatus: "Active",
     };
 
     const initialProfessional = {
@@ -1626,7 +1604,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Professional Profile</span>
+                    <span>Trainer Profile</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -1648,7 +1626,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Registration</span>
+                    <span>Registration Data</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -1756,26 +1734,13 @@ export default function FacultyUniversityPage() {
                         ...current,
                         email: value,
                       }));
-
-                      const trimmedValue = value.trim();
-
-                      if (!trimmedValue) {
-                        clearSectionError("registration", "Enter a valid Email");
-                      } else if (!isValidEmail(trimmedValue)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Email"
-                        );
-                      } else {
-                        clearSectionError("registration", "Enter a valid Email");
-                      }
+                      clearSectionError("registration", "Enter correct Email");
                     }}
                     onBlur={(value) => {
                       if (!isValidEmail(value.trim())) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Email"
-                        );
+                        showSectionError("registration", "Enter correct Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Email");
                       }
                     }}
                   />
@@ -1791,32 +1756,13 @@ export default function FacultyUniversityPage() {
                         ...current,
                         alternateEmail: value,
                       }));
-
-                      const trimmedValue = value.trim();
-
-                      if (!trimmedValue) {
-                        clearSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      } else if (!isValidEmail(trimmedValue)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      }
+                      clearSectionError("registration", "Enter correct Alternate Email");
                     }}
                     onBlur={(value) => {
                       if (value.trim() && !isValidEmail(value.trim())) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
+                        showSectionError("registration", "Enter correct Alternate Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Email");
                       }
                     }}
                   />
@@ -1828,36 +1774,19 @@ export default function FacultyUniversityPage() {
                     placeholder="Enter Mobile Number"
                     visualIcon="edit"
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-
+                      // Accept only numeric characters, without silently trimming long input.
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: digits,
+                        mobileNumber: value,
                       }));
-
-                      if (!digits) {
-                        clearSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      } else if (!isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      }
+                      clearSectionError("registration", "Enter correct Mobile Number");
                     }}
                     onBlur={(value) => {
                       if (!isValidPhoneNumber(value)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
+                        showSectionError("registration", "Enter correct Mobile Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Mobile Number");
                       }
                     }}
                   />
@@ -1869,36 +1798,19 @@ export default function FacultyUniversityPage() {
                     placeholder="Enter Alternate Phone"
                     visualIcon="edit"
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-
+                      // Accept only numeric characters, without silently trimming long input.
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: digits,
+                        alternatePhone: value,
                       }));
-
-                      if (!digits) {
-                        clearSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      } else if (!isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      }
+                      clearSectionError("registration", "Enter correct Alternate Phone Number");
                     }}
                     onBlur={(value) => {
                       if (value && !isValidPhoneNumber(value)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
+                        showSectionError("registration", "Enter correct Alternate Phone Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Phone Number");
                       }
                     }}
                   />
@@ -2044,23 +1956,10 @@ export default function FacultyUniversityPage() {
                       }))
                     }
                   />
-<SelectField
+<EditField
                     label="Employment Status"
                     value={registrationDraft.employmentStatus}
-                    placeholder="Select"
-                    options={[
-                      "Active",
-                      "Inactive",
-                      "On Leave",
-                      "Suspended",
-                      "Contract Ended",
-                    ]}
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        employmentStatus: value,
-                      }))
-                    }
+                    locked
                   />
                 </div>
               ) : (
@@ -2128,6 +2027,7 @@ export default function FacultyUniversityPage() {
                   <DisplayField
                     label="Specialization"
                     value={registrationInfo.trainingSpecialization.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
@@ -2140,10 +2040,10 @@ export default function FacultyUniversityPage() {
                     value={registrationInfo.totalExperience}
                     placeholder="Select"
                   />
-<DisplayField
+<EditField
                     label="Employment Status"
                     value={registrationInfo.employmentStatus}
-                    placeholder="Select"
+                    locked
                   />
                 </div>
               )}
@@ -2151,7 +2051,7 @@ export default function FacultyUniversityPage() {
 
             <section className="institutionInformationCard">
               <SectionHeader
-                title="Professional Trainer Profile"
+                title="Trainer Profile"
                 iconSrc={images.academicProfessional}
                 iconTone="green"
                 editing={editingSection === "professional"}
@@ -2411,22 +2311,26 @@ export default function FacultyUniversityPage() {
 <DisplayField
                     label="Key Expertise"
                     value={professionalInfo.expertise.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
 
                   <DisplayField
                     label="Training Topics"
                     value={professionalInfo.trainingTopics.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Target Groups"
                     value={professionalInfo.targetGroups.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Training Method"
                     value={professionalInfo.trainingMethod.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
 
@@ -2443,6 +2347,7 @@ export default function FacultyUniversityPage() {
 <DisplayField
                     label="Training Languages"
                     value={professionalInfo.trainingLanguages.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                 </div>
@@ -2640,12 +2545,14 @@ export default function FacultyUniversityPage() {
                   <DisplayField
                     label="Core Skills"
                     value={skillsInfo.keySkills.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
 
                   <DisplayField
                     label="Digital Skills"
                     value={skillsInfo.digitalSkills.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
@@ -2656,16 +2563,19 @@ export default function FacultyUniversityPage() {
                   <DisplayField
                     label="Certifications"
                     value={skillsInfo.certifications.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Development Areas"
                     value={skillsInfo.developmentAreas.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
                     label="Learning Interests"
                     value={skillsInfo.areasOfInterest.join(", ")}
+                    className="institutionMultiSelectValueField"
                     placeholder="Select"
                   />
                   <DisplayField
@@ -2913,7 +2823,7 @@ export default function FacultyUniversityPage() {
 
                       if (event.target.checked && !professionalProfileCompleted) {
                         showFlowPopup(
-                          "Please complete Professional Trainer Profile",
+                          "Please complete Trainer Profile",
                           "confirmation"
                         );
                         return;

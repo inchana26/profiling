@@ -33,10 +33,6 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -98,20 +94,11 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
   if (label === "Government ID Proof") {
     return (
@@ -187,6 +174,8 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
+  maxLength?: number;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -198,6 +187,8 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onBlur,
+  maxLength,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -226,7 +217,9 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => onChange?.(event.target.value)}
+            onBlur={onBlur}
           />
         )}
       </div>
@@ -260,6 +253,24 @@ function EditField({
 }
 
 
+const isValidGovernmentDOB = (value: string): boolean => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const date = new Date(0);
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date.getTime() <= today.getTime();
+};
+
 type CalendarDateFieldProps = {
   label: string;
   value: string;
@@ -274,11 +285,13 @@ function CalendarDateField({
   const inputId = useId();
   const calendarRef = useRef<HTMLDivElement>(null);
   const parsedValue =
-    value && /^\d{4}-\d{2}-\d{2}$/.test(value)
+    value && isValidGovernmentDOB(value)
       ? new Date(`${value}T00:00:00`)
       : null;
 
   const today = new Date();
+  const currentDOBYear = today.getFullYear();
+  const currentDOBMonth = today.getMonth();
   const initialDate = parsedValue ?? today;
 
   const [open, setOpen] = useState(false);
@@ -362,11 +375,14 @@ function CalendarDateField({
 
   const moveMonth = (amount: number) => {
     const next = new Date(displayYear, displayMonth + amount, 1);
+    if (next.getFullYear() > currentDOBYear ||
+      (next.getFullYear() === currentDOBYear && next.getMonth() > currentDOBMonth)) return;
     setDisplayMonth(next.getMonth());
     setDisplayYear(next.getFullYear());
   };
 
   const selectDay = (date: Date) => {
+    if (!isValidGovernmentDOB(toValue(date))) return;
     onChange(toValue(date));
     setDisplayMonth(date.getMonth());
     setDisplayYear(date.getFullYear());
@@ -375,13 +391,21 @@ function CalendarDateField({
   };
 
   const selectMonth = (monthIndex: number) => {
+    if (displayYear > currentDOBYear ||
+      (displayYear === currentDOBYear && monthIndex > currentDOBMonth)) return;
     setDisplayMonth(monthIndex);
     setView("days");
   };
 
   const selectYear = (year: number) => {
+    if (year > currentDOBYear) return;
     setDisplayYear(year);
     setYearPageStart(Math.floor((year - 4) / 12) * 12);
+    setView("days");
+  };
+
+  const toggleCalendar = () => {
+    setOpen((current) => !current);
     setView("days");
   };
 
@@ -401,10 +425,7 @@ function CalendarDateField({
           className={`institutionCalendarInputButton ${
             value ? "" : "institutionCalendarInputPlaceholder"
           }`}
-          onClick={() => {
-            setOpen((current) => !current);
-            setView("days");
-          }}
+          onClick={toggleCalendar}
           aria-haspopup="dialog"
           aria-expanded={open}
         >
@@ -415,11 +436,11 @@ function CalendarDateField({
       <button
         type="button"
         className="institutionFieldAction institutionCoordinatorCalendarIcon"
+        style={{ pointerEvents: "auto", cursor: "pointer" }}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         aria-label={`Open ${label} calendar`}
-        onClick={() => {
-          setOpen((current) => !current);
-          setView("days");
-        }}
+        onClick={toggleCalendar}
       >
         <IconImage
           src={images.calendar}
@@ -480,6 +501,7 @@ function CalendarDateField({
                           ? "institutionCalendarDaySelected"
                           : ""
                       }`}
+                      disabled={!isValidGovernmentDOB(dateValue)}
                       onClick={() => selectDay(date)}
                     >
                       {date.getDate()}
@@ -501,6 +523,8 @@ function CalendarDateField({
                       ? "institutionCalendarChoiceSelected"
                       : ""
                   }`}
+                  disabled={displayYear > currentDOBYear ||
+                    (displayYear === currentDOBYear && index > currentDOBMonth)}
                   onClick={() => selectMonth(index)}
                 >
                   {month}
@@ -528,6 +552,7 @@ function CalendarDateField({
                 <button
                   type="button"
                   className="institutionCalendarRoundNav"
+                  disabled={yearPageStart + 12 > currentDOBYear}
                   onClick={() => setYearPageStart((current) => current + 12)}
                   aria-label="Next years"
                 >
@@ -546,6 +571,7 @@ function CalendarDateField({
                           ? "institutionCalendarChoiceSelected"
                           : ""
                       }`}
+                      disabled={year > currentDOBYear}
                       onClick={() => selectYear(year)}
                     >
                       {year}
@@ -1181,7 +1207,6 @@ export default function FacultyUniversityPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -1244,6 +1269,12 @@ export default function FacultyUniversityPage() {
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  const [contactFieldsTouched, setContactFieldsTouched] = useState({
+    officialEmail: false,
+    alternateEmail: false,
+    mobileNumber: false,
+    alternatePhone: false,
+  });
   const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
   const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
 
@@ -1260,7 +1291,7 @@ export default function FacultyUniversityPage() {
   }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
 
   const isValidPhoneNumber = (value: string) =>
-    /^\d{10}$/.test(value.replace(/\D/g, ""));
+    /^[6-9]\d{9}$/.test(value);
 
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
@@ -1273,7 +1304,7 @@ export default function FacultyUniversityPage() {
     });
 
   const registrationFormComplete = Boolean(
-    registrationDraft.dateOfBirth &&
+    isValidGovernmentDOB(registrationDraft.dateOfBirth) &&
       registrationDraft.gender &&
       registrationDraft.highestQualification &&
       registrationDraft.officialEmail.trim() &&
@@ -1291,7 +1322,6 @@ export default function FacultyUniversityPage() {
 
   const documentsFormComplete = Boolean(
     governmentIdDocumentType.trim() &&
-      documentFiles["Profile Photo"] &&
       documentFiles["Government ID Proof"] &&
       documentFiles["Supporting Documents"]
   );
@@ -1325,44 +1355,38 @@ export default function FacultyUniversityPage() {
     setDocumentsCompleted(documentsStepComplete);
   }, [documentsStepComplete]);
 
-  /* Live validation in the existing popup position. */
+  /* Contact errors appear after leaving the field or when trying to continue.
+     Partial input is not an error popup while the user is initially typing. */
   useEffect(() => {
     if (editingSection !== "registration") return;
 
     const officialEmail = registrationDraft.officialEmail.trim();
-    const alternateEmail = registrationDraft.alternateEmail?.trim() || "";
-    const mobile = registrationDraft.mobileNumber.replace(/\D/g, "");
-    const alternatePhone = registrationDraft.alternatePhone?.replace(/\D/g, "") || "";
+    const alternateEmail = registrationDraft.alternateEmail.trim();
+    const mobile = registrationDraft.mobileNumber;
+    const alternatePhone = registrationDraft.alternatePhone;
 
     let message: string | null = null;
-
-    if (officialEmail && !isValidEmail(officialEmail)) {
-      message = "Enter a valid Official Email";
-    } else if (alternateEmail && !isValidEmail(alternateEmail)) {
-      message = "Enter a valid Alternate Email";
-    } else if (mobile && !isValidPhoneNumber(mobile)) {
-      message = "Mobile Number must be 10 digits";
-    } else if (alternatePhone && !isValidPhoneNumber(alternatePhone)) {
-      message = "Alternate Phone must be 10 digits";
+    if (contactFieldsTouched.officialEmail && !isValidEmail(officialEmail)) {
+      message = "Enter correct Official Email";
+    } else if (contactFieldsTouched.alternateEmail && alternateEmail && !isValidEmail(alternateEmail)) {
+      message = "Enter correct Alternate Email";
+    } else if (contactFieldsTouched.mobileNumber && !isValidPhoneNumber(mobile)) {
+      message = "Enter correct Mobile Number";
+    } else if (contactFieldsTouched.alternatePhone && alternatePhone && !isValidPhoneNumber(alternatePhone)) {
+      message = "Enter correct Alternate Phone Number";
     }
 
     setSectionPopup((current) => {
       if (message) {
-        return {
-          section: "registration",
-          type: "error",
-          message,
-        };
+        if (current?.section === "registration" && current.type === "error" && current.message === message) return current;
+        return { section: "registration", type: "error", message };
       }
-
-      if (current?.section === "registration" && current.type === "error") {
-        return null;
-      }
-
+      if (current?.section === "registration" && current.type === "error") return null;
       return current;
     });
   }, [
     editingSection,
+    contactFieldsTouched,
     registrationDraft.officialEmail,
     registrationDraft.alternateEmail,
     registrationDraft.mobileNumber,
@@ -1385,6 +1409,26 @@ export default function FacultyUniversityPage() {
 
   const commitCurrentSection = (section: SectionName) => {
     if (section === "registration") {
+      if (!isValidGovernmentDOB(registrationDraft.dateOfBirth)) {
+        showSectionError("registration", "Enter correct Date of Birth");
+        return false;
+      }
+      if (!isValidEmail(registrationDraft.officialEmail.trim())) {
+        showSectionError("registration", "Enter correct Official Email");
+        return false;
+      }
+      if (registrationDraft.alternateEmail.trim() && !isValidEmail(registrationDraft.alternateEmail.trim())) {
+        showSectionError("registration", "Enter correct Alternate Email");
+        return false;
+      }
+      if (!isValidPhoneNumber(registrationDraft.mobileNumber)) {
+        showSectionError("registration", "Enter correct Mobile Number");
+        return false;
+      }
+      if (registrationDraft.alternatePhone && !isValidPhoneNumber(registrationDraft.alternatePhone)) {
+        showSectionError("registration", "Enter correct Alternate Phone Number");
+        return false;
+      }
       if (!registrationFormComplete) {
         showSectionError(
           "registration",
@@ -1469,7 +1513,10 @@ export default function FacultyUniversityPage() {
       return;
     }
 
-    if (section === "registration") setRegistrationDraft({ ...registrationInfo });
+    if (section === "registration") {
+      setContactFieldsTouched({ officialEmail: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
+      setRegistrationDraft({ ...registrationInfo });
+    }
     if (section === "professional") setProfessionalDraft({ ...professionalInfo });
     if (section === "skills") setSkillsDraft({ ...skillsInfo });
 
@@ -1531,6 +1578,7 @@ export default function FacultyUniversityPage() {
 
     setRegistrationInfo(initialRegistration);
     setRegistrationDraft(initialRegistration);
+    setContactFieldsTouched({ officialEmail: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
 
     setProfessionalInfo(initialProfessional);
     setProfessionalDraft(initialProfessional);
@@ -1540,8 +1588,7 @@ export default function FacultyUniversityPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
-      "Government ID Proof": null,
+        "Government ID Proof": null,
       "Supporting Documents": null,
     });
     setDocumentUploadErrors({});
@@ -1627,7 +1674,7 @@ export default function FacultyUniversityPage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
@@ -2023,6 +2070,7 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.officialEmail}
                     placeholder="Enter Official Email"
                     visualIcon="edit"
+                    onBlur={() => setContactFieldsTouched((current) => ({ ...current, officialEmail: true }))}
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
@@ -2037,6 +2085,7 @@ export default function FacultyUniversityPage() {
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
                     visualIcon="edit"
+                    onBlur={() => setContactFieldsTouched((current) => ({ ...current, alternateEmail: true }))}
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
@@ -2048,13 +2097,15 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Mobile Number"
                     type="tel"
+                    maxLength={10}
                     value={registrationDraft.mobileNumber}
                     placeholder="Enter Mobile Number"
                     visualIcon="edit"
+                    onBlur={() => setContactFieldsTouched((current) => ({ ...current, mobileNumber: true }))}
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value.replace(/\D/g, "").slice(0, 10),
+                        mobileNumber: value.replace(/\D/g, ""),
                       }))
                     }
                   />
@@ -2062,13 +2113,15 @@ export default function FacultyUniversityPage() {
                   <EditField
                     label="Alternate Phone"
                     type="tel"
+                    maxLength={10}
                     value={registrationDraft.alternatePhone}
                     placeholder="Enter Alternate Phone"
                     visualIcon="edit"
+                    onBlur={() => setContactFieldsTouched((current) => ({ ...current, alternatePhone: true }))}
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value.replace(/\D/g, "").slice(0, 10),
+                        alternatePhone: value.replace(/\D/g, ""),
                       }))
                     }
                   />
@@ -2797,8 +2850,11 @@ export default function FacultyUniversityPage() {
                 </div>
               )}
 
-              <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+              <div
+                className="institutionGrid institutionDocumentsGrid"
+                style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))" }}
+              >
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -2856,7 +2912,6 @@ export default function FacultyUniversityPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -2864,7 +2919,6 @@ export default function FacultyUniversityPage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

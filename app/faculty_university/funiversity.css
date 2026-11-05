@@ -5229,3 +5229,14 @@ body {
   filter: brightness(0) !important;
 }
 
+
+/* Career Goals dropdown only: overlay Documents when open.
+   Do not add extra space or shift the next section. */
+.superAdminPage.institutionAdminPage
+  .institutionInformationCard:has(
+    .institutionFacultySkillsGrid > .institutionSelectField:last-child.institutionSelectFieldOpen
+  ) {
+  position: relative !important;
+  z-index: 10000 !important;
+  overflow: visible !important;
+}

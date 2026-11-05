@@ -207,6 +207,7 @@ type EditFieldProps = {
   placeholder?: string;
   onChange?: (value: string) => void;
   onBlur?: () => void;
+  error?: string;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -219,6 +220,7 @@ function EditField({
   placeholder,
   onChange,
   onBlur,
+  error,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -249,7 +251,13 @@ function EditField({
             placeholder={placeholder}
             onChange={(event) => onChange?.(event.target.value)}
             onBlur={onBlur}
+            aria-invalid={Boolean(error)}
           />
+        )}
+        {error && !locked && (
+          <span role="alert" style={{ display: "block", marginTop: "4px", color: "#b42318", fontSize: "12px", lineHeight: "16px" }}>
+            {error}
+          </span>
         )}
       </div>
 
@@ -452,6 +460,31 @@ function SelectField({
   );
 }
 
+// Validate DOB using the browser's local date; impossible/future dates are not valid.
+const getLocalTodayDOB = (): string => {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+};
+
+const isValidInstitutionDOB = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const actual = new Date(0);
+  actual.setFullYear(year, month - 1, day);
+  actual.setHours(0, 0, 0, 0);
+  return (
+    actual.getFullYear() === year &&
+    actual.getMonth() + 1 === month &&
+    actual.getDate() === day &&
+    value <= getLocalTodayDOB()
+  );
+};
+
 type DateFieldProps = {
   label: string;
   value: string;
@@ -463,7 +496,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
   const [mode, setMode] = useState<"days" | "months" | "years">("days");
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  const initialDate = value
+  const initialDate = value && isValidInstitutionDOB(value)
     ? new Date(`${value}T00:00:00`)
     : new Date();
 
@@ -477,7 +510,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
   });
 
   useEffect(() => {
-    if (!value) return;
+    if (!value || !isValidInstitutionDOB(value)) return;
 
     const selected = new Date(`${value}T00:00:00`);
 
@@ -510,6 +543,9 @@ function DateField({ label, value, onChange }: DateFieldProps) {
 
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
+  const todayDOB = getLocalTodayDOB();
+  const todayYear = Number(todayDOB.slice(0, 4));
+  const todayMonth = Number(todayDOB.slice(5, 7)) - 1;
 
   const months = [
     "January",
@@ -626,6 +662,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
             <button
               type="button"
               className="institutionCalendarArrow"
+              disabled={new Date(year, month + 1, 1) > new Date(todayYear, todayMonth, 1)}
               onClick={() => {
                 setVisibleMonth(new Date(year, month + 1, 1));
                 setMode("days");
@@ -655,6 +692,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
                 <button
                   type="button"
                   className="institutionCalendarRangeArrow"
+                  disabled={yearPageStart + 12 > todayYear}
                   onClick={() =>
                     setYearPageStart((current) => current + 12)
                   }
@@ -668,6 +706,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
                   <button
                     key={yearOption}
                     type="button"
+                    disabled={yearOption > todayYear}
                     className={`institutionCalendarYearOption ${
                       yearOption === year
                         ? "institutionCalendarSelected"
@@ -691,6 +730,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
                 <button
                   key={monthName}
                   type="button"
+                  disabled={year > todayYear || (year === todayYear && index > todayMonth)}
                   className={`institutionCalendarMonthOption ${
                     index === month
                       ? "institutionCalendarSelected"
@@ -720,11 +760,14 @@ function DateField({ label, value, onChange }: DateFieldProps) {
                   const dateValue = formatDate(date);
                   const isCurrentMonth = date.getMonth() === month;
                   const isSelected = value === dateValue;
+                  const isFutureDate = dateValue > todayDOB;
 
                   return (
                     <button
                       key={dateValue}
                       type="button"
+                      disabled={isFutureDate}
+                      aria-label={isFutureDate ? `${dateValue} (future date unavailable)` : dateValue}
                       className={`institutionCalendarDay ${
                         !isCurrentMonth
                           ? "institutionCalendarDayOutside"
@@ -735,6 +778,7 @@ function DateField({ label, value, onChange }: DateFieldProps) {
                           : ""
                       }`}
                       onClick={() => {
+                        if (!isValidInstitutionDOB(dateValue)) return;
                         onChange(dateValue);
 
                         if (!isCurrentMonth) {
@@ -944,13 +988,17 @@ export default function InstitutionAdminProfilePage() {
 
     // Locked fields stay unchanged.
     dateOfJoining: "2004-05-17",
-    institutionName: "eg.enter name",
+    institutionName: "Greenfield Institute",
 
     campusName: "",
     departmentsManaged: "",
   });
 
   const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  const [registrationPhoneErrors, setRegistrationPhoneErrors] = useState({
+    mobileNumber: "",
+    alternatePhone: "",
+  });
   const [identityDraft, setIdentityDraft] = useState(identityInfo);
   const [professionalDraft, setProfessionalDraft] =
     useState(professionalInfo);
@@ -1005,9 +1053,18 @@ export default function InstitutionAdminProfilePage() {
     setEditingSection(section);
   };
 
-  const isValidPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    return digits.length >= 10 && digits.length <= 15;
+  // Indian mobile numbers have 10 digits and start with 6, 7, 8 or 9.
+  const isValidPhoneNumber = (value: string): boolean => /^[6-9]\d{9}$/.test(value);
+
+  const getRegistrationPhoneError = (
+    field: "mobileNumber" | "alternatePhone",
+    value: string
+  ): string => {
+    if (field === "alternatePhone" && !value) return ""; // Optional field, as before.
+    if (isValidPhoneNumber(value)) return "";
+    return field === "mobileNumber"
+      ? "Enter correct Mobile Number"
+      : "Enter correct Alternate Phone Number";
   };
 
   const isValidEmail = (value: string) => {
@@ -1030,6 +1087,31 @@ export default function InstitutionAdminProfilePage() {
           : current
       );
     }, 2500);
+  };
+
+  const updateRegistrationPhone = (
+    field: "mobileNumber" | "alternatePhone",
+    rawValue: string
+  ) => {
+    const digits = rawValue.replace(/\D/g, "");
+    const label = field === "mobileNumber" ? "Mobile Number" : "Alternate Phone Number";
+    if (/[^0-9]/.test(rawValue) || digits.length > 10) {
+      const message = `Enter correct ${label}`;
+      setRegistrationPhoneErrors((current) => ({ ...current, [field]: message }));
+      showRegistrationEmailPopup(message);
+      return; // Reject excess input instead of silently accepting or saving it.
+    }
+    setRegistrationDraft((current) => ({ ...current, [field]: digits }));
+    setRegistrationPhoneErrors((current) => ({
+      ...current,
+      [field]: current[field] ? getRegistrationPhoneError(field, digits) : "",
+    }));
+  };
+
+  const validateRegistrationPhone = (field: "mobileNumber" | "alternatePhone") => {
+    const error = getRegistrationPhoneError(field, registrationDraft[field]);
+    setRegistrationPhoneErrors((current) => ({ ...current, [field]: error }));
+    if (error) showRegistrationEmailPopup(error);
   };
 
   const clearRegistrationEmailPopup = () => {
@@ -1082,18 +1164,29 @@ export default function InstitutionAdminProfilePage() {
     const alternatePhone = registrationDraft.alternatePhone.trim();
 
     const registrationIsComplete =
-      registrationDraft.dateOfBirth.trim() !== "" &&
+      isValidInstitutionDOB(registrationDraft.dateOfBirth) &&
       isValidEmail(officialEmail) &&
       isValidPhoneNumber(registrationDraft.mobileNumber) &&
       (alternateEmail === "" || isValidEmail(alternateEmail)) &&
       (alternatePhone === "" ||
         isValidPhoneNumber(alternatePhone));
 
-    setRegistrationInfo({
+    setRegistrationInfo((previous) => ({
       ...registrationDraft,
       officialEmail,
       alternateEmail,
-    });
+      dateOfBirth: isValidInstitutionDOB(registrationDraft.dateOfBirth)
+        ? registrationDraft.dateOfBirth
+        : previous.dateOfBirth,
+      mobileNumber: isValidPhoneNumber(registrationDraft.mobileNumber)
+        ? registrationDraft.mobileNumber
+        : previous.mobileNumber,
+      alternatePhone: alternatePhone === ""
+        ? ""
+        : isValidPhoneNumber(alternatePhone)
+          ? alternatePhone
+          : previous.alternatePhone,
+    }));
     setRegistrationCompleted(registrationIsComplete);
   }, [
     editingSection,
@@ -1154,7 +1247,7 @@ export default function InstitutionAdminProfilePage() {
       designation: "",
       adminRole: "",
       dateOfJoining: "2004-05-17",
-      institutionName: "eg.enter name",
+      institutionName: "Greenfield Institute",
       campusName: "",
       departmentsManaged: "",
     };
@@ -1176,6 +1269,7 @@ export default function InstitutionAdminProfilePage() {
 
     setRegistrationInfo(resetRegistrationInfo);
     setRegistrationDraft(resetRegistrationInfo);
+    setRegistrationPhoneErrors({ mobileNumber: "", alternatePhone: "" });
 
     setIdentityInfo(resetIdentityInfo);
     setIdentityDraft(resetIdentityInfo);
@@ -1656,24 +1750,18 @@ export default function InstitutionAdminProfilePage() {
                     type="tel"
                     value={registrationDraft.mobileNumber}
                     placeholder="Enter Mobile Number"
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        mobileNumber: value.replace(/\D/g, "").slice(0, 15),
-                      }))
-                    }
+                    error={registrationPhoneErrors.mobileNumber}
+                    onChange={(value) => updateRegistrationPhone("mobileNumber", value)}
+                    onBlur={() => validateRegistrationPhone("mobileNumber")}
                   />
                   <EditField
                     label="Alternate Phone"
                     type="tel"
                     value={registrationDraft.alternatePhone}
                     placeholder="Enter Alternate Phone"
-                    onChange={(value) =>
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternatePhone: value.replace(/\D/g, "").slice(0, 15),
-                      }))
-                    }
+                    error={registrationPhoneErrors.alternatePhone}
+                    onChange={(value) => updateRegistrationPhone("alternatePhone", value)}
+                    onBlur={() => validateRegistrationPhone("alternatePhone")}
                   />
                   <EditField
                     label="Tenant ID"
@@ -2104,8 +2192,8 @@ export default function InstitutionAdminProfilePage() {
               )}
 
 
-              <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Govt Id Proof", "Supporting Documents"].map(
+              <div className="institutionGrid institutionDocumentsGrid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))" }}>
+                {["Govt Id Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${

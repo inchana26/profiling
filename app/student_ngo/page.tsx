@@ -41,10 +41,6 @@ type SectionName = "registration" | "professional" | "skills" | "documents";
 const MB = 1024 * 1024;
 
 const DOCUMENT_UPLOAD_LIMITS = {
-  "Profile Photo": {
-    accept: "image/jpeg,image/png,image/webp",
-    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
-  },
   "Government ID Proof": {
     accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
     label: "Use the recommended LMS upload size for the selected file type",
@@ -106,20 +102,11 @@ const getDocumentRecommendedSize = (file: File) => {
 };
 
 const isAcceptedDocumentFile = (
-  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  label: "Government ID Proof" | "Supporting Documents",
   file: File
 ) => {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
-
-  if (label === "Profile Photo") {
-    return (
-      type === "image/jpeg" ||
-      type === "image/png" ||
-      type === "image/webp" ||
-      /\.(jpe?g|png|webp)$/i.test(name)
-    );
-  }
 
   if (label === "Government ID Proof") {
     return (
@@ -199,6 +186,9 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  validateOnBlurOnly?: boolean;
+  clearInvalidOnBlur?: boolean;
+  maxLength?: number;
 };
 
 function EditField({
@@ -212,6 +202,9 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  validateOnBlurOnly = false,
+  clearInvalidOnBlur = false,
+  maxLength,
 }: EditFieldProps) {
   const inputId = useId();
   const validationTimerRef = useRef<number | null>(null);
@@ -277,17 +270,23 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => {
               const nextValue = event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (!validateOnBlurOnly) scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
                 window.clearTimeout(validationTimerRef.current);
                 validationTimerRef.current = null;
               }
+              const invalid = Boolean(validate?.(event.currentTarget.value));
               runValidation(event.currentTarget.value);
+              if (invalid && clearInvalidOnBlur) {
+                onChange?.("");
+                lastValidationErrorRef.current = null;
+              }
             }}
           />
         )}
@@ -979,7 +978,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1759,7 +1758,6 @@ export default function StudentNgoPage() {
   const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
 
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
-    "Profile Photo": null,
     "Government ID Proof": null,
     "Supporting Documents": null,
   });
@@ -1940,6 +1938,12 @@ export default function StudentNgoPage() {
           return;
         }
 
+        const linkError = getCareerLinksError(skillsDraft);
+        if (linkError) {
+          showSectionError("skills", linkError);
+          return;
+        }
+
         setSkillsInfo({
           ...skillsDraft,
           skillsToAcquire: [...skillsDraft.skillsToAcquire],
@@ -1959,6 +1963,11 @@ export default function StudentNgoPage() {
       }
 
       if (editingSection === "documents") {
+        const pendingUploadError = Object.entries(documentUploadErrors).find(([, message]) => Boolean(message));
+        if (pendingUploadError) {
+          showSectionError("documents", `${pendingUploadError[0]}: ${pendingUploadError[1]}`);
+          return;
+        }
         const hasGovernmentId =
           governmentIdDocumentType.trim() !== "" &&
           documentFiles["Government ID Proof"] !== null;
@@ -2043,23 +2052,95 @@ export default function StudentNgoPage() {
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
-  const isValidWebAddress = (value: string) => {
+  // URLs require a genuine public-style domain, not plain text or a space-containing value.
+  const parseCareerProfileUrl = (value: string): URL | null => {
     const trimmed = value.trim();
-    if (!trimmed) return true;
-
+    if (!trimmed || trimmed.length > 150 || /\s/.test(trimmed)) return null;
+    if (!/^(?:https?:\/\/)?(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}(?:\/[^\s]*)?(?:\?[^\s]*)?(?:#[^\s]*)?$/i.test(trimmed)) return null;
     try {
-      const candidate = /^https?:\/\//i.test(trimmed)
-        ? trimmed
-        : `https://${trimmed}`;
-      const parsed = new URL(candidate);
-
-      return (
-        (parsed.protocol === "http:" || parsed.protocol === "https:") &&
-        parsed.hostname.includes(".")
-      );
+      const parsed = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+      if (!(["http:", "https:"].includes(parsed.protocol)) || parsed.username || parsed.password || parsed.port) return null;
+      return parsed;
     } catch {
-      return false;
+      return null;
     }
+  };
+
+  type CareerProfileLinkField =
+    | "portfolio" | "instagramId" | "facebookUrl" | "twitterX" | "githubUrl" | "linkedinUrl";
+
+  const validateCareerProfileLink = (field: CareerProfileLinkField, value: string): string | null => {
+    const messages: Record<CareerProfileLinkField, string> = {
+      portfolio: "Enter a valid Portfolio URL.",
+      instagramId: "Enter a valid Instagram ID or profile URL.",
+      facebookUrl: "Enter a valid Facebook ID or profile URL.",
+      twitterX: "Enter a valid Twitter / X username or profile URL.",
+      githubUrl: "Enter a valid GitHub profile URL.",
+      linkedinUrl: "Enter a valid LinkedIn profile URL.",
+    };
+    const trimmed = value.trim();
+    if (!trimmed) return null; // Keep optional fields optional.
+    const fail = messages[field];
+    if (trimmed.length > 150 || /\s/.test(trimmed)) return fail;
+
+    const url = parseCareerProfileUrl(trimmed);
+    const looksLikeProfileUrl = /^(?:https?:\/\/|www\.|(?:instagram|facebook|twitter|x)\.com(?:\/|$))/i.test(trimmed) || trimmed.includes("/");
+    const host = url?.hostname.toLowerCase().replace(/^www\./, "") || "";
+    const segments = url?.pathname.split("/").filter(Boolean) || [];
+    const platformHost = (domain: string) => host === domain || host === `m.${domain}`;
+    const instaHandle = (handle: string) =>
+      /^[A-Za-z0-9._]{1,30}$/.test(handle) && !handle.endsWith(".") && !handle.includes("..");
+    const facebookHandle = (handle: string) =>
+      /^[A-Za-z][A-Za-z0-9.]{4,49}$/.test(handle) && !handle.includes("..");
+    const xHandle = (handle: string) => /^[A-Za-z0-9_]{1,15}$/.test(handle);
+
+    switch (field) {
+      case "portfolio":
+        return url ? null : fail;
+      case "instagramId": {
+        if (url && looksLikeProfileUrl) return platformHost("instagram.com") && segments.length === 1 && instaHandle(segments[0]) ? null : fail;
+        return instaHandle(trimmed.replace(/^@/, "")) ? null : fail;
+      }
+      case "facebookUrl": {
+        if (url && looksLikeProfileUrl) {
+          if (!platformHost("facebook.com")) return fail;
+          if (segments.length === 1 && facebookHandle(segments[0])) return null;
+          if (segments.length === 1 && segments[0].toLowerCase() === "profile.php" && /^\d{5,20}$/.test(url.searchParams.get("id") || "")) return null;
+          return fail;
+        }
+        return facebookHandle(trimmed) || /^\d{5,20}$/.test(trimmed) ? null : fail;
+      }
+      case "twitterX": {
+        if (url) return (platformHost("x.com") || platformHost("twitter.com")) && segments.length === 1 && xHandle(segments[0]) ? null : fail;
+        return xHandle(trimmed.replace(/^@/, "")) ? null : fail;
+      }
+      case "githubUrl": {
+        // Accept both a user's profile and repository links copied from GitHub.
+        if (!url || !platformHost("github.com") || !segments.length) return fail;
+        const validGitHubUser = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(segments[0]);
+        const validGitHubPath = segments.slice(1).every((part) =>
+          /^[A-Za-z0-9._-]{1,100}$/.test(part) && part !== ".."
+        );
+        return validGitHubUser && validGitHubPath ? null : fail;
+      }
+      case "linkedinUrl": {
+        // LinkedIn personal profiles may have dotted names, tracking queries,
+        // trailing slashes and regional subdomains (for example in.linkedin.com).
+        if (!url || !(host === "linkedin.com" || host.endsWith(".linkedin.com"))) return fail;
+        const isProfile = segments.length >= 2 && ["in", "pub"].includes(segments[0].toLowerCase());
+        const validSlug = Boolean(segments[1] && /^[A-Za-z0-9][A-Za-z0-9._%-]{0,99}$/.test(segments[1]));
+        return isProfile && validSlug && segments.length <= 5 ? null : fail;
+      }
+    }
+  };
+
+  const getCareerLinksError = (source: typeof skillsInfo): string | null => {
+    const fields: CareerProfileLinkField[] = ["portfolio", "instagramId", "facebookUrl", "twitterX", "githubUrl", "linkedinUrl"];
+    for (const field of fields) {
+      const error = validateCareerProfileLink(field, source[field]);
+      if (error) return error;
+    }
+    return null;
   };
 
   const isValidOptionalContact = (value: string) => {
@@ -2159,10 +2240,18 @@ export default function StudentNgoPage() {
       return;
     }
 
+    const careerLinkError = getCareerLinksError(skillsSource);
+    if (careerLinkError) {
+      showSectionError("skills", careerLinkError);
+      return;
+    }
+
     if (hasDocumentError) {
-      showFlowPopup(
-        "Please correct the document upload error before saving the profile.",
-        "documents"
+      const uploadMessage = Object.entries(documentUploadErrors)
+        .find(([, message]) => Boolean(message));
+      showSectionError(
+        "documents",
+        uploadMessage ? `${uploadMessage[0]}: ${uploadMessage[1]}` : "Correct the document upload."
       );
       return;
     }
@@ -2289,8 +2378,7 @@ export default function StudentNgoPage() {
 
     setGovernmentIdDocumentType("");
     setDocumentFiles({
-      "Profile Photo": null,
-      "Government ID Proof": null,
+        "Government ID Proof": null,
       "Supporting Documents": null,
     });
     setDocumentUploadErrors({});
@@ -2339,19 +2427,19 @@ export default function StudentNgoPage() {
   };
 
   const handleDocumentFileSelect = (
-    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    label: "Government ID Proof" | "Supporting Documents",
     file: File | null
   ) => {
     if (!file) return;
 
     if (!isAcceptedDocumentFile(label, file)) {
-      const message = `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
+      const message = "Unsupported file type.";
 
       setDocumentUploadErrors((current) => ({
         ...current,
         [label]: message,
       }));
-      showSectionError("documents", message);
+      showSectionError("documents", `${label}: ${message}`);
       return;
     }
 
@@ -2364,7 +2452,7 @@ export default function StudentNgoPage() {
         ...current,
         [label]: message,
       }));
-      showSectionError("documents", message);
+      showSectionError("documents", `${label}: ${message}`);
       return;
     }
 
@@ -2372,13 +2460,13 @@ export default function StudentNgoPage() {
       file.size < recommendedSize.min ||
       file.size > recommendedSize.max
     ) {
-      const message = `Recommended file size is ${recommendedSize.label}.`;
+      const message = `Use ${recommendedSize.label} file.`;
 
       setDocumentUploadErrors((current) => ({
         ...current,
         [label]: message,
       }));
-      showSectionError("documents", message);
+      showSectionError("documents", `${label}: ${message}`);
       return;
     }
 
@@ -2391,6 +2479,18 @@ export default function StudentNgoPage() {
       ...current,
       [label]: "",
     }));
+    // A corrected upload immediately removes the stale header error.
+    setSectionPopup((current) =>
+      current?.section === "documents" && current.type === "error" ? null : current
+    );
+    if (flowPopupSection === "documents") {
+      setFlowPopup(null);
+      setFlowPopupSection(null);
+      if (flowPopupTimerRef.current) {
+        window.clearTimeout(flowPopupTimerRef.current);
+        flowPopupTimerRef.current = null;
+      }
+    }
   };
 
   useEffect(() => {
@@ -2480,7 +2580,8 @@ export default function StudentNgoPage() {
       source.salaryRange &&
       source.workMode &&
       source.trainingMotivation.length > 0 &&
-      source.portfolioEvidence.length > 0
+      source.portfolioEvidence.length > 0 &&
+      !getCareerLinksError(source)
     );
 
     setSkillsDevelopmentCompleted(complete);
@@ -2931,18 +3032,18 @@ export default function StudentNgoPage() {
               ) : (
                 <div className="institutionGrid">
                   <DisplayField label="Nationality" value={professionalInfo.nationality} placeholder="Select" />
-                  <DisplayField label="Language" value={professionalInfo.language.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Language" value={professionalInfo.language.join(", ")} placeholder="Select" />
                   <DisplayField label="Location" value={professionalInfo.location} placeholder="Select" />
                   <DisplayField label="Education" value={professionalInfo.education} placeholder="Select" />
-                  <DisplayField label="Learning" value={professionalInfo.learning.join(", ")} placeholder="Select" />
-                  <DisplayField label="Learning Mode" value={professionalInfo.learningMode.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Learning" value={professionalInfo.learning.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Learning Mode" value={professionalInfo.learningMode.join(", ")} placeholder="Select" />
                   <DisplayField label="Online Experience" value={professionalInfo.onlineExperience} placeholder="Select" />
-                  <DisplayField label="Devices" value={professionalInfo.devices.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Devices" value={professionalInfo.devices.join(", ")} placeholder="Select" />
                   <DisplayField label="Internet Access" value={professionalInfo.internetAccess} placeholder="Select" />
                   <DisplayField label="Learning Time" value={professionalInfo.learningTime} placeholder="Select" />
                   <DisplayField label="Hours / Week" value={professionalInfo.hoursPerWeek} placeholder="Select" />
-                  <DisplayField label="Content Format" value={professionalInfo.contentFormat.join(", ")} placeholder="Select" />
-                  <DisplayField label="Accessibility Needs" value={professionalInfo.accessibilityNeeds.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Content Format" value={professionalInfo.contentFormat.join(", ")} placeholder="Select" />
+                  <DisplayField className="institutionMultiSelectDisplayField" label="Accessibility Needs" value={professionalInfo.accessibilityNeeds.join(", ")} placeholder="Select" />
                 </div>
               )}
             </section>
@@ -2972,7 +3073,7 @@ export default function StudentNgoPage() {
                     value={skillsDraft.careerSkills}
                     placeholder="Select"
                     menuStyle="radio"
-                    options={["Postgraduate"]}
+                    options={["Career Exploration", "Job Readiness", "Skill Development", "Career Advancement"]}
                     onChange={(value) =>
                       setSkillsDraft((current) => ({
                         ...current,
@@ -3243,14 +3344,11 @@ export default function StudentNgoPage() {
                         portfolio: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid Portfolio URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => validateCareerProfileLink("portfolio", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3264,6 +3362,11 @@ export default function StudentNgoPage() {
                         instagramId: value,
                       }))
                     }
+                    validate={(value) => validateCareerProfileLink("instagramId", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3277,6 +3380,11 @@ export default function StudentNgoPage() {
                         facebookUrl: value,
                       }))
                     }
+                    validate={(value) => validateCareerProfileLink("facebookUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3290,6 +3398,11 @@ export default function StudentNgoPage() {
                         twitterX: value,
                       }))
                     }
+                    validate={(value) => validateCareerProfileLink("twitterX", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3303,14 +3416,11 @@ export default function StudentNgoPage() {
                         githubUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => validateCareerProfileLink("githubUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3324,14 +3434,11 @@ export default function StudentNgoPage() {
                         linkedinUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidWebAddress(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
-                    onValidationError={(message) =>
-                      showSectionError("skills", message)
-                    }
+                    validate={(value) => validateCareerProfileLink("linkedinUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    validateOnBlurOnly
+                    clearInvalidOnBlur
+                    maxLength={150}
                     visualIcon="edit"
                   />
 
@@ -3355,12 +3462,12 @@ export default function StudentNgoPage() {
                     value={skillsInfo.careerSkills}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Skills to Acquire"
                     value={skillsInfo.skillsToAcquire.join(", ")}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Industry"
                     value={skillsInfo.industry.join(", ")}
                     placeholder="Select"
@@ -3380,22 +3487,22 @@ export default function StudentNgoPage() {
                     value={skillsInfo.digitalLiteracy}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Technical Skills"
                     value={skillsInfo.technicalSkills.join(", ")}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Soft Skills"
                     value={skillsInfo.softSkills.join(", ")}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Skill Gaps"
                     value={skillsInfo.skillGaps.join(", ")}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Certifications"
                     value={skillsInfo.certifications.join(", ")}
                     placeholder="Select"
@@ -3405,12 +3512,12 @@ export default function StudentNgoPage() {
                     value={skillsInfo.careerGoal}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Preferred Role"
                     value={skillsInfo.preferredRole.join(", ")}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Work Location"
                     value={skillsInfo.workLocation.join(", ")}
                     placeholder="Select"
@@ -3425,7 +3532,7 @@ export default function StudentNgoPage() {
                     value={skillsInfo.workMode}
                     placeholder="Select"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Training Motivation"
                     value={skillsInfo.trainingMotivation.join(", ")}
                     placeholder="Select"
@@ -3465,7 +3572,7 @@ export default function StudentNgoPage() {
                     value={skillsInfo.linkedinUrl}
                     placeholder="Enter LinkedIn"
                   />
-                  <DisplayField
+                  <DisplayField className="institutionMultiSelectDisplayField"
                     label="Portfolio Evidence"
                     value={skillsInfo.portfolioEvidence.join(", ")}
                     placeholder="Select"
@@ -3481,6 +3588,7 @@ export default function StudentNgoPage() {
                 iconTone="orange"
                 editing={editingSection === "documents"}
                 popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
+                popupMessage={sectionPopup?.section === "documents" ? sectionPopup.message : undefined}
                 onEdit={() => startSectionEdit("documents")}
               />
               {flowPopup && flowPopupSection === "documents" && (
@@ -3500,7 +3608,7 @@ export default function StudentNgoPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {(["Government ID Proof", "Supporting Documents"] as const).map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
@@ -3558,7 +3666,6 @@ export default function StudentNgoPage() {
                               accept={
                                 DOCUMENT_UPLOAD_LIMITS[
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents"
                                 ].accept
@@ -3566,7 +3673,6 @@ export default function StudentNgoPage() {
                               onChange={(event) => {
                                 handleDocumentFileSelect(
                                   label as
-                                    | "Profile Photo"
                                     | "Government ID Proof"
                                     | "Supporting Documents",
                                   event.target.files?.[0] ?? null

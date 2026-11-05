@@ -184,6 +184,9 @@ type EditFieldProps = {
   type?: "text" | "email" | "date" | "tel";
   placeholder?: string;
   onChange?: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  maxLength?: number;
   className?: string;
   visualIcon?: "lock" | "edit" | "select";
 };
@@ -195,6 +198,9 @@ function EditField({
   type = "text",
   placeholder,
   onChange,
+  onFocus,
+  onBlur,
+  maxLength,
   className = "",
   visualIcon,
 }: EditFieldProps) {
@@ -223,7 +229,10 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength}
             onChange={(event) => onChange?.(event.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         )}
       </div>
@@ -344,17 +353,15 @@ function SelectField({
           aria-labelledby={labelId}
           aria-controls={listboxId}
           onClick={() => {
-            setOpen((current) => {
-              const nextOpen = !current;
-              if (nextOpen) {
-                window.dispatchEvent(
-                  new CustomEvent("faculty-profile-dropdown-open", {
-                    detail: selectId,
-                  })
-                );
-              }
-              return nextOpen;
-            });
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
           }}
         >
           <span
@@ -522,7 +529,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiValueField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -540,24 +547,22 @@ function MultiSelectField({
           aria-labelledby={labelId}
           aria-controls={listboxId}
           onClick={() => {
-            setOpen((current) => {
-              const nextOpen = !current;
-              if (nextOpen) {
-                window.dispatchEvent(
-                  new CustomEvent("faculty-profile-dropdown-open", {
-                    detail: selectId,
-                  })
-                );
-              }
-              return nextOpen;
-            });
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
           }}
         >
           <span
             className={
               value.length
-                ? "institutionSelectCurrentValue"
-                : "institutionSelectPlaceholderValue"
+                ? "institutionSelectCurrentValue institutionMultiSelectValue"
+                : "institutionSelectPlaceholderValue institutionMultiSelectValue"
             }
           >
             {displayValue}
@@ -939,10 +944,42 @@ export default function FacultyUniversityPage() {
     skillsDraftRef.current = skillsDraft;
   }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
 
-  const isValidPhoneNumber = (value: string) => /^\d{10}$/.test(value);
+  const isValidPhoneNumber = (value: string) => /^[6-9]\d{9}$/.test(value);
 
-  const isValidEmail = (value: string) =>
-    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+  const isValidEmail = (value: string) => {
+    const email = value.trim();
+    if (!email || email.length > 254 || /\s|\.\./.test(email)) return false;
+    const parts = email.split("@");
+    if (parts.length !== 2) return false;
+    const [local, domain] = parts;
+    return local.length <= 64 &&
+      /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?$/.test(local) &&
+      /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/.test(domain);
+  };
+
+  const contactErrorMessages = {
+    email: "Enter correct Email",
+    alternateEmail: "Enter correct Alternate Email",
+    mobileNumber: "Enter correct Mobile Number",
+    alternatePhone: "Enter correct Alternate Phone Number",
+  } as const;
+  type ContactFieldName = keyof typeof contactErrorMessages;
+
+  const [contactFieldsTouched, setContactFieldsTouched] = useState<Record<ContactFieldName, boolean>>({
+    email: false, alternateEmail: false, mobileNumber: false, alternatePhone: false,
+  });
+  const [activeContactField, setActiveContactField] = useState<ContactFieldName | null>(null);
+  const markContactBlur = (field: ContactFieldName) => {
+    setActiveContactField(null);
+    setContactFieldsTouched((current) => ({ ...current, [field]: true }));
+  };
+  const getContactError = () => {
+    if (!isValidEmail(registrationDraft.email)) return contactErrorMessages.email;
+    if (registrationDraft.alternateEmail.trim() && !isValidEmail(registrationDraft.alternateEmail)) return contactErrorMessages.alternateEmail;
+    if (!isValidPhoneNumber(registrationDraft.mobileNumber)) return contactErrorMessages.mobileNumber;
+    if (registrationDraft.alternatePhone.trim() && !isValidPhoneNumber(registrationDraft.alternatePhone)) return contactErrorMessages.alternatePhone;
+    return null;
+  };
 
   /* Completion is automatic. A top checkbox appears only after the
      current step has all required values and valid data. */
@@ -1073,6 +1110,11 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "professional" && !registrationCompleted) {
+      const invalidContact = getContactError();
+      if (invalidContact) {
+        setSectionPopup({ section: "registration", type: "error", message: invalidContact });
+        return;
+      }
       showFlowPopup(
         "Please Complete Registration Data",
         "professional"
@@ -1097,6 +1139,8 @@ export default function FacultyUniversityPage() {
     }
 
     if (section === "registration") {
+      setContactFieldsTouched({ email: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
+      setActiveContactField(null);
       setRegistrationDraft({ ...registrationInfo });
     }
 
@@ -1149,81 +1193,30 @@ export default function FacultyUniversityPage() {
     setSectionPopup({ section, type: "error", message });
   };
 
-  const clearSectionError = (section: SectionName, message: string) => {
-    setSectionPopup((current) =>
-      current?.section === section &&
-      current.type === "error" &&
-      current.message === message
-        ? null
-        : current
-    );
-  };
-
-  /* Keep the Registration error popup automatically in sync with the
-     values currently being typed. */
+  /* Contact errors appear after leaving an invalid field, not while typing.
+     Corrected values clear the existing registration popup. */
   useEffect(() => {
-    if (editingSection !== "registration") {
-      return;
-    }
+    if (editingSection !== "registration") return;
 
-    const email = registrationDraft.email.trim();
-    const alternateEmail = registrationDraft.alternateEmail.trim();
-    const mobileNumber = registrationDraft.mobileNumber;
-    const alternatePhone = registrationDraft.alternatePhone;
+    const invalid = (field: ContactFieldName) =>
+      (field === "email" && !isValidEmail(registrationDraft.email)) ||
+      (field === "alternateEmail" && Boolean(registrationDraft.alternateEmail.trim()) && !isValidEmail(registrationDraft.alternateEmail)) ||
+      (field === "mobileNumber" && !isValidPhoneNumber(registrationDraft.mobileNumber)) ||
+      (field === "alternatePhone" && Boolean(registrationDraft.alternatePhone.trim()) && !isValidPhoneNumber(registrationDraft.alternatePhone));
 
-    const liveError =
-      email && !isValidEmail(email)
-        ? "Enter a valid Email"
-        : mobileNumber && !isValidPhoneNumber(mobileNumber)
-          ? "Mobile Number must be 10 digits"
-          : alternateEmail && !isValidEmail(alternateEmail)
-            ? "Enter a valid Alternate Email"
-            : alternatePhone && !isValidPhoneNumber(alternatePhone)
-              ? "Alternate Phone must be 10 digits"
-              : null;
-
+    const message = (Object.keys(contactErrorMessages) as ContactFieldName[])
+      .find((field) => contactFieldsTouched[field] && activeContactField !== field && invalid(field));
+    const validMessages: string[] = Object.values(contactErrorMessages);
     setSectionPopup((current) => {
-      const registrationLiveMessages = new Set([
-        "Enter a valid Email",
-        "Mobile Number must be 10 digits",
-        "Enter a valid Alternate Email",
-        "Alternate Phone must be 10 digits",
-      ]);
-
-      if (liveError) {
-        if (
-          current?.section === "registration" &&
-          current.type === "error" &&
-          current.message === liveError
-        ) {
-          return current;
-        }
-
-        return {
-          section: "registration",
-          type: "error",
-          message: liveError,
-        };
+      if (message) {
+        if (current?.section === "registration" && current.type === "error" && current.message === contactErrorMessages[message]) return current;
+        return { section: "registration", type: "error", message: contactErrorMessages[message] };
       }
-
-      if (
-        current?.section === "registration" &&
-        current.type === "error" &&
-        current.message &&
-        registrationLiveMessages.has(current.message)
-      ) {
-        return null;
-      }
-
+      if (current?.section === "registration" && current.type === "error" && validMessages.includes(current.message || "")) return null;
       return current;
     });
-  }, [
-    editingSection,
-    registrationDraft.email,
-    registrationDraft.mobileNumber,
-    registrationDraft.alternateEmail,
-    registrationDraft.alternatePhone,
-  ]);
+  }, [editingSection, contactFieldsTouched, activeContactField,
+      registrationDraft.email, registrationDraft.alternateEmail, registrationDraft.mobileNumber, registrationDraft.alternatePhone]);
 
   const cancelProfile = () => {
     setProfileImage(null);
@@ -1266,6 +1259,8 @@ export default function FacultyUniversityPage() {
 
     setRegistrationInfo(resetRegistration);
     setRegistrationDraft(resetRegistration);
+    setContactFieldsTouched({ email: false, alternateEmail: false, mobileNumber: false, alternatePhone: false });
+    setActiveContactField(null);
     setProfessionalInfo(resetProfessional);
     setProfessionalDraft(resetProfessional);
     setSkillsInfo(resetSkills);
@@ -1291,6 +1286,13 @@ export default function FacultyUniversityPage() {
   };
 
   const saveProfile = () => {
+    if (profilePhotoCompleted && !registrationCompleted) {
+      const invalidContact = getContactError();
+      if (invalidContact) {
+        setSectionPopup({ section: "registration", type: "error", message: invalidContact });
+        return;
+      }
+    }
     const nextIncompleteStep =
       !profilePhotoCompleted
         ? { label: "Profile Photo", section: "profile" as const }
@@ -1620,7 +1622,7 @@ export default function FacultyUniversityPage() {
                     ) : (
                       <span className="institutionEmptyCircle" />
                     )}
-                    <span>Registration</span>
+                    <span>Registration Data</span>
                   </div>
 
                   <div className="institutionCompletionStep">
@@ -1677,68 +1679,36 @@ export default function FacultyUniversityPage() {
                     type="email"
                     value={registrationDraft.email}
                     placeholder="Enter Email"
+                    className="institutionContactField"
                     visualIcon="edit"
-                    onChange={(value) => {
-                      setRegistrationDraft((current) => ({ ...current, email: value }));
-                      const email = value.trim();
-
-                      if (email && !isValidEmail(email)) {
-                        showLiveSectionError("registration", "Enter a valid Email");
-                      } else {
-                        clearSectionError("registration", "Enter a valid Email");
-                      }
-                    }}
-                  />
-                  <EditField
-                    label="Mobile Number"
-                    type="tel"
-                    value={registrationDraft.mobileNumber}
-                    placeholder="Enter Mobile Number"
-                    visualIcon="edit"
-                    onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        mobileNumber: digits,
-                      }));
-
-                      if (digits && !isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Mobile Number must be 10 digits"
-                        );
-                      }
-                    }}
+                    onFocus={() => setActiveContactField("email")}
+                    onBlur={() => markContactBlur("email")}
+                    onChange={(value) => setRegistrationDraft((current) => ({ ...current, email: value }))}
                   />
                   <EditField
                     label="Alternate Email"
                     type="email"
                     value={registrationDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
+                    className="institutionContactField"
                     visualIcon="edit"
+                    onFocus={() => setActiveContactField("alternateEmail")}
+                    onBlur={() => markContactBlur("alternateEmail")}
+                    onChange={(value) => setRegistrationDraft((current) => ({ ...current, alternateEmail: value }))}
+                  />
+                  <EditField
+                    label="Mobile Number"
+                    type="tel"
+                    value={registrationDraft.mobileNumber}
+                    placeholder="Enter Mobile Number"
+                    className="institutionContactField"
+                    visualIcon="edit"
+                    maxLength={10}
+                    onFocus={() => setActiveContactField("mobileNumber")}
+                    onBlur={() => markContactBlur("mobileNumber")}
                     onChange={(value) => {
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternateEmail: value,
-                      }));
-                      const email = value.trim();
-
-                      if (email && !isValidEmail(email)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Enter a valid Alternate Email"
-                        );
-                      }
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
+                      setRegistrationDraft((current) => ({ ...current, mobileNumber: value }));
                     }}
                   />
                   <EditField
@@ -1746,25 +1716,14 @@ export default function FacultyUniversityPage() {
                     type="tel"
                     value={registrationDraft.alternatePhone}
                     placeholder="Enter Alternate Phone"
+                    className="institutionContactField"
                     visualIcon="edit"
+                    maxLength={10}
+                    onFocus={() => setActiveContactField("alternatePhone")}
+                    onBlur={() => markContactBlur("alternatePhone")}
                     onChange={(value) => {
-                      const digits = value.replace(/\D/g, "").slice(0, 10);
-                      setRegistrationDraft((current) => ({
-                        ...current,
-                        alternatePhone: digits,
-                      }));
-
-                      if (digits && !isValidPhoneNumber(digits)) {
-                        showLiveSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      } else {
-                        clearSectionError(
-                          "registration",
-                          "Alternate Phone must be 10 digits"
-                        );
-                      }
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
+                      setRegistrationDraft((current) => ({ ...current, alternatePhone: value }));
                     }}
                   />
                   <SelectField label="Gender" value={registrationDraft.gender} placeholder="Select" menuStyle="radio" options={["Male", "Female", "Other", "Prefer not to say"]} onChange={(value) => setRegistrationDraft((current) => ({ ...current, gender: value }))} />
@@ -1780,8 +1739,8 @@ export default function FacultyUniversityPage() {
               ) : (
                 <div className="institutionGrid institutionFacultyRegistrationGrid">
                   <DisplayField label="Trainer ID" value={registrationInfo.facultyId} /><DisplayField label="Employee Code" value={registrationInfo.employeeCode} /><DisplayField label="Full Name" value={registrationInfo.fullName} />
-                  <DisplayField label="Email" value={registrationInfo.email} placeholder="Enter Email" /><DisplayField label="Mobile Number" value={registrationInfo.mobileNumber} placeholder="Enter Mobile Number" /><DisplayField label="Alternate Email" value={registrationInfo.alternateEmail} placeholder="Enter Alternate Email" />
-                  <DisplayField label="Alternate Phone" value={registrationInfo.alternatePhone} placeholder="Enter Alternate Phone" /><DisplayField label="Gender" value={registrationInfo.gender} placeholder="Select" /><DisplayField label="Specialization" value={registrationInfo.specialization.join(", ")} placeholder="Select" />
+                  <DisplayField label="Email" value={registrationInfo.email} placeholder="Enter Email" /><DisplayField label="Alternate Email" value={registrationInfo.alternateEmail} placeholder="Enter Alternate Email" /><DisplayField label="Mobile Number" value={registrationInfo.mobileNumber} placeholder="Enter Mobile Number" />
+                  <DisplayField label="Alternate Phone" value={registrationInfo.alternatePhone} placeholder="Enter Alternate Phone" /><DisplayField label="Gender" value={registrationInfo.gender} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Specialization" value={registrationInfo.specialization.join(", ")} placeholder="Select" />
                   <DisplayField label="Designation" value={registrationInfo.designation} placeholder="Select" /><DisplayField label="Domain" value={registrationInfo.domain} placeholder="Select" /><DisplayField label="Date of Joining" value={registrationInfo.dateOfJoining} />
                   <DisplayField label="Highest Qualification" value={registrationInfo.highestQualification} placeholder="Select" /><DisplayField label="Training Experience" value={registrationInfo.trainingExperience} placeholder="Select" /><DisplayField label="Total Experience" value={registrationInfo.totalExperience} placeholder="Select" />
                   <DisplayField label="Status" value={registrationInfo.status} />
@@ -1801,7 +1760,7 @@ export default function FacultyUniversityPage() {
                   <MultiSelectField label="Subjects / Tools" value={professionalDraft.subjectsTools} options={["Python", "SQL", "Machine Learning", "Power BI", "Excel", "AWS", "Azure", "Git", "Docker", "LMS"]} onChange={(value) => setProfessionalDraft((current) => ({ ...current, subjectsTools: value }))} />
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultyProfessionalGrid"><DisplayField label="Trainer Type" value={professionalInfo.trainerType} placeholder="Select" /><DisplayField label="Training Method" value={professionalInfo.trainingMethod.join(", ")} placeholder="Select" /><DisplayField label="Practical Experience" value={professionalInfo.practicalExperience.join(", ")} placeholder="Select" /><DisplayField label="Expertise" value={professionalInfo.expertise.join(", ")} placeholder="Select" /><DisplayField label="Subjects / Tools" value={professionalInfo.subjectsTools.join(", ")} placeholder="Select" /></div>
+                <div className="institutionGrid institutionFacultyProfessionalGrid"><DisplayField label="Trainer Type" value={professionalInfo.trainerType} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Training Method" value={professionalInfo.trainingMethod.join(", ")} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Practical Experience" value={professionalInfo.practicalExperience.join(", ")} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Expertise" value={professionalInfo.expertise.join(", ")} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Subjects / Tools" value={professionalInfo.subjectsTools.join(", ")} placeholder="Select" /></div>
               )}
             </section>
 
@@ -1818,7 +1777,7 @@ export default function FacultyUniversityPage() {
                   <SelectField label="Career Goals" value={skillsDraft.careerGoals} placeholder="Select" menuStyle="radio" options={["Senior Trainer", "Lead Trainer", "Master Trainer", "Training Manager", "Program Manager", "L&D Manager", "Academic Trainer", "Consultant", "Other"]} onChange={(value) => setSkillsDraft((current) => ({ ...current, careerGoals: value }))} />
                 </div>
               ) : (
-                <div className="institutionGrid institutionFacultySkillsGrid"><DisplayField label="Core Skills" value={skillsInfo.coreSkills.join(", ")} placeholder="Select" /><DisplayField label="Digital Skills" value={skillsInfo.digitalSkills.join(", ")} placeholder="Select" /><DisplayField label="Proficiency" value={skillsInfo.proficiency} placeholder="Select" /><DisplayField label="Development Areas" value={skillsInfo.developmentAreas.join(", ")} placeholder="Select" /><DisplayField label="Other Certifications" value={skillsInfo.otherCertifications.join(", ")} placeholder="Select" /><DisplayField label="Career Goals" value={skillsInfo.careerGoals} placeholder="Select" /></div>
+                <div className="institutionGrid institutionFacultySkillsGrid"><DisplayField className="institutionMultiValueDisplay" label="Core Skills" value={skillsInfo.coreSkills.join(", ")} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Digital Skills" value={skillsInfo.digitalSkills.join(", ")} placeholder="Select" /><DisplayField label="Proficiency" value={skillsInfo.proficiency} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Development Areas" value={skillsInfo.developmentAreas.join(", ")} placeholder="Select" /><DisplayField className="institutionMultiValueDisplay" label="Other Certifications" value={skillsInfo.otherCertifications.join(", ")} placeholder="Select" /><DisplayField label="Career Goals" value={skillsInfo.careerGoals} placeholder="Select" /></div>
               )}
             </section>
 

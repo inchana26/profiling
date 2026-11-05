@@ -147,6 +147,30 @@ const getPhoneCountryDigits = (country: PhoneCountry) => {
     15 - getCountryCallingCode(country).length;
 };
 
+// Date of Birth must be a real calendar date that is not in the future.
+const getLocalTodayForDOB = () => {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+};
+
+const isValidPlatformDOB = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const parsed = new Date(0);
+  parsed.setFullYear(year, month - 1, day);
+  parsed.setHours(0, 0, 0, 0);
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() + 1 === month &&
+    parsed.getDate() === day &&
+    value <= getLocalTodayForDOB();
+};
+
+// Indian contact numbers: exactly 10 digits, beginning with 6, 7, 8 or 9.
+const isValidIndianContactNumber = (value: string): boolean =>
+  /^[6-9]\d{9}$/.test(value);
+
+
 type PhoneNumberFieldProps = {
   label: string;
   country: PhoneCountry | null;
@@ -463,7 +487,20 @@ const OfficeLocationField = ({
                     placeholder="Search Country...."
                     onChange={(event) => setSearch(event.target.value)}
                   />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
+                  <button
+                    type="button"
+                    aria-label="Close Country dropdown"
+                    title="Close Country dropdown"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setActiveList(null);
+                      setSearch("");
+                    }}
+                    style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, background: "transparent", cursor: "pointer", zIndex: 5 }}
+                  >
+                    <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" aria-hidden="true" />
+                  </button>
                 </div>
 
                 <div className="officeLocationOptionsList" role="listbox">
@@ -553,7 +590,20 @@ const OfficeLocationField = ({
                     placeholder="Search State/Province"
                     onChange={(event) => setSearch(event.target.value)}
                   />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
+                  <button
+                    type="button"
+                    aria-label="Close State dropdown"
+                    title="Close State dropdown"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setActiveList(null);
+                      setSearch("");
+                    }}
+                    style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, background: "transparent", cursor: "pointer", zIndex: 5 }}
+                  >
+                    <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" aria-hidden="true" />
+                  </button>
                 </div>
 
                 <div className="officeLocationOptionsList" role="listbox">
@@ -635,7 +685,20 @@ const OfficeLocationField = ({
                     placeholder="Search City.."
                     onChange={(event) => setSearch(event.target.value)}
                   />
-                  <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" />
+                  <button
+                    type="button"
+                    aria-label="Close City dropdown"
+                    title="Close City dropdown"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setActiveList(null);
+                      setSearch("");
+                    }}
+                    style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, background: "transparent", cursor: "pointer", zIndex: 5 }}
+                  >
+                    <span className="officeLocationInnerChevron officeLocationInnerChevronOpen" aria-hidden="true" />
+                  </button>
                 </div>
 
                 <div className="officeLocationOptionsList" role="listbox">
@@ -729,6 +792,17 @@ const getRecommendedUploadLimit = (file: File) => {
   return null;
 };
 
+const getFileUploadErrorMessage = (file: File): string => {
+  const limit = getRecommendedUploadLimit(file);
+  if (!limit) return "Unsupported file type. Select JPG, JPEG, PNG, WEBP, PDF, DOC, DOCX, PPT, PPTX, MP3, AAC, MP4, ZIP, XLSX, VTT or SRT.";
+  if (file.size > limit.maxBytes) return `${limit.label} file exceeds the ${limit.sizeText} limit. Select a smaller file.`;
+  return "";
+};
+
+const RECOMMENDED_UPLOAD_HINT =
+  "Image: 2 MB; PDF: 25 MB; DOC/DOCX: 10 MB; PPT/PPTX: 30 MB; " +
+  "MP3/AAC: 20 MB; MP4: 500 MB; ZIP: 300 MB; XLSX: 5 MB; VTT/SRT: 500 KB.";
+
 type FileFieldProps = {
   id: string;
   label: string;
@@ -748,6 +822,7 @@ const FileField = ({
   onFileSizeError,
   className = "",
 }: FileFieldProps) => {
+  const [fileUploadError, setFileUploadError] = useState("");
   return (
     <div className={`infoField fileInfoField ${className}`}>
       {enabled ? (
@@ -763,6 +838,7 @@ const FileField = ({
           <button
             type="button"
             className={`chooseFileButton ${fileName ? "chooseFileButtonUploaded" : ""}`}
+            title={RECOMMENDED_UPLOAD_HINT}
             onClick={() =>
               (document.getElementById(id) as HTMLInputElement | null)?.click()
             }
@@ -808,31 +884,26 @@ const FileField = ({
                 return;
               }
 
-              const uploadLimit = getRecommendedUploadLimit(file);
-
-              if (!uploadLimit) {
-                onFileSizeError?.(
-                  "Please choose only a recommended file type."
-                );
+              const fileError = getFileUploadErrorMessage(file);
+              if (fileError) {
+                setFileUploadError(fileError);
+                onFileSizeError?.(fileError);
                 event.target.value = "";
                 onChange(null);
                 return;
               }
 
-              if (file.size > uploadLimit.maxBytes) {
-                onFileSizeError?.(
-                  `${uploadLimit.label} recommended upload size is up to ${uploadLimit.sizeText}.`
-                );
-                event.target.value = "";
-                onChange(null);
-                return;
-              }
-
+              setFileUploadError("");
               onChange(file);
             }}
           />
         )}
       </div>
+      {enabled && fileUploadError && (
+        <div role="alert" aria-live="assertive" style={{ color: "#B42318", fontSize: "12px", lineHeight: "17px", marginTop: "8px", overflowWrap: "anywhere" }}>
+          {fileUploadError}
+        </div>
+      )}
     </div>
   );
 };
@@ -963,10 +1034,104 @@ const RaisedDropdown = ({
   );
 };
 
+// Persist the completed profile and selected document files locally before leaving
+// this page. The browser's IndexedDB stores Files without converting them to strings.
+type PlatformAdminSavedProfile = {
+  registration: {
+    platformAdminId: string;
+    fullName: string;
+    dateOfBirth: string;
+    officialEmail: string;
+    mobileNumber: string;
+    alternateEmail: string;
+    alternatePhone: string;
+  };
+  basic: {
+    employeeCode: string;
+    gender: string;
+    designation: string;
+    department: string;
+    officeLocation: string;
+    dateOfJoining: string;
+    reportingSuperAdmin: string;
+  };
+  mobileCountry: PhoneCountry | null;
+  alternateCountry: PhoneCountry | null;
+  employeeIdCard: File | null;
+  governmentIdProof: File | null;
+  governmentIdDocumentType: string;
+  supportingDocuments: File | null;
+};
+
+const PLATFORM_PROFILE_DB = 'calendar-management-platform-profile';
+const PLATFORM_PROFILE_STORE = 'saved-profile';
+const PLATFORM_PROFILE_RECORD = 'platform-admin';
+
+function openPlatformProfileDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(PLATFORM_PROFILE_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(PLATFORM_PROFILE_STORE)) {
+        db.createObjectStore(PLATFORM_PROFILE_STORE);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+    request.onblocked = () => reject(new Error('Profile storage is blocked by another browser tab.'));
+  });
+}
+
+async function readPlatformAdminProfile(): Promise<PlatformAdminSavedProfile | null> {
+  const db = await openPlatformProfileDatabase();
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(PLATFORM_PROFILE_STORE, 'readonly');
+      const request = tx.objectStore(PLATFORM_PROFILE_STORE).get(PLATFORM_PROFILE_RECORD);
+      request.onsuccess = () => resolve((request.result as PlatformAdminSavedProfile | undefined) ?? null);
+      request.onerror = () => reject(request.error);
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function persistPlatformAdminProfile(profile: PlatformAdminSavedProfile): Promise<void> {
+  const db = await openPlatformProfileDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(PLATFORM_PROFILE_STORE, 'readwrite');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+      tx.objectStore(PLATFORM_PROFILE_STORE).put(profile, PLATFORM_PROFILE_RECORD);
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function clearPlatformAdminProfile(): Promise<void> {
+  const db = await openPlatformProfileDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(PLATFORM_PROFILE_STORE, 'readwrite');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+      tx.objectStore(PLATFORM_PROFILE_STORE).delete(PLATFORM_PROFILE_RECORD);
+    });
+  } finally {
+    db.close();
+  }
+}
+
 export default function PlatformAdminProfilePage() {
   const profileImageInputRef = useRef<HTMLInputElement>(null);
   const registrationCardRef = useRef<HTMLElement>(null);
   const basicInformationCardRef = useRef<HTMLElement>(null);
+
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const [showDraftSaved, setShowDraftSaved] = useState(false);
   const [draftSavedTime, setDraftSavedTime] = useState("");
@@ -1032,6 +1197,7 @@ export default function PlatformAdminProfilePage() {
     "saved" | "discarded" | null
   >(null);
   const [basicUploadError, setBasicUploadError] = useState("");
+  const [governmentIdUploadError, setGovernmentIdUploadError] = useState("");
   const [basicStepMessage, setBasicStepMessage] =
     useState<string | null>(null);
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
@@ -1068,6 +1234,33 @@ export default function PlatformAdminProfilePage() {
     useState(false);
   const [basicSectionSaved, setBasicSectionSaved] = useState(false);
 
+  // Restore the completed profile and document files when this page is revisited.
+  useEffect(() => {
+    let mounted = true;
+    readPlatformAdminProfile()
+      .then((saved) => {
+        if (!mounted || !saved) return;
+        setRegistrationInfo(saved.registration);
+        setRegistrationDraft(saved.registration);
+        setBasicInfo(saved.basic);
+        setBasicDraft(saved.basic);
+        setMobileCountry(saved.mobileCountry);
+        setAlternateCountry(saved.alternateCountry);
+        setSavedMobileCountry(saved.mobileCountry);
+        setSavedAlternateCountry(saved.alternateCountry);
+        setEmployeeIdCard(saved.employeeIdCard ?? null);
+        setGovernmentIdProof(saved.governmentIdProof ?? null);
+        setGovernmentIdDocumentType(saved.governmentIdDocumentType);
+        setSupportingDocuments(saved.supportingDocuments ?? null);
+        setRegistrationSectionSaved(true);
+        setBasicSectionSaved(true);
+      })
+      .catch(() => {
+        // Keep the normal form available if browser storage cannot be read.
+      });
+    return () => { mounted = false; };
+  }, []);
+
   const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
   const activeRegistrationInfo = isRegistrationEditing
@@ -1086,16 +1279,31 @@ export default function PlatformAdminProfilePage() {
       ? "Please enter a valid email address."
       : null;
 
+  const registrationDOBError =
+    activeRegistrationInfo.dateOfBirth.trim() !== "" &&
+    !isValidPlatformDOB(activeRegistrationInfo.dateOfBirth)
+      ? "Enter a valid Date of Birth. Future dates are not allowed."
+      : null;
+
+  const registrationPhoneError =
+    activeRegistrationInfo.mobileNumber.trim() !== "" &&
+    !isValidIndianContactNumber(activeRegistrationInfo.mobileNumber)
+      ? "Enter correct Mobile Number"
+      : activeRegistrationInfo.alternatePhone.trim() !== "" &&
+          !isValidIndianContactNumber(activeRegistrationInfo.alternatePhone)
+        ? "Enter correct Alternate Phone Number"
+        : null;
+
   const registrationInformationCompleted =
     activeRegistrationInfo.platformAdminId.trim() !== "" &&
     activeRegistrationInfo.fullName.trim() !== "" &&
-    activeRegistrationInfo.dateOfBirth.trim() !== "" &&
+    isValidPlatformDOB(activeRegistrationInfo.dateOfBirth) &&
     activeRegistrationInfo.officialEmail.trim() !== "" &&
     emailPattern.test(activeRegistrationInfo.officialEmail.trim()) &&
-    activeRegistrationInfo.mobileNumber.trim() !== "" &&
+    isValidIndianContactNumber(activeRegistrationInfo.mobileNumber) &&
     activeRegistrationInfo.alternateEmail.trim() !== "" &&
     emailPattern.test(activeRegistrationInfo.alternateEmail.trim()) &&
-    activeRegistrationInfo.alternatePhone.trim() !== "";
+    isValidIndianContactNumber(activeRegistrationInfo.alternatePhone);
 
   const basicInformationCompleted =
     activeBasicInfo.employeeCode.trim() !== "" &&
@@ -1316,7 +1524,10 @@ export default function PlatformAdminProfilePage() {
     }
 
     if (!registrationCompleted) {
-      showBasicStepMessage("Please complete and save Registration Data first");
+      showBasicStepMessage(
+        registrationDOBError || registrationEmailError || registrationPhoneError ||
+        "Please complete and save Registration Data first"
+      );
       return;
     }
 
@@ -1331,6 +1542,9 @@ export default function PlatformAdminProfilePage() {
 
 
   const handleReviewProfile = () => {
+    void clearPlatformAdminProfile().catch(() => {
+      showBasicStepMessage('Unable to clear saved profile data in this browser.');
+    });
     const resetRegistrationInfo = {
       platformAdminId: "PRGEEQPR7U4U7KW",
       fullName: "Suresh Kumar",
@@ -1378,6 +1592,7 @@ export default function PlatformAdminProfilePage() {
 
     setEmployeeIdCard(null);
     setGovernmentIdProof(null);
+    setGovernmentIdUploadError("");
     setGovernmentIdDocumentType("");
     setSupportingDocuments(null);
 
@@ -1421,7 +1636,8 @@ export default function PlatformAdminProfilePage() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
+    if (isSavingProfile) return;
     if (profileCompletionPercentage !== 100) {
       if (!profilePhotoCompleted) {
         showRegistrationStepMessage("Please upload Profile Photo first");
@@ -1429,8 +1645,9 @@ export default function PlatformAdminProfilePage() {
       }
 
       if (!registrationCompleted) {
-        if (registrationEmailError) {
-          setRegistrationValidationError(registrationEmailError);
+        const registrationError = registrationDOBError || registrationEmailError || registrationPhoneError;
+        if (registrationError) {
+          setRegistrationValidationError(registrationError);
           window.setTimeout(() => setRegistrationValidationError(null), 2500);
         } else {
           showRegistrationStepMessage(
@@ -1450,28 +1667,48 @@ export default function PlatformAdminProfilePage() {
       return;
     }
 
-    setRegistrationValidationError(null);
-    setRegistrationStepMessage(null);
-    setBasicStepMessage(null);
-    setBasicUploadError("");
+    // Store the completed profile *before* navigation. React state alone is
+    // cleared when /sign_in loads, which previously lost every entered field.
+    setIsSavingProfile(true);
+    try {
+      const completedRegistration = isRegistrationEditing ? registrationDraft : registrationInfo;
+      const completedBasic = isBasicEditing ? basicDraft : basicInfo;
+      const completedMobileCountry = isRegistrationEditing ? mobileCountry : savedMobileCountry;
+      const completedAlternateCountry = isRegistrationEditing ? alternateCountry : savedAlternateCountry;
 
-    if (isRegistrationEditing) {
-      setRegistrationInfo(registrationDraft);
+      await persistPlatformAdminProfile({
+        registration: completedRegistration,
+        basic: completedBasic,
+        mobileCountry: completedMobileCountry,
+        alternateCountry: completedAlternateCountry,
+        employeeIdCard,
+        governmentIdProof,
+        governmentIdDocumentType,
+        supportingDocuments,
+      });
+
+      setRegistrationInfo(completedRegistration);
+      setBasicInfo(completedBasic);
+      setSavedMobileCountry(completedMobileCountry);
+      setSavedAlternateCountry(completedAlternateCountry);
       setRegistrationSectionSaved(true);
-    }
-
-    if (isBasicEditing) {
-      setBasicInfo(basicDraft);
       setBasicSectionSaved(true);
+      setRegistrationValidationError(null);
+      setRegistrationStepMessage(null);
+      setBasicStepMessage(null);
+      setBasicUploadError("");
+      setIsRegistrationEditing(false);
+      setIsBasicEditing(false);
+      setIsGenderDropdownOpen(false);
+      setIsJoiningCalendarOpen(false);
+      setBirthCalendarOpen(false);
+
+      window.location.assign("/sign_in");
+    } catch {
+      showBasicStepMessage('Profile could not be saved. Check available browser storage and try again.');
+    } finally {
+      setIsSavingProfile(false);
     }
-
-    setIsRegistrationEditing(false);
-    setIsBasicEditing(false);
-    setIsGenderDropdownOpen(false);
-    setIsJoiningCalendarOpen(false);
-    setBirthCalendarOpen(false);
-
-    window.location.assign("/sign_in");
   };
 
   useEffect(() => {
@@ -1714,7 +1951,7 @@ export default function PlatformAdminProfilePage() {
                   </button>
                 )}
 
-                {(registrationValidationError || registrationEmailError) && (
+                {(registrationValidationError || registrationDOBError || registrationEmailError || registrationPhoneError) && (
                   <div
                     className="statusPopup statusDiscarded"
                     role="alert"
@@ -1727,7 +1964,7 @@ export default function PlatformAdminProfilePage() {
                       height={24}
                     />
                     <span>
-                      {registrationValidationError || registrationEmailError}
+                      {registrationValidationError || registrationDOBError || registrationEmailError || registrationPhoneError}
                     </span>
                   </div>
                 )}
@@ -1873,6 +2110,7 @@ export default function PlatformAdminProfilePage() {
                               type="button"
                               className="joiningCalendarMainArrow"
                               aria-label="Next month"
+                              disabled={new Date(birthCalendarYear, birthCalendarMonthIndex + 1, 1) > new Date(new Date().getFullYear(), new Date().getMonth(), 1)}
                               onClick={() => {
                                 setBirthCalendarMonth(
                                   new Date(
@@ -1910,6 +2148,7 @@ export default function PlatformAdminProfilePage() {
                                   type="button"
                                   className="joiningCalendarRangeArrow"
                                   aria-label="Next years"
+                                  disabled={birthYearPageStart + 12 > new Date().getFullYear()}
                                   onClick={() =>
                                     setBirthYearPageStart((current) => current + 12)
                                   }
@@ -1923,6 +2162,7 @@ export default function PlatformAdminProfilePage() {
                                   <button
                                     key={year}
                                     type="button"
+                                    disabled={year > new Date().getFullYear()}
                                     className={`joiningCalendarYearOption ${
                                       year === birthCalendarYear
                                         ? "joiningCalendarOptionSelected"
@@ -1932,7 +2172,9 @@ export default function PlatformAdminProfilePage() {
                                       setBirthCalendarMonth(
                                         new Date(
                                           year,
-                                          birthCalendarMonthIndex,
+                                          year === new Date().getFullYear()
+                                            ? Math.min(birthCalendarMonthIndex, new Date().getMonth())
+                                            : birthCalendarMonthIndex,
                                           1
                                         )
                                       );
@@ -1950,6 +2192,8 @@ export default function PlatformAdminProfilePage() {
                                 <button
                                   key={month}
                                   type="button"
+                                  disabled={birthCalendarYear > new Date().getFullYear() ||
+                                    (birthCalendarYear === new Date().getFullYear() && index > new Date().getMonth())}
                                   className={`joiningCalendarMonthOption ${
                                     index === birthCalendarMonthIndex
                                       ? "joiningCalendarOptionSelected"
@@ -1986,6 +2230,7 @@ export default function PlatformAdminProfilePage() {
                               <div className="joiningCalendarGrid">
                                 {birthCalendarCells.map((date) => {
                                   const value = formatBirthDate(date);
+                                  const isFutureDOB = value > getLocalTodayForDOB();
                                   const isCurrentMonth =
                                     date.getMonth() === birthCalendarMonthIndex;
                                   const isSelected =
@@ -1995,6 +2240,8 @@ export default function PlatformAdminProfilePage() {
                                     <button
                                       key={value}
                                       type="button"
+                                      disabled={isFutureDOB}
+                                      aria-label={isFutureDOB ? `${value} - future date unavailable` : value}
                                       className={`joiningCalendarDay ${
                                         !isCurrentMonth
                                           ? "joiningCalendarDayOutside"
@@ -2005,6 +2252,7 @@ export default function PlatformAdminProfilePage() {
                                           : ""
                                       }`}
                                       onClick={() => {
+                                        if (isFutureDOB) return;
                                         setRegistrationDraft((current) => ({
                                           ...current,
                                           dateOfBirth: value,
@@ -2073,7 +2321,7 @@ export default function PlatformAdminProfilePage() {
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        mobileNumber: value.replace(/\D/g, "").slice(0, 15),
+                        mobileNumber: value.replace(/\D/g, "").slice(0, 10),
                       }))
                     }
                   />
@@ -2087,7 +2335,7 @@ export default function PlatformAdminProfilePage() {
                     onChange={(value) =>
                       setRegistrationDraft((current) => ({
                         ...current,
-                        alternatePhone: value.replace(/\D/g, "").slice(0, 15),
+                        alternatePhone: value.replace(/\D/g, "").slice(0, 10),
                       }))
                     }
                   />
@@ -2329,6 +2577,7 @@ export default function PlatformAdminProfilePage() {
                       <button
                         type="button"
                         className={`chooseFileButton ${governmentIdProof ? "chooseFileButtonUploaded" : ""}`}
+                        title={RECOMMENDED_UPLOAD_HINT}
                         onClick={() =>
                           (
                             document.getElementById(
@@ -2359,26 +2608,16 @@ export default function PlatformAdminProfilePage() {
                             return;
                           }
 
-                          const uploadLimit = getRecommendedUploadLimit(file);
-
-                          if (!uploadLimit) {
-                            showBasicUploadError(
-                              "Please choose only a recommended file type."
-                            );
+                          const fileError = getFileUploadErrorMessage(file);
+                          if (fileError) {
+                            setGovernmentIdUploadError(fileError);
+                            showBasicUploadError(fileError);
                             event.target.value = "";
                             setGovernmentIdProof(null);
                             return;
                           }
 
-                          if (file.size > uploadLimit.maxBytes) {
-                            showBasicUploadError(
-                              `${uploadLimit.label} recommended upload size is up to ${uploadLimit.sizeText}.`
-                            );
-                            event.target.value = "";
-                            setGovernmentIdProof(null);
-                            return;
-                          }
-
+                          setGovernmentIdUploadError("");
                           setGovernmentIdProof(file);
                         }}
                       />
@@ -2386,6 +2625,11 @@ export default function PlatformAdminProfilePage() {
                     <span className="fileNameText">
                       {governmentIdProof?.name ?? "No File Chosen"}
                     </span>
+                    {governmentIdUploadError && (
+                      <div role="alert" aria-live="assertive" style={{ color: "#B42318", fontSize: "12px", lineHeight: "17px", marginTop: "8px", overflowWrap: "anywhere" }}>
+                        {governmentIdUploadError}
+                      </div>
+                    )}
                   </div>
 
                   <div className="governmentIdSideField">
@@ -2512,6 +2756,7 @@ export default function PlatformAdminProfilePage() {
                 type="button"
                 className="saveProfileButton"
                 onClick={handleSaveProfile}
+                disabled={isSavingProfile}
               >
                 Save Profile
               </button>

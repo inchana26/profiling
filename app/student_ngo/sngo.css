@@ -785,8 +785,7 @@ button {
   transform: translateY(4px);
 }
 
-/* Profile Photo + Supporting Documents:
-   keep Choose File fixed in the first 124px column before and after upload. */
+/* Supporting Documents: keep Choose File fixed before and after upload. */
 .institutionDocumentsCard
   .institutionUploadField:not(.institutionGovernmentIdField)
   .institutionFilePicker,
@@ -5426,3 +5425,119 @@ body {
   }
 }
 
+
+/* Student NGO: show ALL selected multi-select options; keep single-select styling unchanged. */
+.institutionMultiSelectField {
+  height: auto !important;
+  min-height: 68px;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionSelectWrap {
+  height: auto !important;
+  min-height: 24px;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 26px !important;
+  align-items: flex-start !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  padding-right: 36px !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectCurrentValue {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  height: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 24px;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectArrow {
+  top: 12px !important;
+}
+.institutionMultiSelectDisplayField {
+  height: auto !important;
+  min-height: 68px;
+  overflow: visible !important;
+}
+.institutionMultiSelectDisplayField .institutionFieldValue {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+
+/* NGO profile layout correction: fill partial rows without changing existing fields. */
+/* Documents now has 2 uploads, so it must not reserve the old third column. */
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px;
+}
+.superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+  grid-column: auto !important;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+/* Make the final field fill unused columns in Registration / Personal / Career sections. */
+@media (min-width: 1025px) {
+  .superAdminPage.institutionAdminPage .institutionInformationCard:not(.institutionDocumentsCard) > .institutionGrid > :last-child:nth-child(3n + 1) {
+    grid-column: 1 / -1 !important;
+  }
+  .superAdminPage.institutionAdminPage .institutionInformationCard:not(.institutionDocumentsCard) > .institutionGrid > :last-child:nth-child(3n + 2) {
+    grid-column: span 2 !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .superAdminPage.institutionAdminPage .institutionInformationCard:not(.institutionDocumentsCard) > .institutionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .superAdminPage.institutionAdminPage .institutionInformationCard:not(.institutionDocumentsCard) > .institutionGrid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+  }
+}
+@media (max-width: 767px) {
+  .superAdminPage.institutionAdminPage .institutionPageContent,
+  .superAdminPage.institutionAdminPage .institutionInformationCard,
+  .superAdminPage.institutionAdminPage .institutionGrid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .superAdminPage.institutionAdminPage .institutionInformationCard > .institutionGrid,
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px;
+  }
+  .superAdminPage.institutionAdminPage .institutionInformationCard > .institutionGrid > *,
+  .superAdminPage.institutionAdminPage .institutionDocumentsCard .institutionDocumentsGrid > .institutionField {
+    grid-column: 1 / -1 !important;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .superAdminPage.institutionAdminPage .institutionUploadField,
+  .superAdminPage.institutionAdminPage .institutionFilePicker,
+  .superAdminPage.institutionAdminPage .institutionFilePreview {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .superAdminPage.institutionAdminPage .institutionFieldLabel,
+  .superAdminPage.institutionAdminPage .institutionInformationTitle h2 {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+}

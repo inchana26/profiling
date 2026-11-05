@@ -5374,3 +5374,36 @@ body {
   }
 }
 
+
+
+/* Student Bootcamp: show ALL selected names only in multi-select fields. */
+.institutionMultiSelectField {
+  height: auto !important;
+  overflow: visible !important;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px;
+}
+.institutionMultiSelectField .institutionCustomSelectTrigger .institutionSelectCurrentValue {
+  display: block !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+.institutionMultiSelectDisplayField .institutionFieldValue {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}

@@ -5048,3 +5048,83 @@ body {
   filter: none !important;
 }
 
+/* NGO Faculty: radio controls for single-selects, matching provided 24px states. */
+.superAdminPage.institutionAdminPage .institutionFacultyRegistrationGrid .institutionRadioSelectOption .institutionRadioSelectCircle,
+.superAdminPage.institutionAdminPage .institutionFacultyProfessionalGrid .institutionRadioSelectOption .institutionRadioSelectCircle,
+.superAdminPage.institutionAdminPage .institutionFacultySkillsGrid .institutionRadioSelectOption .institutionRadioSelectCircle {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  border-radius: 50% !important;
+  background: #DFE6E9 !important;
+  box-shadow: inset -2px -2px 2px #FFFFFF, inset 2px 2px 2px #C4C4C4 !important;
+}
+.superAdminPage.institutionAdminPage .institutionFacultyRegistrationGrid .institutionRadioSelectOption .institutionRadioSelectCircle::before,
+.superAdminPage.institutionAdminPage .institutionFacultyProfessionalGrid .institutionRadioSelectOption .institutionRadioSelectCircle::before,
+.superAdminPage.institutionAdminPage .institutionFacultySkillsGrid .institutionRadioSelectOption .institutionRadioSelectCircle::before {
+  content: "" !important;
+  position: absolute !important;
+  width: 12px !important;
+  height: 12px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: transparent !important;
+  border: 1.5px solid #C6C6C9 !important;
+  border-radius: 50% !important;
+}
+.superAdminPage.institutionAdminPage .institutionFacultyRegistrationGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive,
+.superAdminPage.institutionAdminPage .institutionFacultyProfessionalGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive,
+.superAdminPage.institutionAdminPage .institutionFacultySkillsGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive {
+  box-shadow: 4px 4px 4px #C4C4C4, -4px -4px 4px #FFFFFF !important;
+}
+.superAdminPage.institutionAdminPage .institutionFacultyRegistrationGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::before,
+.superAdminPage.institutionAdminPage .institutionFacultyProfessionalGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::before,
+.superAdminPage.institutionAdminPage .institutionFacultySkillsGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::before {
+  width: 16px !important;
+  height: 16px !important;
+  background: #2D4CC8 !important;
+  border: 1.5px solid #2D4CC8 !important;
+  border-radius: 50% !important;
+}
+.superAdminPage.institutionAdminPage .institutionFacultyRegistrationGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::after,
+.superAdminPage.institutionAdminPage .institutionFacultyProfessionalGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::after,
+.superAdminPage.institutionAdminPage .institutionFacultySkillsGrid .institutionRadioSelectOption .institutionRadioSelectCircleActive::after {
+  content: "" !important;
+  position: absolute !important;
+  display: block !important;
+  opacity: 1 !important;
+  width: 7px !important;
+  height: 4px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -62%) rotate(-45deg) !important;
+  border: 0 !important;
+  border-left: 1.5px solid #FFFFFF !important;
+  border-bottom: 1.5px solid #FFFFFF !important;
+  z-index: 3 !important;
+}
+/* Square multi-select boxes keep their original green checkmark styling. */
+/* Show the entire selected list inside both edit and saved field cards. */
+.superAdminPage.institutionAdminPage .institutionMultiSelectField .institutionCustomSelectTrigger {
+  height: auto !important;
+  min-height: 24px !important;
+  align-items: flex-start !important;
+}
+.superAdminPage.institutionAdminPage .institutionMultiSelectField .institutionSelectCurrentValue,
+.superAdminPage.institutionAdminPage .institutionMultiSelectValueField .institutionFieldValue {
+  display: block !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  overflow-wrap: anywhere !important;
+  max-height: none !important;
+  height: auto !important;
+}
+.superAdminPage.institutionAdminPage .institutionMultiSelectField,
+.superAdminPage.institutionAdminPage .institutionMultiSelectValueField {
+  height: auto !important;
+  min-height: 68px !important;
+}

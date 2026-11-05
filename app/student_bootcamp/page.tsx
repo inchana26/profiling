@@ -200,6 +200,9 @@ type EditFieldProps = {
   visualIcon?: "lock" | "edit" | "select" | "calendar";
   validate?: (value: string) => string | null;
   onValidationError?: (message: string) => void;
+  /** Social links validate when the field loses focus, not while typing. */
+  validateOnBlurOnly?: boolean;
+  maxLength?: number;
 };
 
 function EditField({
@@ -214,6 +217,8 @@ function EditField({
   visualIcon,
   validate,
   onValidationError,
+  validateOnBlurOnly = false,
+  maxLength,
 }: EditFieldProps) {
   const inputId = useId();
   const validationTimerRef = useRef<number | null>(null);
@@ -233,7 +238,7 @@ function EditField({
     const message = validate(nextValue);
 
     if (message) {
-      if (lastValidationErrorRef.current !== message) {
+      if (lastValidationErrorRef.current !== message || validateOnBlurOnly) {
         lastValidationErrorRef.current = message;
         onValidationError?.(message);
       }
@@ -279,10 +284,11 @@ function EditField({
             className="institutionFieldInput"
             value={value}
             placeholder={placeholder}
+            maxLength={maxLength ?? (type === "email" ? 254 : type === "tel" ? 20 : 250)}
             onChange={(event) => {
               const nextValue = event.target.value;
               onChange?.(nextValue);
-              scheduleValidation(nextValue);
+              if (!validateOnBlurOnly) scheduleValidation(nextValue);
             }}
             onBlur={(event) => {
               if (validationTimerRef.current) {
@@ -983,7 +989,7 @@ function MultiSelectField({
   return (
     <div
       ref={selectRef}
-      className={`institutionField institutionSelectField institutionRadioSelectField ${
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
         open ? "institutionSelectFieldOpen" : ""
       } ${className}`}
     >
@@ -1798,7 +1804,7 @@ export default function FacultyUniversityPage() {
     completionDate: "17-02-2027",
     learnerStatus: "Active",
     highestQualification: "B.Tech-CS",
-    skillNames: "eg. HTML, CSS",
+    skillNames: "HTML, CSS",
     skillCategories: "Web Development",
     skillProficiency: "Intermediate",
   });
@@ -1852,12 +1858,16 @@ export default function FacultyUniversityPage() {
 
     if (editingSection && editingSection !== section) {
       if (editingSection === "professional") {
+        if (!isValidOptionalContact(professionalDraft.alternateContact)) {
+          showSectionError("professional", "Enter correct Alternate Contact Number");
+          return;
+        }
         const alternateEmail = professionalDraft.alternateEmail.trim();
 
         if (alternateEmail && !isValidEmail(alternateEmail)) {
           showSectionError(
             "professional",
-            "Please enter a valid Alternate Email"
+            "Enter correct Alternate Email"
           );
           return;
         }
@@ -1884,6 +1894,12 @@ export default function FacultyUniversityPage() {
       }
 
       if (editingSection === "skills") {
+        const linkError = getSkillsLinkError(skillsDraft);
+        if (linkError) {
+          showSectionError("skills", linkError);
+          return;
+        }
+
         const complete =
           skillsDraft.careerGoal &&
           skillsDraft.targetRole.length > 0 &&
@@ -1987,32 +2003,132 @@ export default function FacultyUniversityPage() {
   const isValidEmail = (value: string) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
 
+  // Alternate contact is optional; if supplied, it must be a valid Indian mobile number.
   const isValidOptionalContact = (value: string) => {
     const trimmed = value.trim();
-    if (!trimmed) return true;
-
-    if (!/^[+()\d\s-]+$/.test(trimmed)) {
-      return false;
-    }
-
-    const digits = trimmed.replace(/\D/g, "");
-    return digits.length >= 7 && digits.length <= 15;
+    return !trimmed || /^[6-9]\d{9}$/.test(trimmed);
   };
 
-  const isValidOptionalUrl = (value: string) => {
+  // URLs may be entered with or without https://, but must identify a real-looking
+  // domain, contain no whitespace and use HTTP(S) only.
+  const parseProfileUrl = (value: string): URL | null => {
     const trimmed = value.trim();
-    if (!trimmed) return true;
+    if (!trimmed || trimmed.length > 150 || /\s/.test(trimmed)) return null;
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) && !/^https?:\/\//i.test(trimmed)) {
+      return null;
+    }
 
     try {
       const normalized = /^https?:\/\//i.test(trimmed)
         ? trimmed
         : `https://${trimmed}`;
+      const url = new URL(normalized);
+      const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
+      const segments = hostname.split(".");
+      const validDomain =
+        segments.length >= 2 &&
+        segments.every((part) =>
+          /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part)
+        ) &&
+        /^[a-z]{2,63}$/.test(segments[segments.length - 1]);
 
-      const parsed = new URL(normalized);
-      return Boolean(parsed.hostname && parsed.hostname.includes("."));
+      if (!validDomain || url.username || url.password ||
+          (url.protocol !== "http:" && url.protocol !== "https:")) return null;
+      return url;
     } catch {
-      return false;
+      return null;
     }
+  };
+
+  type ProfileLinkKey =
+    | "portfolioLink" | "linkedinUrl" | "githubUrl"
+    | "instagramId" | "facebookUrl" | "twitterX";
+
+  const profileLinkMessages: Record<ProfileLinkKey, string> = {
+    portfolioLink: "Enter correct Portfolio Link",
+    linkedinUrl: "Enter correct LinkedIn URL",
+    githubUrl: "Enter correct GitHub URL",
+    instagramId: "Enter correct Instagram ID",
+    facebookUrl: "Enter correct Facebook ID / URL",
+    twitterX: "Enter correct Twitter / X",
+  };
+
+  const isPlatformUrl = (value: string, hosts: string[]) => {
+    const url = parseProfileUrl(value);
+    if (!url) return false;
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    // A profile link needs a page/account path, not just the platform homepage.
+    return hosts.includes(host) && url.pathname.split("/").some(Boolean);
+  };
+
+  const isValidInstagramHandle = (value: string) => {
+    const handle = value.replace(/^@/, "");
+    return /^[A-Za-z0-9._]{1,30}$/.test(handle) &&
+      !handle.startsWith(".") && !handle.endsWith(".") &&
+      !handle.includes("..");
+  };
+
+  const isValidFacebookId = (value: string) => {
+    const id = value.replace(/^@/, "");
+    return /^[A-Za-z0-9.]{5,50}$/.test(id) &&
+      /[A-Za-z]/.test(id) && !id.startsWith(".") &&
+      !id.endsWith(".") && !id.includes("..");
+  };
+
+  const isValidXHandle = (value: string) =>
+    /^@?[A-Za-z0-9_]{1,15}$/.test(value);
+
+  // All profile links are optional. When populated, validate their actual
+  // content, not merely whether the field contains text.
+  const validateProfileLink = (field: ProfileLinkKey, raw: string): string | null => {
+    const value = raw.trim();
+    if (!value) return null;
+    if (value.length > 150) return profileLinkMessages[field];
+    const isWebLink = /^(https?:\/\/|www\.)/i.test(value) ||
+      /^(instagram|facebook|fb|twitter|x|linkedin|github)\.com\//i.test(value);
+
+    let valid = false;
+    switch (field) {
+      case "portfolioLink":
+        valid = Boolean(parseProfileUrl(value));
+        break;
+      case "linkedinUrl":
+        valid = isPlatformUrl(value, ["linkedin.com"]);
+        break;
+      case "githubUrl":
+        valid = isPlatformUrl(value, ["github.com"]);
+        break;
+      case "instagramId":
+        valid = isWebLink
+          ? isPlatformUrl(value, ["instagram.com"]) &&
+            isValidInstagramHandle((parseProfileUrl(value)?.pathname.split("/").filter(Boolean)[0]) || "")
+          : isValidInstagramHandle(value);
+        break;
+      case "facebookUrl":
+        valid = isWebLink
+          ? isPlatformUrl(value, ["facebook.com", "fb.com"])
+          : isValidFacebookId(value);
+        break;
+      case "twitterX":
+        valid = isWebLink
+          ? isPlatformUrl(value, ["twitter.com", "x.com"]) &&
+            isValidXHandle((parseProfileUrl(value)?.pathname.split("/").filter(Boolean)[0]) || "")
+          : isValidXHandle(value);
+        break;
+    }
+    return valid ? null : profileLinkMessages[field];
+  };
+
+  const getSkillsLinkError = (values: typeof skillsDraft): string | null => {
+    const fields: ProfileLinkKey[] = [
+      "portfolioLink", "linkedinUrl", "githubUrl",
+      "instagramId", "facebookUrl", "twitterX",
+    ];
+    for (const field of fields) {
+      const message = validateProfileLink(field, values[field]);
+      if (message) return message;
+    }
+    return null;
   };
 
   const handleResumeFileSelect = (file: File | null) => {
@@ -2049,11 +2165,20 @@ export default function FacultyUniversityPage() {
 
     window.setTimeout(() => {
       setSectionPopup((current) =>
-        current?.section === section && current.type === "error"
+        current?.section === section && current.type === "error" && current.message === message
           ? null
           : current
       );
     }, 2500);
+  };
+
+  // Clear only the popup for the contact field that was corrected.
+  const clearContactError = (message: string) => {
+    setSectionPopup((current) =>
+      current?.section === "professional" && current.type === "error" && current.message === message
+        ? null
+        : current
+    );
   };
 
   const saveProfile = () => {
@@ -2065,11 +2190,19 @@ export default function FacultyUniversityPage() {
 
     const alternateEmail = professionalSource.alternateEmail.trim();
 
+    if (!isValidOptionalContact(professionalSource.alternateContact)) {
+      showSectionError("professional", "Enter correct Alternate Contact Number");
+      return;
+    }
+
     if (alternateEmail && !isValidEmail(alternateEmail)) {
-      showFlowPopup(
-        "Please enter a valid Alternate Email",
-        "confirmation"
-      );
+      showSectionError("professional", "Enter correct Alternate Email");
+      return;
+    }
+
+    const linkError = getSkillsLinkError(skillsSource);
+    if (linkError) {
+      showSectionError("skills", linkError);
       return;
     }
 
@@ -2375,11 +2508,13 @@ export default function FacultyUniversityPage() {
 
     const emailOkay =
       !source.alternateEmail.trim() || isValidEmail(source.alternateEmail.trim());
+    const phoneOkay = isValidOptionalContact(source.alternateContact);
 
     const complete = Boolean(
       source.accessibilityNeeds.length > 0 &&
         source.deviceAccess.length > 0 &&
-        emailOkay
+        emailOkay &&
+        phoneOkay
     );
 
     setProfessionalProfileCompleted(complete);
@@ -2395,7 +2530,8 @@ export default function FacultyUniversityPage() {
         source.learningObjective.length > 0 &&
         source.learningMode.length > 0 &&
         source.portfolioEvidence &&
-        resumeFile
+        resumeFile &&
+        !getSkillsLinkError(source)
     );
 
     setSkillsDevelopmentCompleted(complete);
@@ -2702,19 +2838,26 @@ export default function FacultyUniversityPage() {
                 <div className="institutionGrid institutionFacultyProfessionalGrid">
                   <EditField
                     label="Alternate Contact Number"
+                    type="tel"
+                    maxLength={10}
                     value={professionalDraft.alternateContact}
                     placeholder="Enter Alternate Contact Number"
-                    onChange={(value) =>
+                    onChange={(value) => {
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
                       setProfessionalDraft((current) => ({
                         ...current,
                         alternateContact: value,
-                      }))
-                    }
+                      }));
+                      if (isValidOptionalContact(value)) {
+                        clearContactError("Enter correct Alternate Contact Number");
+                      }
+                    }}
                     validate={(value) =>
                       isValidOptionalContact(value)
                         ? null
-                        : "Please enter a valid Alternate Contact Number."
+                        : "Enter correct Alternate Contact Number"
                     }
+                    validateOnBlurOnly
                     onValidationError={(message) =>
                       showSectionError("professional", message)
                     }
@@ -2726,20 +2869,24 @@ export default function FacultyUniversityPage() {
                     type="email"
                     value={professionalDraft.alternateEmail}
                     placeholder="Enter Alternate Email"
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setProfessionalDraft((current) => ({
                         ...current,
                         alternateEmail: value,
-                      }))
-                    }
+                      }));
+                      if (!value.trim() || isValidEmail(value.trim())) {
+                        clearContactError("Enter correct Alternate Email");
+                      }
+                    }}
                     validate={(value) => {
                       const email = value.trim();
                       if (!email) return null;
 
                       return isValidEmail(email)
                         ? null
-                        : "Please enter a valid Alternate Email";
+                        : "Enter correct Alternate Email";
                     }}
+                    validateOnBlurOnly
                     onValidationError={(message) =>
                       showSectionError("professional", message)
                     }
@@ -2803,11 +2950,13 @@ export default function FacultyUniversityPage() {
                     label="Accessibility Needs"
                     value={professionalInfo.accessibilityNeeds.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                   <DisplayField
                     label="Device Access"
                     value={professionalInfo.deviceAccess.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                 </div>
               )}
@@ -2992,14 +3141,12 @@ export default function FacultyUniversityPage() {
                         portfolioLink: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid Portfolio Link."
-                    }
+                    validate={(value) => validateProfileLink("portfolioLink", value)}
                     onValidationError={(message) =>
                       showSectionError("skills", message)
                     }
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3013,14 +3160,12 @@ export default function FacultyUniversityPage() {
                         linkedinUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid LinkedIn URL."
-                    }
+                    validate={(value) => validateProfileLink("linkedinUrl", value)}
                     onValidationError={(message) =>
                       showSectionError("skills", message)
                     }
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3034,14 +3179,12 @@ export default function FacultyUniversityPage() {
                         githubUrl: value,
                       }))
                     }
-                    validate={(value) =>
-                      isValidOptionalUrl(value)
-                        ? null
-                        : "Please enter a valid GitHub URL."
-                    }
+                    validate={(value) => validateProfileLink("githubUrl", value)}
                     onValidationError={(message) =>
                       showSectionError("skills", message)
                     }
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3055,6 +3198,10 @@ export default function FacultyUniversityPage() {
                         instagramId: value,
                       }))
                     }
+                    validate={(value) => validateProfileLink("instagramId", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3068,6 +3215,10 @@ export default function FacultyUniversityPage() {
                         facebookUrl: value,
                       }))
                     }
+                    validate={(value) => validateProfileLink("facebookUrl", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3081,6 +3232,10 @@ export default function FacultyUniversityPage() {
                         twitterX: value,
                       }))
                     }
+                    validate={(value) => validateProfileLink("twitterX", value)}
+                    onValidationError={(message) => showSectionError("skills", message)}
+                    maxLength={150}
+                    validateOnBlurOnly
                     visualIcon="edit"
                   />
 
@@ -3120,21 +3275,25 @@ export default function FacultyUniversityPage() {
                     label="Target Role"
                     value={skillsInfo.targetRole.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                   <DisplayField
                     label="Target Industry"
                     value={skillsInfo.targetIndustry.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                   <DisplayField
                     label="Learning Objective"
                     value={skillsInfo.learningObjective.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                   <DisplayField
                     label="Learning Mode"
                     value={skillsInfo.learningMode.join(", ")}
                     placeholder="Select"
+                    className="institutionMultiSelectDisplayField"
                   />
                   <DisplayField
                     label="Resume"
@@ -3207,7 +3366,7 @@ export default function FacultyUniversityPage() {
               )}
 
               <div className="institutionGrid institutionDocumentsGrid">
-                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                {["Government ID Proof", "Supporting Documents"].map(
                   (label) => (
                     <div
                       className={`institutionField institutionUploadField ${
