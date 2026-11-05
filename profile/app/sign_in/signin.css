@@ -1,0 +1,319 @@
+* { 
+  box-sizing: border-box; 
+} 
+
+html, 
+body { 
+  margin: 0; 
+  padding: 0; 
+} 
+
+body { 
+  background: #dfe6e9; 
+  font-family: "Segoe UI"; 
+} 
+
+button, 
+select { 
+  font: inherit; 
+} 
+
+.loginPage { 
+  width: 100%; 
+  min-height: 100vh; 
+  padding: 24px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: #2f3547; 
+  background: #dfe6e9; 
+} 
+
+.loginCard { 
+  width: min(100%, 460px); 
+  min-height: 530px; 
+  padding: 40px 46px 36px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  background: #dfe6e9; 
+  border-radius: 22px; 
+  box-shadow: 
+    -8px -8px 16px #ffffff, 
+    8px 8px 16px #c4c4c4; 
+} 
+
+.loginLogoWrap { 
+  width: 150px; 
+  height: 150px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  margin-bottom: 2px; 
+} 
+
+.loginLogo { 
+  width: 146px; 
+  height: 146px; 
+  object-fit: contain; 
+} 
+
+.loginTitle { 
+  margin: 0; 
+  color: #2f3547; 
+  font-size: 32px; 
+  line-height: 1.2; 
+  font-weight: 700; 
+  text-align: center; 
+} 
+
+.loginSubtitle { 
+  margin: 10px 0 28px; 
+  color: #6c7583; 
+  font-size: 15px; 
+  line-height: 22px; 
+  text-align: center; 
+} 
+
+.loginForm { 
+  width: 100%; 
+} 
+
+.loginField { 
+  width: 100%; 
+  margin-bottom: 19px; 
+} 
+
+.loginField label { 
+  display: block; 
+  margin: 0 0 8px 4px; 
+  color: #303a4d; 
+  font-size: 14px; 
+  line-height: 21px; 
+  font-weight: 600; 
+} 
+
+.loginSelectWrap { 
+  position: relative; 
+  width: 100%; 
+} 
+
+.loginSelectWrap select { 
+  width: 100%; 
+  height: 52px; 
+  padding: 0 46px 0 17px; 
+  appearance: none; 
+  -webkit-appearance: none; 
+  color: #465267; 
+  background: #dfe6e9; 
+  border: 0; 
+  border-radius: 10px; 
+  outline: none; 
+  box-shadow: 
+    inset -4px -4px 4px #ffffff, 
+    inset 4px 4px 4px #c4c4c4; 
+  font-size: 15px; 
+  cursor: pointer; 
+} 
+
+.loginSelectWrap select:focus { 
+  box-shadow: 
+    inset -4px -4px 4px #ffffff, 
+    inset 4px 4px 4px #c4c4c4, 
+    -2px -2px 4px rgba(255, 255, 255, 0.7), 
+    2px 2px 4px rgba(196, 196, 196, 0.6); 
+} 
+
+.loginSelectArrow { 
+  position: absolute; 
+  top: 50%; 
+  right: 19px; 
+  width: 9px; 
+  height: 9px; 
+  border-right: 2px solid #506071; 
+  border-bottom: 2px solid #506071; 
+  transform: translateY(-70%) rotate(45deg); 
+  pointer-events: none; 
+} 
+
+.loginButton { 
+  width: 100%; 
+  height: 48px; 
+  margin-top: 5px; 
+  color: #2f3547; 
+  background: #dfe6e9; 
+  border: 0; 
+  border-radius: 10px; 
+  box-shadow: 
+    -4px -4px 8px #ffffff, 
+    4px 4px 8px #c4c4c4; 
+  font-size: 15px; 
+  font-weight: 700; 
+  cursor: pointer; 
+  transition: 
+    transform 0.15s ease, 
+    box-shadow 0.15s ease, 
+    opacity 0.15s ease; 
+} 
+
+.loginButton:hover:not(:disabled) { 
+  transform: translateY(-1px); 
+} 
+
+.loginButton:active:not(:disabled) { 
+  transform: translateY(1px); 
+  box-shadow: 
+    inset -3px -3px 4px #ffffff, 
+    inset 3px 3px 4px #c4c4c4; 
+} 
+
+.loginButton:disabled { 
+  opacity: 0.48; 
+  cursor: default; 
+} 
+
+@media (max-width: 768px) { 
+  .loginPage { 
+    padding: 20px; 
+  } 
+
+  .loginCard { 
+    width: min(100%, 430px); 
+    min-height: 500px; 
+    padding: 36px 32px 32px; 
+    border-radius: 20px; 
+  } 
+
+  .loginLogoWrap { 
+    width: 138px; 
+    height: 138px;
+    margin-bottom: 2px; 
+  } 
+
+  .loginLogo { 
+    width: 134px; 
+    height: 134px; 
+  } 
+
+  .loginTitle { 
+    font-size: 30px; 
+  } 
+} 
+
+@media (max-width: 480px) { 
+  .loginPage { 
+    min-height: 100svh; 
+    padding: 16px; 
+  } 
+
+  .loginCard { 
+    width: 100%; 
+    min-height: auto; 
+    padding: 32px 22px 28px; 
+    border-radius: 18px; 
+  } 
+
+  .loginLogoWrap { 
+    width: 136px; 
+    height: 136px; 
+    margin-bottom: 2px; 
+  } 
+
+  .loginLogo { 
+    width: 132px; 
+    height: 132px; 
+  } 
+
+  .loginTitle { 
+    font-size: 28px; 
+  } 
+
+  .loginSubtitle { 
+    margin: 9px 0 24px; 
+    font-size: 14px; 
+  } 
+
+  .loginField { 
+    margin-bottom: 18px; 
+  } 
+
+  .loginSelectWrap select { 
+    height: 50px; 
+    font-size: 15px; 
+  } 
+
+  .loginButton { 
+    height: 47px; 
+  } 
+} 
+
+@media (max-width: 360px) { 
+  .loginPage { 
+    padding: 12px; 
+  } 
+
+  .loginCard { 
+    padding: 28px 16px 25px; 
+  } 
+
+  .loginTitle { 
+    font-size: 26px; 
+  } 
+
+  .loginSelectWrap select { 
+    padding-left: 14px; 
+  } 
+} 
+
+@media (max-height: 650px) and (min-width: 481px) { 
+  .loginPage { 
+    align-items: flex-start; 
+    padding-top: 20px; 
+    padding-bottom: 20px; 
+  } 
+
+  .loginCard { 
+    min-height: auto; 
+    padding-top: 28px; 
+    padding-bottom: 28px; 
+  } 
+
+  .loginLogoWrap { 
+    width: 120px; 
+    height: 120px; 
+    margin-bottom: 2px; 
+  } 
+
+  .loginLogo { 
+    width: 116px; 
+    height: 116px; 
+  } 
+
+  .loginSubtitle { 
+    margin-bottom: 22px; 
+  } 
+} 
+
+
+/* Reduce only the space between logo and NeuroLXP title */
+.loginLogoWrap {
+  margin-bottom: -18px;
+}
+
+@media (max-width: 768px) {
+  .loginLogoWrap {
+    margin-bottom: -16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginLogoWrap {
+    margin-bottom: -14px;
+  }
+}
+
+@media (max-height: 650px) and (min-width: 481px) {
+  .loginLogoWrap {
+    margin-bottom: -14px;
+  }
+}

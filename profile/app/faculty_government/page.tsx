@@ -1,0 +1,3041 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useId, useRef, useState } from "react";
+import "./fgovernment.css";
+import Sidebar from "../components/sidebar/Sidebar";
+import Header from "../components/header/Header";
+const images = {
+  profile: "/assets/funiversityimages/profile.png",
+
+  camera: "/assets/fgvticons/camera.svg",
+  edit: "/assets/fgvticons/edit.svg",
+  editBig: "/assets/fgvticons/editbig.svg",
+  lock: "/assets/fgvticons/lock.svg",
+  save: "/assets/fgvticons/tick.svg",
+  cancel: "/assets/fgvticons/cancel.svg",
+  arrowDown: "/assets/fgvticons/arrow-down.svg",
+  completed: "/assets/fgvticons/checkmark.svg",
+  upload: "/assets/fgvticons/upload.svg",
+  clap: "/assets/fgvticons/clap.svg",
+  sad: "/assets/fgvticons/sad.svg",
+
+  registration: "/assets/fgvticons/file-edit.svg",
+  academicProfessional: "/assets/fgvticons/briefcase.svg",
+  skillsDevelopment: "/assets/fgvticons/target.svg",
+  documents: "/assets/fgvticons/file.svg",
+  confirmation: "/assets/fgvticons/checkmark-circlewhite.svg",
+};
+
+type SectionName = "registration" | "professional" | "skills" | "documents";
+
+const MB = 1024 * 1024;
+
+const DOCUMENT_UPLOAD_LIMITS = {
+  "Profile Photo": {
+    accept: "image/jpeg,image/png,image/webp",
+    label: "JPG, PNG or WebP — recommended 200 KB – 2 MB",
+  },
+  "Government ID Proof": {
+    accept: "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx",
+    label: "Use the recommended LMS upload size for the selected file type",
+  },
+  "Supporting Documents": {
+    accept:
+      "image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.ppt,.pptx,.mp3,.aac,.mp4,.zip,.xlsx,.vtt,.srt",
+    label: "Use the recommended LMS upload size for the selected file type",
+  },
+} as const;
+
+const KB = 1024;
+
+const getDocumentRecommendedSize = (file: File) => {
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+
+  if (type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(name)) {
+    return { min: 200 * KB, max: 2 * MB, label: "200 KB – 2 MB" };
+  }
+
+  if (type === "application/pdf" || name.endsWith(".pdf")) {
+    return { min: 5 * MB, max: 25 * MB, label: "5 – 25 MB" };
+  }
+
+  if (name.endsWith(".doc") || name.endsWith(".docx")) {
+    return { min: 1 * MB, max: 10 * MB, label: "1 – 10 MB" };
+  }
+
+  if (name.endsWith(".ppt") || name.endsWith(".pptx")) {
+    return { min: 5 * MB, max: 30 * MB, label: "5 – 30 MB" };
+  }
+
+  if (
+    type.startsWith("audio/") ||
+    name.endsWith(".mp3") ||
+    name.endsWith(".aac")
+  ) {
+    return { min: 2 * MB, max: 20 * MB, label: "2 – 20 MB" };
+  }
+
+  if (type.startsWith("video/") || name.endsWith(".mp4")) {
+    return { min: 50 * MB, max: 500 * MB, label: "50 – 500 MB" };
+  }
+
+  if (name.endsWith(".zip")) {
+    return { min: 10 * MB, max: 100 * MB, label: "10 – 100 MB" };
+  }
+
+  if (name.endsWith(".xlsx")) {
+    return { min: 0, max: 5 * MB, label: "< 5 MB" };
+  }
+
+  if (name.endsWith(".vtt") || name.endsWith(".srt")) {
+    return { min: 0, max: 500 * KB, label: "< 500 KB" };
+  }
+
+  return null;
+};
+
+const isAcceptedDocumentFile = (
+  label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+  file: File
+) => {
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+
+  if (label === "Profile Photo") {
+    return (
+      type === "image/jpeg" ||
+      type === "image/png" ||
+      type === "image/webp" ||
+      /\.(jpe?g|png|webp)$/i.test(name)
+    );
+  }
+
+  if (label === "Government ID Proof") {
+    return (
+      type.startsWith("image/") ||
+      type === "application/pdf" ||
+      /\.(jpe?g|png|webp|pdf|doc|docx)$/i.test(name)
+    );
+  }
+
+  return /\.(jpe?g|png|webp|pdf|doc|docx|ppt|pptx|mp3|aac|mp4|zip|xlsx|vtt|srt)$/i.test(
+    name
+  );
+};
+
+
+type IconImageProps = {
+  src: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+};
+
+function IconImage({
+  src,
+  alt = "",
+  width = 18,
+  height = 18,
+  className = "",
+}: IconImageProps) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+      aria-hidden={alt ? undefined : true}
+    />
+  );
+}
+
+type DisplayFieldProps = {
+  label: string;
+  value: string;
+  placeholder?: string;
+  className?: string;
+};
+
+function DisplayField({
+  label,
+  value,
+  placeholder,
+  className = "",
+}: DisplayFieldProps) {
+  return (
+    <div className={`institutionField ${className}`}>
+      <div className="institutionFieldLabel">{label}</div>
+      <div
+        className={`institutionFieldValue ${!value ? "institutionPlaceholder" : ""
+          }`}
+      >
+        {value || placeholder || "--"}
+      </div>
+    </div>
+  );
+}
+
+type EditFieldProps = {
+  label: string;
+  value: string;
+  locked?: boolean;
+  type?: "text" | "email" | "date" | "tel";
+  placeholder?: string;
+  onChange?: (value: string) => void;
+  onBlur?: (value: string) => void;
+  className?: string;
+  visualIcon?: "lock" | "edit" | "select";
+};
+
+function EditField({
+  label,
+  value,
+  locked = false,
+  type = "text",
+  placeholder,
+  onChange,
+  onBlur,
+  className = "",
+  visualIcon,
+}: EditFieldProps) {
+  const inputId = useId();
+
+  return (
+    <div className={`institutionField institutionEditableField ${className}`}>
+      <div className="institutionFieldText">
+        {locked ? (
+          <div className="institutionFieldLabel">{label}</div>
+        ) : (
+          <label htmlFor={inputId} className="institutionFieldLabel">
+            {label}
+          </label>
+        )}
+
+        {locked ? (
+          <div className="institutionFieldValue">
+            {value || placeholder || "--"}
+          </div>
+        ) : (
+          <input
+            id={inputId}
+            name={inputId}
+            type={type}
+            className="institutionFieldInput"
+            value={value}
+            placeholder={placeholder}
+            onChange={(event) => onChange?.(event.target.value)}
+            onBlur={(event) => onBlur?.(event.target.value)}
+          />
+        )}
+      </div>
+
+      {visualIcon === "select" ? (
+        <span className="institutionFieldInlineArrow" aria-hidden="true">
+          <IconImage src={images.arrowDown} width={16} height={16} />
+        </span>
+      ) : (
+        <span
+          className={`institutionFieldAction ${
+            (visualIcon ?? (locked ? "lock" : "edit")) === "lock"
+              ? "institutionFieldLocked"
+              : "institutionFieldPencil"
+          }`}
+          aria-hidden="true"
+        >
+          <IconImage
+            src={
+              (visualIcon ?? (locked ? "lock" : "edit")) === "lock"
+                ? images.lock
+                : images.edit
+            }
+            width={18}
+            height={18}
+          />
+        </span>
+      )}
+    </div>
+  );
+}
+
+type SelectFieldProps = {
+  label: string;
+  value: string;
+  options: string[];
+  placeholder?: string;
+  onChange: (value: string) => void;
+  className?: string;
+  visualIcon?: "select" | "edit";
+  menuStyle?: "default" | "radio";
+};
+
+function SelectField({
+  label,
+  value,
+  options,
+  placeholder = "Select",
+  onChange,
+  className = "",
+  visualIcon = "select",
+  menuStyle = "default",
+}: SelectFieldProps) {
+  const [open, setOpen] = useState(false);
+  const selectId = useId();
+  const labelId = `${selectId}-label`;
+  const listboxId = `${selectId}-listbox`;
+  const selectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeSelect = (event: MouseEvent) => {
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      if (customEvent.detail !== selectId) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeSelect);
+    window.addEventListener(
+      "faculty-profile-dropdown-open",
+      closeOtherDropdown as EventListener
+    );
+
+    return () => {
+      document.removeEventListener("mousedown", closeSelect);
+      window.removeEventListener(
+        "faculty-profile-dropdown-open",
+        closeOtherDropdown as EventListener
+      );
+    };
+  }, [selectId]);
+
+  const handleSelect = (nextValue: string) => {
+    onChange(nextValue);
+    setOpen(false);
+  };
+
+  const isRadioMenu = menuStyle === "radio";
+  const shouldScroll = isRadioMenu && options.length > 4;
+
+  return (
+    <div
+      ref={selectRef}
+      className={`institutionField institutionSelectField ${
+        isRadioMenu ? "institutionRadioSelectField" : ""
+      } ${open ? "institutionSelectFieldOpen" : ""} ${className}`}
+    >
+      <div id={labelId} className="institutionFieldLabel">
+        {label}
+      </div>
+
+      <div className="institutionSelectWrap">
+        <button
+          id={selectId}
+          type="button"
+          className="institutionSelect institutionCustomSelectTrigger"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-labelledby={labelId}
+          aria-controls={listboxId}
+          onClick={() => {
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
+          }}
+        >
+          <span
+            className={
+              value
+                ? "institutionSelectCurrentValue"
+                : "institutionSelectPlaceholderValue"
+            }
+          >
+            {value || placeholder}
+          </span>
+
+          {visualIcon === "edit" ? (
+            <span
+              className="institutionFieldAction institutionFieldPencil"
+              aria-hidden="true"
+            >
+              <IconImage src={images.edit} width={18} height={18} />
+            </span>
+          ) : (
+            <IconImage
+              src={images.arrowDown}
+              width={30}
+              height={30}
+              className={`institutionSelectArrow ${
+                open ? "institutionSelectArrowOpen" : ""
+              }`}
+            />
+          )}
+        </button>
+
+        {open && (
+          <div
+            id={listboxId}
+            className={`institutionCustomSelectList ${
+              isRadioMenu ? "institutionRadioSelectList" : ""
+            } ${
+              shouldScroll ? "institutionRadioSelectListScrollable" : ""
+            }`}
+            role="listbox"
+            aria-labelledby={labelId}
+          >
+            {!isRadioMenu && (
+              <button
+                type="button"
+                className={`institutionCustomSelectOption ${
+                  !value ? "institutionCustomSelectOptionActive" : ""
+                }`}
+                role="option"
+                aria-selected={!value}
+                onClick={() => handleSelect("")}
+              >
+                {placeholder}
+              </button>
+            )}
+
+            {options.map((option) => {
+              const selected = value === option;
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  className={`institutionCustomSelectOption ${
+                    isRadioMenu ? "institutionRadioSelectOption" : ""
+                  } ${
+                    selected ? "institutionCustomSelectOptionActive" : ""
+                  }`}
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => handleSelect(option)}
+                >
+                  {isRadioMenu && (
+                    <span
+                      className={`institutionRadioSelectCircle ${
+                        selected ? "institutionRadioSelectCircleActive" : ""
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {selected && (
+                        <span className="institutionRadioSelectCheck">✓</span>
+                      )}
+                    </span>
+                  )}
+
+                  <span className="institutionRadioSelectOptionText">
+                    {option}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type MultiSelectFieldProps = {
+  label: string;
+  value: string[];
+  options: string[];
+  placeholder?: string;
+  onChange: (value: string[]) => void;
+  className?: string;
+};
+
+function MultiSelectField({
+  label,
+  value,
+  options,
+  placeholder = "Select",
+  onChange,
+  className = "",
+}: MultiSelectFieldProps) {
+  const [open, setOpen] = useState(false);
+  const selectId = useId();
+  const labelId = `${selectId}-label`;
+  const listboxId = `${selectId}-listbox`;
+  const selectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeSelect = (event: MouseEvent) => {
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const closeOtherDropdown = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      if (customEvent.detail !== selectId) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeSelect);
+    window.addEventListener(
+      "faculty-profile-dropdown-open",
+      closeOtherDropdown as EventListener
+    );
+
+    return () => {
+      document.removeEventListener("mousedown", closeSelect);
+      window.removeEventListener(
+        "faculty-profile-dropdown-open",
+        closeOtherDropdown as EventListener
+      );
+    };
+  }, [selectId]);
+
+  const toggleOption = (option: string) => {
+    if (value.includes(option)) {
+      onChange(value.filter((item) => item !== option));
+    } else {
+      onChange([...value, option]);
+    }
+  };
+
+  const displayValue = value.length ? value.join(", ") : placeholder;
+  const shouldScroll = options.length > 4;
+
+  return (
+    <div
+      ref={selectRef}
+      className={`institutionField institutionSelectField institutionRadioSelectField institutionMultiSelectField ${
+        open ? "institutionSelectFieldOpen" : ""
+      } ${className}`}
+    >
+      <div id={labelId} className="institutionFieldLabel">
+        {label}
+      </div>
+
+      <div className="institutionSelectWrap">
+        <button
+          id={selectId}
+          type="button"
+          className="institutionSelect institutionCustomSelectTrigger"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-labelledby={labelId}
+          aria-controls={listboxId}
+          onClick={() => {
+            const nextOpen = !open;
+            if (nextOpen) {
+              window.dispatchEvent(
+                new CustomEvent("faculty-profile-dropdown-open", {
+                  detail: selectId,
+                })
+              );
+            }
+            setOpen(nextOpen);
+          }}
+        >
+          <span
+            className={
+              value.length
+                ? "institutionSelectCurrentValue"
+                : "institutionSelectPlaceholderValue"
+            }
+          >
+            {displayValue}
+          </span>
+
+          <IconImage
+            src={images.arrowDown}
+            width={30}
+            height={30}
+            className={`institutionSelectArrow ${
+              open ? "institutionSelectArrowOpen" : ""
+            }`}
+          />
+        </button>
+
+        {open && (
+          <div
+            id={listboxId}
+            className={`institutionCustomSelectList institutionRadioSelectList ${
+              shouldScroll ? "institutionRadioSelectListScrollable" : ""
+            }`}
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby={labelId}
+          >
+            {options.map((option) => {
+              const selected = value.includes(option);
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  className={`institutionCustomSelectOption institutionRadioSelectOption ${
+                    selected ? "institutionCustomSelectOptionActive" : ""
+                  }`}
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => toggleOption(option)}
+                >
+                  <span
+                    className={`institutionMultiSelectCheck ${
+                      selected ? "institutionMultiSelectCheckActive" : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span className="institutionMultiSelectCheckMark" />
+                  </span>
+
+                  <span className="institutionRadioSelectOptionText">
+                    {option}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+type SectionHeaderProps = {
+  title: string;
+  iconSrc: string;
+  iconTone: "purple" | "pink" | "green" | "blue" | "orange";
+  editing: boolean;
+  popupType?: "saved" | "discarded" | "error" | null;
+  popupMessage?: string;
+  onEdit: () => void;
+};
+
+function SectionHeader({
+  title,
+  iconSrc,
+  iconTone,
+  editing,
+  popupType = null,
+  popupMessage,
+  onEdit,
+}: SectionHeaderProps) {
+  return (
+    <div className={`institutionInformationHeader ${popupType ? "institutionInformationHeaderHasPopup" : ""} ${editing ? "institutionInformationHeaderEditing" : ""}`}>
+      <div className="institutionInformationTitle">
+        <span
+          className={`institutionSectionIcon ${
+            iconTone === "pink"
+              ? "institutionPinkIcon"
+              : iconTone === "green"
+                ? "institutionGreenIcon"
+                : iconTone === "blue"
+                  ? "institutionBlueIcon"
+                  : iconTone === "orange"
+                    ? "institutionOrangeIcon"
+                    : "institutionPurpleIcon"
+          }`}
+        >
+          <IconImage
+            src={iconSrc}
+            width={24}
+            height={24}
+            className="institutionWhiteIcon"
+          />
+        </span>
+        <h2>{title}</h2>
+      </div>
+
+      <div className="institutionHeaderActions">
+        {popupType && (
+          <div
+            className={`institutionInlinePopup ${
+              popupType === "saved"
+                ? "institutionInlinePopupSaved"
+                : popupType === "error"
+                  ? "institutionInlinePopupDiscarded"
+                  : "institutionInlinePopupDiscarded"
+            }`}
+            role="status"
+            aria-live="polite"
+          >
+            <IconImage
+              src={popupType === "saved" ? images.clap : images.sad}
+              width={18}
+              height={18}
+              className="institutionInlinePopupIcon"
+            />
+            <span>
+              {popupType === "saved"
+                ? "Changes Saved"
+                : popupType === "error"
+                  ? popupMessage || "Please enter valid information"
+                  : "Changes Discarded"}
+            </span>
+          </div>
+        )}
+
+        {!editing && !popupType ? (
+          <button
+            type="button"
+            className="institutionEditButton"
+            aria-label={`Edit ${title}`}
+            onClick={onEdit}
+          >
+            <Image
+              src={images.editBig}
+              alt=""
+              width={24}
+              height={24}
+              aria-hidden="true"
+            />
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+type GovernmentIdRaisedDropdownProps = {
+  id: string;
+  label?: string;
+  value: string;
+  placeholder: string;
+  options: string[];
+  onChange: (value: string) => void;
+  compact?: boolean;
+  disabled?: boolean;
+};
+
+const GovernmentIdRaisedDropdown = ({
+  id,
+  label,
+  value,
+  placeholder,
+  options,
+  onChange,
+  compact = false,
+  disabled = false,
+}: GovernmentIdRaisedDropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () =>
+      document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  const content = (
+    <div
+      ref={dropdownRef}
+      className={`raisedSelect ${compact ? "raisedSelectCompact" : ""} ${
+        isOpen ? "raisedSelectOpen" : ""
+      }`}
+    >
+      <button
+        id={id}
+        type="button"
+        className="raisedSelectButton"
+        aria-haspopup="listbox"
+        aria-expanded={!disabled && isOpen}
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setIsOpen((current) => !current);
+        }}
+      >
+        <span className={!value ? "raisedSelectPlaceholder" : ""}>
+          {value || placeholder}
+        </span>
+        <span
+          className={`raisedSelectArrow ${
+            isOpen ? "raisedSelectArrowOpen" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {!disabled && isOpen && (
+        <div
+          className="raisedSelectMenu"
+          role="listbox"
+          aria-label={label || placeholder}
+        >
+          {options.map((option) => {
+            const selected = value === option;
+
+            return (
+              <button
+                key={option}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                className={`raisedSelectOption ${
+                  selected ? "raisedSelectOptionSelected" : ""
+                }`}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+              >
+                <span
+                  className={`raisedSelectRadio ${
+                    selected ? "raisedSelectRadioSelected" : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  {selected ? "✓" : ""}
+                </span>
+                <span className="raisedSelectOptionText">{option}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  if (compact) {
+    return content;
+  }
+
+  return (
+    <div
+      className={`infoField selectInfoField raisedSelectField ${
+        isOpen ? "raisedSelectFieldOpen" : ""
+      }`}
+    >
+      {label && <div className="infoLabel">{label}</div>}
+      {content}
+    </div>
+  );
+};
+
+export default function FacultyUniversityPage() {
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
+
+  const [showDraftSaved, setShowDraftSaved] = useState(false);
+  const [draftSavedTime, setDraftSavedTime] = useState("02:26PM");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<SectionName | null>(null);
+  const [confirmation, setConfirmation] = useState(false);
+
+  const [profilePhotoCompleted, setProfilePhotoCompleted] = useState(false);
+  const [registrationCompleted, setRegistrationCompleted] = useState(false);
+  const [professionalProfileCompleted, setProfessionalProfileCompleted] = useState(false);
+  const [skillsDevelopmentCompleted, setSkillsDevelopmentCompleted] = useState(false);
+  const [documentsCompleted, setDocumentsCompleted] = useState(false);
+  const [flowPopup, setFlowPopup] = useState<string | null>(null);
+  const [flowPopupSection, setFlowPopupSection] = useState<SectionName | "profile" | "confirmation" | null>(null);
+  const flowPopupTimerRef = useRef<number | null>(null);
+
+  const showFlowPopup = (
+    message: string,
+    section: SectionName | "profile" | "confirmation"
+  ) => {
+    setFlowPopup(message);
+    setFlowPopupSection(section);
+
+    if (flowPopupTimerRef.current) {
+      window.clearTimeout(flowPopupTimerRef.current);
+    }
+
+    flowPopupTimerRef.current = window.setTimeout(() => {
+      setFlowPopup(null);
+      setFlowPopupSection(null);
+      flowPopupTimerRef.current = null;
+    }, 3000);
+  };
+  const [governmentIdDocumentType, setGovernmentIdDocumentType] = useState("");
+
+  const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({
+    "Profile Photo": null,
+    "Government ID Proof": null,
+    "Supporting Documents": null,
+  });
+
+  const [documentUploadErrors, setDocumentUploadErrors] = useState<
+    Record<string, string>
+  >({});
+  const documentFilesBeforeEditRef = useRef<Record<string, File | null> | null>(
+    null
+  );
+  const governmentIdDocumentTypeBeforeEditRef = useRef<string | null>(null);
+
+  const [sectionPopup, setSectionPopup] = useState<{
+    section: SectionName;
+    type: "saved" | "discarded" | "error";
+    message?: string;
+  } | null>(null);
+
+  const [registrationInfo, setRegistrationInfo] = useState({
+    trainerId: "TRN-00125",
+    employeeCode: "EMP1234",
+    fullName: "Antony Thomas",
+    email: "",
+    mobileNumber: "",
+    alternateEmail: "",
+    alternatePhone: "",
+    gender: "",
+    designation: "",
+    ministryName: "",
+    department: "",
+    dateOfJoining: "17-05-2004",
+    trainingSpecialization: [] as string[],
+    qualification: "",
+    totalExperience: "",
+    trainingCenterName: "",
+    employmentStatus: "Active",
+  });
+
+  const [professionalInfo, setProfessionalInfo] = useState({
+    trainerType: "",
+    socialSectorExperience: "",
+    trainingExperience: "",
+    specialization: [] as string[],
+    focusArea: [] as string[],
+    expertise: [] as string[],
+    trainingTopics: [] as string[],
+    targetGroups: [] as string[],
+    trainingMethod: [] as string[],
+    communityTraining: "",
+    mentoring: "",
+    contentDevelopment: "",
+    assessment: "",
+    trainingLanguages: [] as string[],
+  });
+
+  const [skillsInfo, setSkillsInfo] = useState({
+    keySkills: [] as string[],
+    skillLevel: "",
+    certifications: [] as string[],
+    developmentAreas: [] as string[],
+    areasOfInterest: [] as string[],
+    careerAspirations: "",
+  });
+
+  const [registrationDraft, setRegistrationDraft] = useState(registrationInfo);
+  const [professionalDraft, setProfessionalDraft] = useState(professionalInfo);
+  const [skillsDraft, setSkillsDraft] = useState(skillsInfo);
+
+  const editingSectionRef = useRef<SectionName | null>(editingSection);
+  const registrationDraftRef = useRef(registrationDraft);
+  const professionalDraftRef = useRef(professionalDraft);
+  const skillsDraftRef = useRef(skillsDraft);
+
+  useEffect(() => {
+    editingSectionRef.current = editingSection;
+    registrationDraftRef.current = registrationDraft;
+    professionalDraftRef.current = professionalDraft;
+    skillsDraftRef.current = skillsDraft;
+  }, [editingSection, registrationDraft, professionalDraft, skillsDraft]);
+
+  const startSectionEdit = (section: SectionName) => {
+    setSectionPopup(null);
+
+    if (section === "registration" && !profilePhotoCompleted) {
+      showFlowPopup(
+        "Please Complete Profile Photo",
+        "registration"
+      );
+      return;
+    }
+
+    if (section === "professional" && !registrationCompleted) {
+      showFlowPopup(
+        "Please Complete Registration Data",
+        "professional"
+      );
+      return;
+    }
+
+    if (section === "skills" && !professionalProfileCompleted) {
+      showFlowPopup(
+        "Please Complete Trainer Profile",
+        "skills"
+      );
+      return;
+    }
+
+    if (section === "documents" && !skillsDevelopmentCompleted) {
+      showFlowPopup(
+        "Please Complete Skills & Growth",
+        "documents"
+      );
+      return;
+    }
+
+    if (section === "registration") {
+      setRegistrationDraft({
+        ...registrationInfo,
+        trainingSpecialization: [...registrationInfo.trainingSpecialization],
+      });
+    }
+
+    if (section === "professional") {
+      setProfessionalDraft({
+        ...professionalInfo,
+        specialization: [...professionalInfo.specialization],
+        focusArea: [...professionalInfo.focusArea],
+        expertise: [...professionalInfo.expertise],
+        trainingTopics: [...professionalInfo.trainingTopics],
+        targetGroups: [...professionalInfo.targetGroups],
+        trainingMethod: [...professionalInfo.trainingMethod],
+        trainingLanguages: [...professionalInfo.trainingLanguages],
+      });
+    }
+
+    if (section === "skills") {
+      setSkillsDraft({
+        ...skillsInfo,
+        keySkills: [...skillsInfo.keySkills],
+        certifications: [...skillsInfo.certifications],
+        developmentAreas: [...skillsInfo.developmentAreas],
+        areasOfInterest: [...skillsInfo.areasOfInterest],
+      });
+    }
+
+    if (section === "documents") {
+      documentFilesBeforeEditRef.current = { ...documentFiles };
+      governmentIdDocumentTypeBeforeEditRef.current =
+        governmentIdDocumentType;
+      setDocumentUploadErrors({});
+    }
+
+    setEditingSection(section);
+  };
+
+  const isValidPhoneNumber = (value: string) =>
+    /^[6-9]\d{9}$/.test(value);
+
+  const isValidEmail = (value: string) =>
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value);
+
+  const showSectionError = (section: SectionName, message: string) => {
+    setSectionPopup({ section, type: "error", message });
+
+    window.setTimeout(() => {
+      setSectionPopup((current) =>
+        current?.section === section && current.type === "error"
+          ? null
+          : current
+      );
+    }, 2500);
+  };
+
+  const clearSectionError = (section: SectionName, message?: string) => {
+    setSectionPopup((current) => {
+      if (
+        current?.section !== section ||
+        current.type !== "error" ||
+        (message && current.message !== message)
+      ) {
+        return current;
+      }
+
+      return null;
+    });
+  };
+
+  const showLiveSectionError = (section: SectionName, message: string) => {
+    setSectionPopup({
+      section,
+      type: "error",
+      message,
+    });
+  };
+
+  /* Automatically keep the saved/display values in sync and only show
+     the top completion check when the whole step is valid. */
+  useEffect(() => {
+    const email = registrationDraft.email.trim();
+    const alternateEmail = registrationDraft.alternateEmail.trim();
+
+    setRegistrationInfo({
+      ...registrationDraft,
+      email,
+      alternateEmail,
+      trainingSpecialization: [...registrationDraft.trainingSpecialization],
+    });
+
+    const registrationFormComplete = Boolean(
+      isValidEmail(email) &&
+      isValidPhoneNumber(registrationDraft.mobileNumber) &&
+      (!alternateEmail || isValidEmail(alternateEmail)) &&
+      (!registrationDraft.alternatePhone ||
+        isValidPhoneNumber(registrationDraft.alternatePhone)) &&
+      registrationDraft.gender &&
+      registrationDraft.designation &&
+      registrationDraft.ministryName &&
+      registrationDraft.department &&
+      registrationDraft.trainingSpecialization.length > 0 &&
+      registrationDraft.qualification &&
+      registrationDraft.totalExperience &&
+      registrationDraft.trainingCenterName &&
+      registrationDraft.employmentStatus
+    );
+
+    setRegistrationCompleted(
+      Boolean(profilePhotoCompleted && registrationFormComplete)
+    );
+  }, [registrationDraft, profilePhotoCompleted]);
+
+  useEffect(() => {
+    setProfessionalInfo({
+      ...professionalDraft,
+      specialization: [...professionalDraft.specialization],
+      focusArea: [...professionalDraft.focusArea],
+      expertise: [...professionalDraft.expertise],
+      trainingTopics: [...professionalDraft.trainingTopics],
+      targetGroups: [...professionalDraft.targetGroups],
+      trainingMethod: [...professionalDraft.trainingMethod],
+      trainingLanguages: [...professionalDraft.trainingLanguages],
+    });
+
+    const professionalComplete = Boolean(
+      professionalDraft.trainerType &&
+      professionalDraft.socialSectorExperience &&
+      professionalDraft.trainingExperience &&
+      professionalDraft.specialization.length > 0 &&
+      professionalDraft.focusArea.length > 0 &&
+      professionalDraft.expertise.length > 0 &&
+      professionalDraft.trainingTopics.length > 0 &&
+      professionalDraft.targetGroups.length > 0 &&
+      professionalDraft.trainingMethod.length > 0 &&
+      professionalDraft.communityTraining &&
+      professionalDraft.mentoring &&
+      professionalDraft.contentDevelopment &&
+      professionalDraft.assessment &&
+      professionalDraft.trainingLanguages.length > 0
+    );
+
+    setProfessionalProfileCompleted(
+      Boolean(registrationCompleted && professionalComplete)
+    );
+  }, [professionalDraft, registrationCompleted]);
+
+  useEffect(() => {
+    setSkillsInfo({
+      ...skillsDraft,
+      keySkills: [...skillsDraft.keySkills],
+      certifications: [...skillsDraft.certifications],
+      developmentAreas: [...skillsDraft.developmentAreas],
+      areasOfInterest: [...skillsDraft.areasOfInterest],
+    });
+
+    const skillsComplete = Boolean(
+      skillsDraft.keySkills.length > 0 &&
+      skillsDraft.skillLevel &&
+      skillsDraft.certifications.length > 0 &&
+      skillsDraft.developmentAreas.length > 0 &&
+      skillsDraft.areasOfInterest.length > 0 &&
+      skillsDraft.careerAspirations
+    );
+
+    setSkillsDevelopmentCompleted(
+      Boolean(professionalProfileCompleted && skillsComplete)
+    );
+  }, [skillsDraft, professionalProfileCompleted]);
+
+  useEffect(() => {
+    const documentsComplete = Boolean(
+      governmentIdDocumentType.trim() &&
+      documentFiles["Government ID Proof"] &&
+      !Object.values(documentUploadErrors).some((message) => Boolean(message))
+    );
+
+    setDocumentsCompleted(
+      Boolean(skillsDevelopmentCompleted && documentsComplete)
+    );
+  }, [
+    governmentIdDocumentType,
+    documentFiles,
+    documentUploadErrors,
+    skillsDevelopmentCompleted,
+  ]);
+
+  useEffect(() => {
+    if (!documentsCompleted && confirmation) {
+      setConfirmation(false);
+    }
+  }, [documentsCompleted, confirmation]);
+
+  const saveProfile = () => {
+    if (profilePhotoCompleted) {
+      const contactError =
+        !isValidEmail(registrationDraft.email.trim())
+          ? "Enter correct Email"
+          : registrationDraft.alternateEmail.trim() && !isValidEmail(registrationDraft.alternateEmail.trim())
+            ? "Enter correct Alternate Email"
+            : !isValidPhoneNumber(registrationDraft.mobileNumber)
+              ? "Enter correct Mobile Number"
+              : registrationDraft.alternatePhone && !isValidPhoneNumber(registrationDraft.alternatePhone)
+                ? "Enter correct Alternate Phone Number"
+                : null;
+      if (contactError) {
+        showFlowPopup(contactError, "registration");
+        return;
+      }
+    }
+    const nextIncompleteStep =
+      !profilePhotoCompleted
+        ? "Profile Photo"
+        : !registrationCompleted
+          ? "Registration Data"
+          : !professionalProfileCompleted
+            ? "Trainer Profile"
+            : !skillsDevelopmentCompleted
+              ? "Skills & Growth"
+              : !documentsCompleted
+                ? "Documents"
+                : !confirmation
+                  ? "Confirmation"
+                  : null;
+
+    if (nextIncompleteStep) {
+      const targetSection =
+        nextIncompleteStep === "Profile Photo"
+          ? "profile"
+          : nextIncompleteStep === "Registration Data"
+            ? "registration"
+            : nextIncompleteStep === "Trainer Profile"
+              ? "professional"
+              : nextIncompleteStep === "Skills & Growth"
+                ? "skills"
+                : nextIncompleteStep === "Documents"
+                  ? "documents"
+                  : "confirmation";
+
+      showFlowPopup(
+        `Please complete ${nextIncompleteStep} before saving the profile.`,
+        targetSection
+      );
+      return;
+    }
+
+    setRegistrationInfo({
+      ...registrationDraft,
+      email: registrationDraft.email.trim(),
+      alternateEmail: registrationDraft.alternateEmail.trim(),
+      trainingSpecialization: [...registrationDraft.trainingSpecialization],
+    });
+
+    setProfessionalInfo({
+      ...professionalDraft,
+      specialization: [...professionalDraft.specialization],
+      focusArea: [...professionalDraft.focusArea],
+      expertise: [...professionalDraft.expertise],
+      trainingTopics: [...professionalDraft.trainingTopics],
+      targetGroups: [...professionalDraft.targetGroups],
+      trainingMethod: [...professionalDraft.trainingMethod],
+      trainingLanguages: [...professionalDraft.trainingLanguages],
+    });
+
+    setSkillsInfo({
+      ...skillsDraft,
+      keySkills: [...skillsDraft.keySkills],
+      certifications: [...skillsDraft.certifications],
+      developmentAreas: [...skillsDraft.developmentAreas],
+      areasOfInterest: [...skillsDraft.areasOfInterest],
+    });
+
+    setEditingSection(null);
+    setShowDraftSaved(true);
+    setDraftSavedTime(
+      new Date()
+        .toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace(" ", "")
+    );
+
+    window.location.assign("/sign_in");
+  };
+
+  const cancelProfile = () => {
+    const initialRegistration = {
+      trainerId: "TRN-00125",
+      employeeCode: "EMP1234",
+      fullName: "Antony Thomas",
+      email: "",
+      mobileNumber: "",
+      alternateEmail: "",
+      alternatePhone: "",
+      gender: "",
+      designation: "",
+      ministryName: "",
+      department: "",
+      dateOfJoining: "17-05-2004",
+      trainingSpecialization: [] as string[],
+      qualification: "",
+      totalExperience: "",
+      trainingCenterName: "",
+      employmentStatus: "Active",
+    };
+
+    const initialProfessional = {
+      trainerType: "",
+      socialSectorExperience: "",
+      trainingExperience: "",
+      specialization: [] as string[],
+      focusArea: [] as string[],
+      expertise: [] as string[],
+      trainingTopics: [] as string[],
+      targetGroups: [] as string[],
+      trainingMethod: [] as string[],
+      communityTraining: "",
+      mentoring: "",
+      contentDevelopment: "",
+      assessment: "",
+      trainingLanguages: [] as string[],
+    };
+
+    const initialSkills = {
+      keySkills: [] as string[],
+      skillLevel: "",
+      certifications: [] as string[],
+      developmentAreas: [] as string[],
+      areasOfInterest: [] as string[],
+      careerAspirations: "",
+    };
+
+    setProfileImage(null);
+    setProfilePhotoCompleted(false);
+
+    setRegistrationInfo(initialRegistration);
+    setRegistrationDraft(initialRegistration);
+
+    setProfessionalInfo(initialProfessional);
+    setProfessionalDraft(initialProfessional);
+
+    setSkillsInfo(initialSkills);
+    setSkillsDraft(initialSkills);
+
+    setGovernmentIdDocumentType("");
+    setDocumentFiles({
+      "Profile Photo": null,
+      "Government ID Proof": null,
+      "Supporting Documents": null,
+    });
+    setDocumentUploadErrors({});
+
+    documentFilesBeforeEditRef.current = null;
+    governmentIdDocumentTypeBeforeEditRef.current = null;
+
+    setRegistrationCompleted(false);
+    setProfessionalProfileCompleted(false);
+    setSkillsDevelopmentCompleted(false);
+    setDocumentsCompleted(false);
+    setConfirmation(false);
+
+    setEditingSection(null);
+    setSectionPopup(null);
+    setFlowPopup(null);
+    setFlowPopupSection(null);
+    setShowDraftSaved(false);
+
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+
+    document
+      .querySelectorAll<HTMLInputElement>(".institutionNativeFileInput")
+      .forEach((input) => {
+        input.value = "";
+      });
+
+    try {
+      localStorage.removeItem("facultyGovernmentProfileImage");
+      window.dispatchEvent(new Event("profileImageUpdated"));
+    } catch {
+      // Keep the form reset even if browser storage is unavailable.
+    }
+  };
+
+  const handleProfileImageSelect = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (!file || !file.type.startsWith("image/")) {
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setProfileImage(reader.result);
+        setProfilePhotoCompleted(true);
+      }
+    };
+
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
+  const handleDocumentFileSelect = (
+    label: "Profile Photo" | "Government ID Proof" | "Supporting Documents",
+    file: File | null
+  ) => {
+    if (!file) return;
+
+    if (!isAcceptedDocumentFile(label, file)) {
+      const message = `Unsupported file type. ${DOCUMENT_UPLOAD_LIMITS[label].label}`;
+
+      setDocumentUploadErrors((current) => ({
+        ...current,
+        [label]: message,
+      }));
+
+      showSectionError("documents", message);
+      return;
+    }
+
+    const recommendedSize = getDocumentRecommendedSize(file);
+
+    if (recommendedSize === null) {
+      const message = "Unsupported file type.";
+
+      setDocumentUploadErrors((current) => ({
+        ...current,
+        [label]: message,
+      }));
+
+      showSectionError("documents", message);
+      return;
+    }
+
+    if (
+      file.size < recommendedSize.min ||
+      file.size > recommendedSize.max
+    ) {
+      const message = `Recommended file size is ${recommendedSize.label}.`;
+
+      setDocumentUploadErrors((current) => ({
+        ...current,
+        [label]: message,
+      }));
+
+      showSectionError("documents", message);
+      return;
+    }
+
+    setDocumentFiles((current) => ({
+      ...current,
+      [label]: file,
+    }));
+
+    setDocumentUploadErrors((current) => ({
+      ...current,
+      [label]: "",
+    }));
+  };
+
+  useEffect(() => {
+    let popupTimer: number | undefined;
+
+    const autoSaveDraft = () => {
+      const currentSection = editingSectionRef.current;
+      if (!currentSection) {
+        return;
+      }
+
+      const formattedTime = new Date()
+        .toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace(" ", "");
+
+      setDraftSavedTime(formattedTime);
+
+      setShowDraftSaved(false);
+
+      window.requestAnimationFrame(() => {
+        setShowDraftSaved(true);
+      });
+
+      if (popupTimer) {
+        window.clearTimeout(popupTimer);
+      }
+
+      popupTimer = window.setTimeout(() => {
+        setShowDraftSaved(false);
+      }, 3000);
+    };
+
+    const timer = window.setInterval(autoSaveDraft, 10000);
+
+    return () => {
+      window.clearInterval(timer);
+
+      if (popupTimer) {
+        window.clearTimeout(popupTimer);
+      }
+    };
+  }, []);
+
+  const completionItems = [
+    profilePhotoCompleted,
+    registrationCompleted,
+    professionalProfileCompleted,
+    skillsDevelopmentCompleted,
+    documentsCompleted,
+    confirmation,
+  ];
+
+  const completedItemCount = completionItems.filter(Boolean).length;
+
+  const completionPercentage = Math.round(
+    (completedItemCount / completionItems.length) * 100
+  );
+
+  useEffect(() => {
+    document.title = "Government Faculty Profile | Neuro LXP";
+  }, []);
+
+  return (
+    <main className="superAdminPage institutionAdminPage">
+      <div className="dashboardLayout">
+        <Sidebar />
+
+        <section className="mainContent">
+          <Header />
+
+          <div className="institutionScrollArea">
+            <div className="pageContent institutionPageContent">
+            <div className="institutionHeadingRow">
+              <div>
+                <h1>Government Faculty Profile</h1>
+                <p>
+                  Manage Your Identity, Access, Preferences, And Activity With Ease.
+                </p>
+              </div>
+
+              {showDraftSaved && (
+                <div className="savedBadge" role="status" aria-live="polite">
+                  <IconImage
+                    src={images.completed}
+                    width={16}
+                    height={16}
+                  />
+                  <span>Draft Saved at {draftSavedTime}</span>
+                </div>
+              )}
+            </div>
+
+            <section className="institutionOverviewCard">
+              <div className="institutionIdentity">
+                <div className="institutionAvatarWrap">
+                  <div className="institutionAvatar">
+                    <div className="institutionAvatarInner">
+                      {profileImage ? (
+                        <Image
+                          src={profileImage}
+                          alt="Antony Thomas"
+                          fill
+                          sizes="88px"
+                          className="institutionAvatarImage"
+                          unoptimized={profileImage.startsWith("data:")}
+                        />
+                      ) : (
+                        <div className="institutionAvatarEmpty" />
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="institutionCameraButton"
+                    aria-label="Change profile image"
+                    onClick={() => profileImageInputRef.current?.click()}
+                  >
+                    <IconImage src={images.camera} width={22} height={22} />
+                  </button>
+
+                  <input
+                    ref={profileImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="institutionProfileImageInput"
+                    onChange={handleProfileImageSelect}
+                  />
+                </div>
+
+                <div className="institutionIdentityText">
+                  <h2>Antony Thomas</h2>
+                  <div className="institutionRole">Government Faculty</div>
+
+                  <div className="institutionActiveBadge">
+                    <span className="institutionActiveDot" />
+                    <span>Active</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="institutionDivider" />
+
+              <div className="institutionCompletion">
+                <div className="institutionCompletionHeader">
+                  <h3>Profile Completion</h3>
+                  <span
+                    className={
+                      completionPercentage === 100
+                        ? "institutionCompletionComplete"
+                        : ""
+                    }
+                  >
+                    {completionPercentage}% Completed
+                  </span>
+                </div>
+
+                <div className="institutionProgressTrack">
+                  <div
+                    className={`institutionProgressBar ${
+                      completionPercentage === 100
+                        ? "institutionProgressBarComplete"
+                        : ""
+                    }`}
+                    style={{ width: `${completionPercentage}%` }}
+                  />
+                </div>
+
+                <div className="institutionCompletionSteps">
+                  <div className="institutionCompletionStep">
+                    {profilePhotoCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Profile Photo</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {professionalProfileCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Trainer Profile</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {documentsCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Documents</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {registrationCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Registration Data</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {skillsDevelopmentCompleted ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Skills and Growth</span>
+                  </div>
+
+                  <div className="institutionCompletionStep">
+                    {confirmation ? (
+                      <span className="institutionCompletedCircle institutionProfileStepCheck">
+                        <span className="institutionProfileStepCheckMark" />
+                      </span>
+                    ) : (
+                      <span className="institutionEmptyCircle" />
+                    )}
+                    <span>Confirmation</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {flowPopup && flowPopupSection === "profile" && (
+              <div
+                className="institutionSectionFlowPopup"
+                role="alert"
+                aria-live="assertive"
+              >
+                <IconImage
+                  src={images.sad}
+                  width={18}
+                  height={18}
+                  className="institutionInlinePopupIcon"
+                />
+                <span>{flowPopup}</span>
+              </div>
+            )}
+
+            <section className="institutionInformationCard">
+              <SectionHeader
+                title="Registration Data"
+                iconSrc={images.registration}
+                iconTone="pink"
+                editing={editingSection === "registration"}
+                popupType={
+                  sectionPopup?.section === "registration"
+                    ? sectionPopup.type
+                    : null
+                }
+                popupMessage={
+                  sectionPopup?.section === "registration"
+                    ? sectionPopup.message
+                    : undefined
+                }
+                onEdit={() => startSectionEdit("registration")}
+              />
+
+              {flowPopup && flowPopupSection === "registration" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              {editingSection === "registration" ? (
+                <div className="institutionGrid institutionFacultyRegistrationGrid">
+                  <EditField
+                    label="Trainer ID"
+                    value={registrationDraft.trainerId}
+                    locked
+                  />
+                  <EditField
+                    label="Employee Code"
+                    value={registrationDraft.employeeCode}
+                    locked
+                  />
+                  <EditField
+                    label="Full Name"
+                    value={registrationDraft.fullName}
+                    locked
+                  />
+
+                  <EditField
+                    label="Email"
+                    type="email"
+                    value={registrationDraft.email}
+                    placeholder="Enter Email"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      setRegistrationDraft((current) => ({ ...current, email: value }));
+                      clearSectionError("registration", "Enter correct Email");
+                    }}
+                    onBlur={(value) => {
+                      if (!isValidEmail(value.trim())) {
+                        showLiveSectionError("registration", "Enter correct Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Email");
+                      }
+                    }}
+                  />
+
+                  <EditField
+                    label="Alternate Email"
+                    type="email"
+                    value={registrationDraft.alternateEmail}
+                    placeholder="Enter Alternate Email"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      setRegistrationDraft((current) => ({ ...current, alternateEmail: value }));
+                      clearSectionError("registration", "Enter correct Alternate Email");
+                    }}
+                    onBlur={(value) => {
+                      if (value.trim() && !isValidEmail(value.trim())) {
+                        showLiveSectionError("registration", "Enter correct Alternate Email");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Email");
+                      }
+                    }}
+                  />
+
+                  <EditField
+                    label="Mobile Number"
+                    type="tel"
+                    value={registrationDraft.mobileNumber}
+                    placeholder="Enter Mobile Number"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
+                      setRegistrationDraft((current) => ({ ...current, mobileNumber: value }));
+                      clearSectionError("registration", "Enter correct Mobile Number");
+                    }}
+                    onBlur={(value) => {
+                      if (!isValidPhoneNumber(value)) {
+                        showLiveSectionError("registration", "Enter correct Mobile Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Mobile Number");
+                      }
+                    }}
+                  />
+
+                  <EditField
+                    label="Alternate Phone"
+                    type="tel"
+                    value={registrationDraft.alternatePhone}
+                    placeholder="Enter Alternate Phone"
+                    visualIcon="edit"
+                    onChange={(value) => {
+                      if (!/^\d*$/.test(value) || value.length > 10) return;
+                      setRegistrationDraft((current) => ({ ...current, alternatePhone: value }));
+                      clearSectionError("registration", "Enter correct Alternate Phone Number");
+                    }}
+                    onBlur={(value) => {
+                      if (value && !isValidPhoneNumber(value)) {
+                        showLiveSectionError("registration", "Enter correct Alternate Phone Number");
+                      } else {
+                        clearSectionError("registration", "Enter correct Alternate Phone Number");
+                      }
+                    }}
+                  />
+
+                  <SelectField
+                    label="Gender"
+                    value={registrationDraft.gender}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Male", "Female", "Other", "Prefer not to say"]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        gender: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Designation"
+                    value={registrationDraft.designation}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Senior Training Officer",
+                      "Training Officer",
+                      "Senior Trainer",
+                      "Master Trainer",
+                      "Training Coordinator",
+                      "Program Officer",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        designation: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Ministry Name"
+                    value={registrationDraft.ministryName}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Ministry of Skill Development & Entrepreneurship",
+                      "Ministry of Education",
+                      "Ministry of Labour & Employment",
+                      "Ministry of Rural Development",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        ministryName: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Department"
+                    value={registrationDraft.department}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Corporate Training",
+                      "Skill Development",
+                      "Training Operations",
+                      "Program Management",
+                      "Administration",
+                      "Assessment & Certification",
+                      "Monitoring & Evaluation",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        department: value,
+                      }))
+                    }
+                  />
+
+                  <EditField
+                    label="Date of Joining"
+                    value={registrationDraft.dateOfJoining}
+                    locked
+                  />
+
+                  <MultiSelectField
+                    label="Training Specialization"
+                    value={registrationDraft.trainingSpecialization}
+                    placeholder="Select"
+                    options={[
+                      "Artificial Intelligence",
+                      "Data Science",
+                      "Digital Skills",
+                      "IT Skills",
+                      "Entrepreneurship",
+                      "Employability Skills",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        trainingSpecialization: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Qualification"
+                    value={registrationDraft.qualification}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Ph.D.",
+                      "M.Phil.",
+                      "Master's Degree",
+                      "Bachelor's Degree",
+                      "Diploma",
+                      "PG Diploma",
+                      "Professional Certification",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        qualification: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Total Experience"
+                    value={registrationDraft.totalExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "0–2 years",
+                      "3–5 years",
+                      "6–10 years",
+                      "11–15 years",
+                      "16–20 years",
+                      "20+ years",
+                    ]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        totalExperience: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Training Center Name"
+                    value={registrationDraft.trainingCenterName}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={["Registered Training Center list"]}
+                    onChange={(value) =>
+                      setRegistrationDraft((current) => ({
+                        ...current,
+                        trainingCenterName: value,
+                      }))
+                    }
+                  />
+
+                  <EditField
+                    label="Employment Status"
+                    value="Active"
+                    locked
+                  />
+                </div>
+              ) : (
+                <div className="institutionGrid institutionFacultyRegistrationGrid">
+                  <DisplayField
+                    label="Trainer ID"
+                    value={registrationInfo.trainerId}
+                  />
+                  <DisplayField
+                    label="Employee Code"
+                    value={registrationInfo.employeeCode}
+                  />
+                  <DisplayField
+                    label="Full Name"
+                    value={registrationInfo.fullName}
+                  />
+
+                  <DisplayField
+                    label="Email"
+                    value={registrationInfo.email}
+                    placeholder="Enter Email"
+                  />
+                  <DisplayField
+                    label="Alternate Email"
+                    value={registrationInfo.alternateEmail}
+                    placeholder="Enter Alternate Email"
+                  />
+                  <DisplayField
+                    label="Mobile Number"
+                    value={registrationInfo.mobileNumber}
+                    placeholder="Enter Mobile Number"
+                  />
+
+                  <DisplayField
+                    label="Alternate Phone"
+                    value={registrationInfo.alternatePhone}
+                    placeholder="Enter Alternate Phone"
+                  />
+                  <DisplayField
+                    label="Gender"
+                    value={registrationInfo.gender}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Designation"
+                    value={registrationInfo.designation}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Ministry Name"
+                    value={registrationInfo.ministryName}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Department"
+                    value={registrationInfo.department}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Date of Joining"
+                    value={registrationInfo.dateOfJoining}
+                  />
+
+                  <DisplayField
+                    label="Training Specialization"
+                    className="institutionMultiSelectDisplayField"
+                    value={registrationInfo.trainingSpecialization.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Qualification"
+                    value={registrationInfo.qualification}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Total Experience"
+                    value={registrationInfo.totalExperience}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Training Center Name"
+                    value={registrationInfo.trainingCenterName}
+                    placeholder="Select"
+                  />
+                  <EditField
+                    label="Employment Status"
+                    value="Active"
+                    locked
+                  />
+                </div>
+              )}
+            </section>
+
+            <section className="institutionInformationCard">
+              <SectionHeader
+                title="Trainer Profile"
+                iconSrc={images.academicProfessional}
+                iconTone="green"
+                editing={editingSection === "professional"}
+                popupType={
+                  sectionPopup?.section === "professional"
+                    ? sectionPopup.type
+                    : null
+                }
+                popupMessage={
+                  sectionPopup?.section === "professional"
+                    ? sectionPopup.message
+                    : undefined
+                }
+                onEdit={() => startSectionEdit("professional")}
+              />
+
+              {flowPopup && flowPopupSection === "professional" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              {editingSection === "professional" ? (
+                <div className="institutionGrid institutionFacultyProfessionalGrid">
+
+                  <SelectField
+                    label="Trainer Type"
+                    value={professionalDraft.trainerType}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Community Trainer",
+                      "Technical Trainer",
+                      "Domain Trainer",
+                      "Master Trainer",
+                      "Lead Trainer",
+                      "Industry Trainer",
+                      "Visiting Trainer",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainerType: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Social Sector Experience"
+                    value={professionalDraft.socialSectorExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "No Experience",
+                      "Less than 1 year",
+                      "1–3 years",
+                      "3–5 years",
+                      "5–10 years",
+                      "10+ years",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        socialSectorExperience: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Training Experience"
+                    value={professionalDraft.trainingExperience}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "0–1 year",
+                      "2–3 years",
+                      "4–5 years",
+                      "6–10 years",
+                      "10+ years",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingExperience: value,
+                      }))
+                    }
+                  />
+
+
+                  <MultiSelectField
+                    label="Specialization"
+                    value={professionalDraft.specialization}
+                    placeholder="Select"
+                    options={[
+                      "Artificial Intelligence",
+                      "Digital Skills",
+                      "Data Analytics",
+                      "Entrepreneurship",
+                      "Employability",
+                      "Financial Literacy",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        specialization: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Focus Area"
+                    value={professionalDraft.focusArea}
+                    placeholder="Select"
+                    options={[
+                      "Digital Literacy",
+                      "Youth Development",
+                      "Women Empowerment",
+                      "Employability",
+                      "Entrepreneurship",
+                      "Livelihood",
+                      "Rural Development",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        focusArea: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Expertise"
+                    value={professionalDraft.expertise}
+                    placeholder="Select"
+                    options={[
+                      "AI",
+                      "Digital Skills",
+                      "Training Delivery",
+                      "Community Mobilization",
+                      "Mentoring",
+                      "Curriculum Development",
+                      "Assessment",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        expertise: value,
+                      }))
+                    }
+                  />
+
+
+                  <MultiSelectField
+                    label="Training Topics"
+                    value={professionalDraft.trainingTopics}
+                    placeholder="Select"
+                    options={[
+                      "AI Basics",
+                      "Digital Literacy",
+                      "Python",
+                      "Data Analytics",
+                      "Communication Skills",
+                      "Entrepreneurship",
+                      "Workplace Skills",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingTopics: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Target Groups"
+                    value={professionalDraft.targetGroups}
+                    placeholder="Select"
+                    options={[
+                      "Youth",
+                      "Women",
+                      "Students",
+                      "Job Seekers",
+                      "Rural Communities",
+                      "Persons with Disabilities",
+                      "Entrepreneurs",
+                      "Trainers",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        targetGroups: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Training Method"
+                    value={professionalDraft.trainingMethod}
+                    placeholder="Select"
+                    options={[
+                      "Classroom",
+                      "Online",
+                      "Hybrid",
+                      "Blended",
+                      "Workshop",
+                      "Bootcamp",
+                      "Hands-on",
+                      "Field Training",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingMethod: value,
+                      }))
+                    }
+                  />
+
+
+                  <SelectField
+                    label="Community Training"
+                    value={professionalDraft.communityTraining}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        communityTraining: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Mentoring"
+                    value={professionalDraft.mentoring}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        mentoring: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Content Development"
+                    value={professionalDraft.contentDevelopment}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        contentDevelopment: value,
+                      }))
+                    }
+                  />
+
+
+                  <SelectField
+                    label="Assessment"
+                    value={professionalDraft.assessment}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Yes",
+                      "No",
+                      "Occasionally",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        assessment: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Training Languages"
+                    value={professionalDraft.trainingLanguages}
+                    placeholder="Select"
+                    options={[
+                      "English",
+                      "Hindi",
+                      "Kannada",
+                      "Tamil",
+                      "Telugu",
+                      "Malayalam",
+                      "Marathi",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setProfessionalDraft((current) => ({
+                        ...current,
+                        trainingLanguages: value,
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="institutionGrid institutionFacultyProfessionalGrid">
+                  <DisplayField
+                    label="Trainer Type"
+                    value={professionalInfo.trainerType}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Social Sector Experience"
+                    value={professionalInfo.socialSectorExperience}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Experience"
+                    value={professionalInfo.trainingExperience}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Specialization"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.specialization.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Focus Area"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.focusArea.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Expertise"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.expertise.join(", ")}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Training Topics"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.trainingTopics.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Target Groups"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.targetGroups.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Method"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.trainingMethod.join(", ")}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Community Training"
+                    value={professionalInfo.communityTraining}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Mentoring"
+                    value={professionalInfo.mentoring}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Content Development"
+                    value={professionalInfo.contentDevelopment}
+                    placeholder="Select"
+                  />
+
+                  <DisplayField
+                    label="Assessment"
+                    value={professionalInfo.assessment}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Training Languages"
+                    className="institutionMultiSelectDisplayField"
+                    value={professionalInfo.trainingLanguages.join(", ")}
+                    placeholder="Select"
+                  />
+                </div>
+              )}
+            </section>
+
+            <section className="institutionInformationCard">
+              <SectionHeader
+                title="Skills & Growth"
+                iconSrc={images.skillsDevelopment}
+                iconTone="blue"
+                editing={editingSection === "skills"}
+                popupType={
+                  sectionPopup?.section === "skills"
+                    ? sectionPopup.type
+                    : null
+                }
+                popupMessage={
+                  sectionPopup?.section === "skills"
+                    ? sectionPopup.message
+                    : undefined
+                }
+                onEdit={() => startSectionEdit("skills")}
+              />
+
+              {flowPopup && flowPopupSection === "skills" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              {editingSection === "skills" ? (
+                <div className="institutionGrid institutionFacultySkillsGrid">
+
+                  <MultiSelectField
+                    label="Key Skills"
+                    value={skillsDraft.keySkills}
+                    placeholder="Select"
+                    options={[
+                      "Teaching",
+                      "Communication",
+                      "Facilitation",
+                      "Presentation",
+                      "Community Mobilization",
+                      "Mentoring",
+                      "Leadership",
+                      "Problem Solving",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        keySkills: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Skill Level"
+                    value={skillsDraft.skillLevel}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Beginner",
+                      "Intermediate",
+                      "Advanced",
+                      "Expert",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        skillLevel: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Certifications"
+                    value={skillsDraft.certifications}
+                    placeholder="Select"
+                    options={[
+                      "Google ML Certificate",
+                      "AWS Certified",
+                      "Microsoft Certified",
+                      "TOT Certificate",
+                      "Digital Skills Certification",
+                      "PMP",
+                      "Other",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        certifications: value,
+                      }))
+                    }
+                  />
+
+
+                  <MultiSelectField
+                    label="Development Areas"
+                    value={skillsDraft.developmentAreas}
+                    placeholder="Select"
+                    options={[
+                      "Generative AI",
+                      "Data Analytics",
+                      "Leadership",
+                      "Digital Pedagogy",
+                      "Assessment",
+                      "Program Management",
+                      "Monitoring & Evaluation",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        developmentAreas: value,
+                      }))
+                    }
+                  />
+
+                  <MultiSelectField
+                    label="Areas of Interest"
+                    value={skillsDraft.areasOfInterest}
+                    placeholder="Select"
+                    options={[
+                      "Generative AI",
+                      "AI & ML",
+                      "Digital Skills",
+                      "Data Analytics",
+                      "EdTech",
+                      "Leadership",
+                      "Social Innovation",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        areasOfInterest: value,
+                      }))
+                    }
+                  />
+
+                  <SelectField
+                    label="Career Aspirations"
+                    value={skillsDraft.careerAspirations}
+                    placeholder="Select"
+                    menuStyle="radio"
+                    options={[
+                      "Senior Trainer",
+                      "Master Trainer",
+                      "Training Manager",
+                      "Program Manager",
+                      "Skill Development Manager",
+                      "Program Head",
+                      "Training Director",
+                      "Consultant",
+                    ]}
+                    onChange={(value) =>
+                      setSkillsDraft((current) => ({
+                        ...current,
+                        careerAspirations: value,
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="institutionGrid institutionFacultySkillsGrid">
+                  <DisplayField
+                    label="Key Skills"
+                    className="institutionMultiSelectDisplayField"
+                    value={skillsInfo.keySkills.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Skill Level"
+                    value={skillsInfo.skillLevel}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Certifications"
+                    className="institutionMultiSelectDisplayField"
+                    value={skillsInfo.certifications.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Development Areas"
+                    className="institutionMultiSelectDisplayField"
+                    value={skillsInfo.developmentAreas.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Areas of Interest"
+                    className="institutionMultiSelectDisplayField"
+                    value={skillsInfo.areasOfInterest.join(", ")}
+                    placeholder="Select"
+                  />
+                  <DisplayField
+                    label="Career Aspirations"
+                    value={skillsInfo.careerAspirations}
+                    placeholder="Select"
+                  />
+                </div>
+              )}
+            </section>
+
+            <section className="institutionInformationCard institutionDocumentsCard">
+              <SectionHeader
+                title="Documents"
+                iconSrc={images.documents}
+                iconTone="orange"
+                editing={editingSection === "documents"}
+                popupType={sectionPopup?.section === "documents" ? sectionPopup.type : null}
+                onEdit={() => startSectionEdit("documents")}
+              />
+              {flowPopup && flowPopupSection === "documents" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              <div className="institutionGrid institutionDocumentsGrid">
+                {["Profile Photo", "Government ID Proof", "Supporting Documents"].map(
+                  (label) => (
+                    <div
+                      className={`institutionField institutionUploadField ${
+                        label === "Government ID Proof"
+                          ? "institutionGovernmentIdField governmentIdProofField"
+                          : ""
+                      }`}
+                      key={label}
+                    >
+                      <div className="institutionFieldLabel">
+                        {label === "Government ID Proof"
+                          ? "Government ID Proof"
+                          : label}
+                      </div>
+                      {editingSection === "documents" ? (
+                        <div
+                          className={`institutionFilePicker ${
+                            label === "Government ID Proof"
+                              ? "institutionGovernmentIdPicker"
+                              : ""
+                          }`}
+                        >
+                          {label === "Government ID Proof" && (
+                            <GovernmentIdRaisedDropdown
+                              id="basic-government-id-document-type"
+                              value={governmentIdDocumentType}
+                              placeholder="Document Type"
+                              compact
+                              options={[
+                  "National ID",
+                  "Passport",
+                  "Driver’s License",
+                  "Residence Permit",
+                  "Permanent Resident Card",
+                  "Voter ID",
+                  "National Insurance ID",
+                  "Tax ID",
+                  "Military ID",
+                  "Government Employee ID",
+                  "Refugee / Asylum ID",
+                  "Visa / Immigration Document",
+                  "Birth Certificate",
+                  "Other Government ID",
+                ]}
+                              onChange={setGovernmentIdDocumentType}
+                            />
+                          )}
+
+                          <label className="institutionFilePickerControl">
+                            <input
+                              className="institutionNativeFileInput"
+                              type="file"
+                              name={label.toLowerCase().replace(/\s+/g, "-")}
+                              aria-label={label}
+                              accept={
+                                DOCUMENT_UPLOAD_LIMITS[
+                                  label as
+                                    | "Profile Photo"
+                                    | "Government ID Proof"
+                                    | "Supporting Documents"
+                                ].accept
+                              }
+                              onChange={(event) => {
+                                handleDocumentFileSelect(
+                                  label as
+                                    | "Profile Photo"
+                                    | "Government ID Proof"
+                                    | "Supporting Documents",
+                                  event.target.files?.[0] ?? null
+                                );
+                                event.target.value = "";
+                              }}
+                            />
+                            <span
+                              className={`institutionChooseFileButton ${
+                                documentFiles[label]
+                                  ? "institutionChooseFileButtonUploaded"
+                                  : ""
+                              }`}
+                            >
+                              <IconImage
+                                src={images.upload}
+                                width={14}
+                                height={14}
+                                className="institutionChooseFileIcon"
+                              />
+                              <span>Choose File</span>
+                            </span>
+                          </label>
+
+                          <span className="institutionFileName">
+                            {documentFiles[label]?.name || "No File Chosen"}
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          className={`institutionFilePreview ${
+                            label === "Government ID Proof"
+                              ? "institutionGovernmentIdPicker"
+                              : ""
+                          }`}
+                        >
+                          {label === "Government ID Proof" && (
+                            <div className="institutionDocumentTypeWrap">
+                              <div className="institutionDocumentTypeSelect institutionDocumentTypeSelectDisabled">
+                                <span>
+                                  {governmentIdDocumentType || "Document Type"}
+                                </span>
+                                <IconImage
+                                  src={images.arrowDown}
+                                  width={16}
+                                  height={16}
+                                  className="institutionDocumentTypeArrow"
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          <button
+                            type="button"
+                            className={`institutionChooseFileButton ${
+                              documentFiles[label]
+                                ? "institutionChooseFileButtonUploaded"
+                                : ""
+                            }`}
+                            aria-label={`Choose ${label}`}
+                          >
+                            <IconImage
+                              src={images.upload}
+                              width={14}
+                              height={14}
+                              className="institutionChooseFileIcon"
+                            />
+                            <span>Choose File</span>
+                          </button>
+                          <span className="institutionFileName">
+                            {documentFiles[label]?.name || "No File Chosen"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            </section>
+
+            <section className="institutionInformationCard institutionConfirmationCard">
+              <div className="institutionInformationTitle institutionConfirmationTitle">
+                <span className="institutionSectionIcon institutionPurpleIcon">
+                  <IconImage
+                    src={images.confirmation}
+                    width={15}
+                    height={15}
+                    className="institutionWhiteIcon"
+                  />
+                </span>
+                <h2>Confirmation</h2>
+              </div>
+
+              {flowPopup && flowPopupSection === "confirmation" && (
+                <div
+                  className="institutionSectionFlowPopup"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <IconImage
+                    src={images.sad}
+                    width={18}
+                    height={18}
+                    className="institutionInlinePopupIcon"
+                  />
+                  <span>{flowPopup}</span>
+                </div>
+              )}
+
+              <div className="institutionConfirmationInner">
+                <div className="institutionFieldLabel">
+                  Self Declaration Confirmation
+                </div>
+
+                <label
+                  htmlFor="institution-confirmation"
+                  className="institutionCheckRow"
+                >
+                  <input
+                    id="institution-confirmation"
+                    name="institutionConfirmation"
+                    type="checkbox"
+                    className="institutionConfirmationCheckbox"
+                    checked={confirmation}
+                    onChange={(event) => {
+                      if (event.target.checked && !profilePhotoCompleted) {
+                        showFlowPopup(
+                          "Please complete Profile Photo",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !registrationCompleted) {
+                        showFlowPopup(
+                          "Please complete Registration Data",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !professionalProfileCompleted) {
+                        showFlowPopup(
+                          "Please complete Trainer Profile",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !skillsDevelopmentCompleted) {
+                        showFlowPopup(
+                          "Please complete Skills & Growth",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      if (event.target.checked && !documentsCompleted) {
+                        showFlowPopup(
+                          "Please complete Documents",
+                          "confirmation"
+                        );
+                        return;
+                      }
+
+                      setConfirmation(event.target.checked);
+                    }}
+                  />
+
+                  <span
+                    className={`institutionConfirmationCheckBox ${
+                      confirmation
+                        ? "institutionConfirmationCheckBoxActive"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span className="institutionConfirmationCheckMark" />
+                  </span>
+
+                  <span>I confirm That the Entered Data is Accurate</span>
+                </label>
+              </div>
+            </section>
+
+            <div className="institutionBottomActions">
+              <button
+                type="button"
+                className="institutionBottomButton institutionProfileCancelButton"
+                onClick={cancelProfile}
+              >
+                <IconImage
+                  src={images.cancel}
+                  width={16}
+                  height={16}
+                  className="institutionProfileCancelIcon"
+                />
+                <span>Cancel</span>
+              </button>
+
+              <button
+                type="button"
+                className="institutionBottomButton institutionFinalSaveButton"
+                onClick={saveProfile}
+              >
+                Save Profile
+              </button>
+            </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
