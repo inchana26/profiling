@@ -576,88 +576,157 @@
 /* Cursor leaves: existing normal raised shadow automatically returns */
 
 
-/* Shared mobile dropdown. Used by Sidebar.tsx on every tenant/actor page. */
-@media (max-width: 700px) {
-  /* The mobile logo is a separate portal, so menu scrolling never moves it. */
-  body > .logoArea[data-mobile-sidebar-logo] {
-    position: fixed !important;
-    top: 12px !important;
-    left: 16px !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 135px !important;
-    height: 55px !important;
-    min-height: 55px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: flex-start;
-    pointer-events: none;
-    transform: none !important;
-    z-index: 2001;
-  }
-
-  body > .logoArea[data-mobile-sidebar-logo] .mainLogo {
-    width: 120px !important;
-    max-width: 120px !important;
-    height: auto !important;
-    object-fit: contain;
-    transform: none !important;
-  }
-
-  /* Hide the server-rendered sidebar until its mobile portal is ready. */
-  body .sidebar[data-shared-sidebar]:not([data-mobile-sidebar]) {
+/* =========================================================
+   SHARED MOBILE SIDEBAR — every actor and tenant
+   Rendered directly under <body> via React portal.
+   Existing desktop and tablet styling above is unchanged.
+========================================================= */
+@media (max-width: 767px) {
+  /* Prevent the normal grid sidebar from sitting on top of the page. */
+  .sidebar[data-shared-sidebar],
+  .superAdminPage.institutionAdminPage .dashboardLayout > .sidebar[data-shared-sidebar],
+  body .sidebar[data-shared-sidebar] {
     display: none !important;
   }
 
-  body > .sidebar[data-mobile-sidebar] {
+  /* Keep the original header/hamburger fully clickable. */
+  body > .mobileSidebarBackdrop {
     position: fixed !important;
     top: var(--mobile-sidebar-top, 80px) !important;
-    right: 10px !important;
-    bottom: auto !important;
-    left: auto !important;
-    width: 205px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    display: none !important;
+    background: transparent !important;
+    z-index: 2147483000 !important;
+  }
+  body.mobileSidebarOpen > .mobileSidebarBackdrop {
+    display: block !important;
+  }
+
+  /* The menu is outside all actor page layouts; no sideways stretching. */
+  body > .sidebar[data-mobile-sidebar] {
+    position: fixed !important;
+    inset: auto 12px auto auto !important;
+    top: var(--mobile-sidebar-top, 80px) !important;
+    display: none !important;
+    flex-direction: column !important;
+    width: min(270px, calc(100vw - 24px)) !important;
     min-width: 0 !important;
-    max-width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 24px) !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100vh - var(--mobile-sidebar-top, 80px) - 12px) !important;
     max-height: calc(100dvh - var(--mobile-sidebar-top, 80px) - 12px) !important;
-    flex: none !important;
     margin: 0 !important;
-    padding: 0 0 12px !important;
-    box-sizing: border-box;
-    display: none !important;
-    background: #DFE6E9 !important;
+    padding: 12px !important;
     border: 0 !important;
-    border-radius: 7px !important;
-    box-shadow: -8px -8px 16px #FFFFFF, 8px 8px 16px #C4C4C4 !important;
-    overflow-x: hidden !important;
+    border-radius: 12px !important;
+    background: #DFE6E9 !important;
+    box-shadow: -6px -6px 12px #FFFFFF, 6px 6px 12px #C4C4C4 !important;
     overflow-y: auto !important;
-    overscroll-behavior-y: contain;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     transform: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
     opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 2000 !important;
+    z-index: 2147483001 !important;
   }
 
   body.mobileSidebarOpen > .sidebar[data-mobile-sidebar] {
-    display: block !important;
+    display: flex !important;
+    visibility: visible !important;
     pointer-events: auto !important;
   }
 
-  body > .sidebar[data-mobile-sidebar] .sidebarNav {
-    position: static !important;
+  body.mobileSidebarOpen {
+    overflow: hidden !important;
+  }
+
+  /* The hamburger's exact screen position is measured in Sidebar.tsx.
+     The same top-right control becomes X while the menu is open. */
+  body > .mobileSidebarHeaderClose {
+    position: fixed !important;
     display: flex !important;
-    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    z-index: 2147483003 !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Raised, compact button inside the existing hamburger click area.
+     This leaves the original header control and its positioning unchanged. */
+  body > .mobileSidebarHeaderClose::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 38px;
+    height: 38px;
+    max-width: 100%;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    background: #DFE6E9;
+    box-shadow: -4px -4px 7px #FFFFFF, 4px 4px 7px #C4C4C4;
+    pointer-events: none;
+  }
+  body > .mobileSidebarHeaderClose:active::before {
+    box-shadow: inset -3px -3px 5px #FFFFFF, inset 3px 3px 5px #C4C4C4;
+  }
+  body > .mobileSidebarHeaderClose:focus-visible {
+    outline: 2px solid #2D4CC8 !important;
+    outline-offset: 2px;
+  }
+  body > .mobileSidebarHeaderClose .mobileSidebarHeaderCloseIcon {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+  }
+  body > .mobileSidebarHeaderClose .mobileSidebarHeaderCloseIcon::before,
+  body > .mobileSidebarHeaderClose .mobileSidebarHeaderCloseIcon::after {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 8px;
+    width: 16px;
+    height: 2px;
+    border-radius: 3px;
+    background: #374151;
+  }
+  body > .mobileSidebarHeaderClose .mobileSidebarHeaderCloseIcon::before {
+    transform: rotate(45deg);
+  }
+  body > .mobileSidebarHeaderClose .mobileSidebarHeaderCloseIcon::after {
+    transform: rotate(-45deg);
+  }
+
+  body > .sidebar[data-mobile-sidebar] .logoArea {
+    display: none !important;
+  }
+
+  body > .sidebar[data-mobile-sidebar] .sidebarNav {
     width: 100% !important;
     height: auto !important;
     max-height: none !important;
-    gap: 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    gap: 8px !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 2px 3px 7px !important;
     overflow: visible !important;
     transform: none !important;
   }
@@ -666,38 +735,95 @@
   body > .sidebar[data-mobile-sidebar] .logoutButton {
     position: static !important;
     width: 100% !important;
+    min-width: 0 !important;
     height: 42px !important;
     min-height: 42px !important;
-    flex: 0 0 42px !important;
     display: flex !important;
+    flex: 0 0 42px !important;
+    flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
     gap: 12px !important;
     margin: 0 !important;
-    padding: 0 14px !important;
-    box-sizing: border-box;
+    padding: 0 12px !important;
+    background: #DFE6E9 !important;
+    border-radius: 8px !important;
+    box-shadow: -3px -3px 6px #FFFFFF, 3px 3px 6px #C4C4C4 !important;
     transform: none !important;
+    text-decoration: none !important;
   }
-
-  body > .sidebar[data-mobile-sidebar] .sidebarItem {
-    border-radius: 0 !important;
+  body > .sidebar[data-mobile-sidebar] .sidebarItemActive {
+    box-shadow: inset -3px -3px 6px #FFFFFF, inset 3px 3px 6px #C4C4C4 !important;
   }
-
   body > .sidebar[data-mobile-sidebar] .sidebarItem span,
   body > .sidebar[data-mobile-sidebar] .logoutButton span {
     display: inline !important;
+    white-space: nowrap !important;
     font-size: 14px !important;
     font-weight: 500 !important;
-    white-space: nowrap;
   }
-
   body > .sidebar[data-mobile-sidebar] .sidebarBottom {
     position: static !important;
     display: block !important;
     width: 100% !important;
-    margin: 12px 0 0 !important;
-    padding: 0 24px !important;
-    box-sizing: border-box;
+    flex: 0 0 auto !important;
+    margin: 10px 0 0 !important;
+    padding: 0 3px 4px !important;
+  }
+}
+
+/* Mobile-only width correction. Keep the original desktop/tablet UI unchanged.
+   High specificity protects the portalled menu from actor/tenant layout rules. */
+@media (max-width: 767px) {
+  html body > aside.sidebar[data-mobile-sidebar] {
+    position: fixed !important;
+    inset: auto 0 auto auto !important;
+    top: var(--mobile-sidebar-top, 80px) !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: min(212px, calc(100vw - 20px)) !important;
+    min-width: 0 !important;
+    max-width: min(212px, calc(100vw - 20px)) !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    border-radius: 12px 0 0 12px !important;
     transform: none !important;
+  }
+
+  html body > aside.sidebar[data-mobile-sidebar] .sidebarNav {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 2px 2px 7px !important;
+  }
+
+  html body > aside.sidebar[data-mobile-sidebar] .sidebarItem,
+  html body > aside.sidebar[data-mobile-sidebar] .logoutButton {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 10px !important;
+    gap: 10px !important;
+  }
+
+  html body > aside.sidebar[data-mobile-sidebar] .sidebarBottom {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    padding: 0 2px 4px !important;
+  }
+}
+
+/* Mobile only: align dropdown directly to the visual bottom edge of the
+   header, removing the 12px clearance previously left beneath it.
+   No desktop/tablet, navigation, button, or width rules are changed. */
+@media (max-width: 767px) {
+  html body > aside.sidebar[data-mobile-sidebar] {
+    top: calc(var(--mobile-sidebar-top, 80px) - 12px) !important;
+    max-height: calc(100dvh - var(--mobile-sidebar-top, 80px)) !important;
+  }
+
+  body > .mobileSidebarBackdrop {
+    top: calc(var(--mobile-sidebar-top, 80px) - 12px) !important;
   }
 }
